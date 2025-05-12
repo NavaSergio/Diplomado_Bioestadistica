@@ -1,0 +1,175 @@
+---
+title: "Introducción al Análisis de Supervivencia"
+editor: visual
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    css: style.css
+    chalkboard: true
+    menu: TRUE
+    transition: slide
+    background-transition: fade
+    title-slide-attributes:
+      data-background-size: 100% 100%;     
+execute:
+  echo: false
+---
+
+# Análisis de Supervivencia
+
+## Introducción y Objetivos
+
+- **Relevancia de la confiabilidad** en contextos biomédicos, industriales y económicos
+- **Objetivos de la sesión** (2 horas):
+  - Comprender conceptos clave: tiempo de falla, funciones de supervivencia y riesgo
+  - Mecanismos de censura y truncamiento
+  - Modelos de supervivencia básicos y estimación en R
+  - Aplicaciones prácticas con ejemplos de datos reales
+
+## Agenda
+
+1. Definición y ejemplos de tiempos de falla (20 min)
+2. Función de supervivencia y función de riesgo (30 min)
+3. Censura y truncamiento (20 min)
+4. Estimación no paramétrica: Kaplan-Meier en R (30 min)
+5. Modelos paramétricos y discusión de sistemas reparables (20 min)
+
+## 1. Definiciones
+
+### Análisis de Supervivencia
+
+**Análisis de Supervivencia** : Es el análisis estadístico de datos de tiempo a la ocurrencia de un evento ( _time to event data_ ), o mejor dicho tiempo entre la ocurrencia de dos eventos, inicio y fin. 
+
+Por lo general estos tiempos se conocen como tiempos de vida, tiempos de supervivencia o tiempos de falla, dependiendo de la aplicación. Y generalmente se le denota como $T$
+
+**Aplicaciones** : 
+Las posibles aplicaciones del análisis de supervivencia son:
+
+- _Biomédicas_: tiempos de recuperación de un paciente, tiempos de vida
+de pacientes con cierta enfermedad, tiempo en que aparece un tumor,
+tiempo de recaída de una enfermedad, etc.
+- _Industriales_: duración de aparatos electrónicos hasta que presentan la
+primera falla, duración de un billete, etc.
+- _Financieros y económicos_: períodos de desempleo, pérdida económica
+entre dos eventos, etc.
+
+
+Independientemente de las unidades de medición del “tiempo” ( _discretas o continuas_ ). Los datos de tiempo a la ocurrencia de un evento son realización de de _variables aleatorias no negativas_. En este sentido el análisis de supervivencia se puede entender como el análisis de variables aleatorias no negativas.
+
+---
+
+
+
+Los tiempos de falla, o de vida, deben de estar determinados de manera precisa. Es decir, 
+necesitamos definir un evento de origen, una escala de medición y un evento de fin para cada 
+individuo. 
+
+El evento de origen no necesita ocurrir en el mismo tiempo calendario para todos los  individuos.
+
+Ejemplos:
+
+- **Ensayos clínicos**: El evento de origen puede ser la entrada del
+paciente al estudio y el evento de fin puede ser la recuperación o a
+muerte.
+- **Industriales**: El evento de origen puede ser el momento
+de creación del billete o el momento en el que sale a circulación, y el
+evento de fin puede ser el momento en el que llega al banco central
+como deteriorado, o el momento en el que se decide destruir.
+
+
+La escala de medición por lo general es el tiempo real, aunque también
+se puede considerar como el _tiempo de operación_ de un sistema, o el
+_kilometraje_ de un auto.
+
+---
+
+## Ejemplos de Datos de Supervivencia
+
+```{r}
+# Ejemplo simulado de tiempos de supervivencia
+set.seed(123)
+tiempos <- rexp(100, rate = 0.05)
+status <- rbinom(100, 1, prob = 0.8)
+library(survival)
+data_sim <- data.frame(time = tiempos, event = status)
+```
+
+
+
+::: {.smaller}
+```{r}
+# Mostrar los primeros 10 registros con fuente más pequeña
+knitr::kable(data_sim[1:8, ], caption = "Primeros 8 registros de data_sim")
+```
+:::
+
+
+## 2. Función de Supervivencia y Función de Riesgo
+
+- **Función de supervivencia**: $S(t) = P(T > t)$
+- **Función de densidad**: $f(t) = -dS(t)/dt$
+- **Función de riesgo**: $h(t) = f(t) / S(t)$
+
+## Visualización de Funciones en R
+
+```{r}
+# Estimación Kaplan-Meier
+km_fit <- survfit(Surv(time, event) ~ 1, data = data_sim)
+plot(km_fit, xlab = "Tiempo", ylab = "Supervivencia", main = "Curva Kaplan-Meier")
+```
+
+## 3. Censura y Truncamiento
+
+- Censura por la derecha, izquierda e intervalos
+- Truncamiento (izquierdo/ derecho)
+- Impacto en el análisis de supervivencia
+
+## Ejemplo de Censura por la Derecha
+
+```{r}
+# Introducir censura artificial
+cens <- ifelse(tiempos > 20, 0, status)
+data_cens <- data.frame(time = pmin(tiempos, 20), event = cens)
+km_fit2 <- survfit(Surv(time, event) ~ 1, data = data_cens)
+plot(km_fit2, xlab = "Tiempo", ylab = "Supervivencia", main = "Kaplan-Meier con Censura")
+```
+
+## 4. Modelos Paramétricos Básicos
+
+- Distribuciones exponencial, Weibull, log-logístico
+- Ajuste de modelos en R
+
+## Ajuste de Modelo Exponecial y Weibull
+
+```{r}
+# Modelo Exponencial
+exp_fit <- survreg(Surv(time, event) ~ 1, data = data_sim, dist = "exponential")
+# Modelo Weibull
+weib_fit <- survreg(Surv(time, event) ~ 1, data = data_sim, dist = "weibull")
+summary(exp_fit)
+summary(weib_fit)
+```
+
+## 5. Sistemas Reparables y Discusión
+
+- Distinción entre sistemas reparables y no reparables
+- Modelos de procesos de fallas (NHPP, HPP)
+- Aplicaciones en mantenimiento y confiabilidad industrial
+
+## Conclusiones y Material Adicional
+
+- Repaso de conceptos vistos
+- Lecturas recomendadas y recursos en línea
+- Próximos pasos: modelado avanzado y análisis multivariado

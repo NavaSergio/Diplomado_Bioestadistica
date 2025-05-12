@@ -1,0 +1,77 @@
+/*-- scss:defaults --*/
+
+// headings
+$presentation-heading-font: "Palatino Linotype", "Book Antiqua", Palatino,
+  FreeSerif, serif !default;
+$presentation-heading-color: #383d3d !default;
+$presentation-heading-size: 2.5em !default;
+$presentation-heading-line-height: 1.1 !default;
+$presentation-heading-margin-bottom: 1.5em !default;
+$presentation-heading-font-weight: bold !default;
+$presentation-heading-text-align: center !default;
+$presentation-heading-text-transform: uppercase !default;
+
+
+
+.custom-small table {
+  font-size: .6em
+}
+.custom-tiny table {
+  font-size: .5em
+}
+.slide-background-content{
+  background-image: url("/figs/DCCD.png");
+  background-size: 100% 100%;
+  background-position: left;
+}
+.reveal .slide-logo {
+  display: block;
+  position: fixed;
+  bottom: unset !important;
+  right: unset !important;
+  top: 5px;
+  left: 12px;
+  height: 100px !important;
+  width: 100x !important;
+  max-width: unset !important;
+  max-height: unset !important;
+}
+
+.bigger {
+  font-size: 1.25em; /* Ajusta el tamaño según lo necesario */
+}
+
+.table-caption {
+  text-align: center;
+}
+
+#tbl-mytable .table-caption {
+  text-align: center;
+}
+
+.figure-caption {
+  text-align: center;
+}
+
+table {
+  background-color: white;
+}
+
+.fixed-header-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.fixed-header-table th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
+}
+
+.fixed-header-table th, .fixed-header-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
