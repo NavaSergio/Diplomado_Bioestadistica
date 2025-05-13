@@ -31,69 +31,145 @@ execute:
 
 ## Introducción y Objetivos
 
-- **Relevancia de la confiabilidad** en contextos biomédicos, industriales y económicos
-- **Objetivos de la sesión** (2 horas):
-  - Comprender conceptos clave: tiempo de falla, funciones de supervivencia y riesgo
-  - Mecanismos de censura y truncamiento
-  - Modelos de supervivencia básicos y estimación en R
-  - Aplicaciones prácticas con ejemplos de datos reales
+-   **Relevancia de la confiabilidad** en contextos biomédicos, industriales y económicos
+-   **Objetivos de la sesión** (2 horas):
+    -   Comprender conceptos clave: tiempo de falla, funciones de supervivencia y riesgo
+    -   Mecanismos de censura y truncamiento
+    -   Modelos de supervivencia básicos y estimación en R
+    -   Aplicaciones prácticas con ejemplos de datos reales
 
 ## Agenda
 
-1. Definición y ejemplos de tiempos de falla (20 min)
-2. Función de supervivencia y función de riesgo (30 min)
-3. Censura y truncamiento (20 min)
-4. Estimación no paramétrica: Kaplan-Meier en R (30 min)
-5. Modelos paramétricos y discusión de sistemas reparables (20 min)
+1.  Definición y ejemplos de tiempos de falla (20 min)
+2.  Función de supervivencia y función de riesgo (30 min)
+3.  Censura y truncamiento (20 min)
+4.  Estimación no paramétrica: Kaplan-Meier en R (30 min)
+5.  Modelos paramétricos y discusión de sistemas reparables (20 min)
 
 ## 1. Definiciones
 
 ### Análisis de Supervivencia
 
-**Análisis de Supervivencia** : Es el análisis estadístico de datos de tiempo a la ocurrencia de un evento ( _time to event data_ ), o mejor dicho tiempo entre la ocurrencia de dos eventos, inicio y fin. 
+> **Análisis de Supervivencia** : Es el análisis estadístico de datos de tiempo a la ocurrencia de un evento ( *time to event data* ), o mejor dicho tiempo entre la ocurrencia de dos eventos, inicio y fin.
 
 Por lo general estos tiempos se conocen como tiempos de vida, tiempos de supervivencia o tiempos de falla, dependiendo de la aplicación. Y generalmente se le denota como $T$
 
-**Aplicaciones** : 
-Las posibles aplicaciones del análisis de supervivencia son:
+**Aplicaciones** : Las posibles aplicaciones del análisis de supervivencia son:
 
-- _Biomédicas_: tiempos de recuperación de un paciente, tiempos de vida
-de pacientes con cierta enfermedad, tiempo en que aparece un tumor,
-tiempo de recaída de una enfermedad, etc.
-- _Industriales_: duración de aparatos electrónicos hasta que presentan la
-primera falla, duración de un billete, etc.
-- _Financieros y económicos_: períodos de desempleo, pérdida económica
-entre dos eventos, etc.
+-   *Biomédicas*: tiempos de recuperación de un paciente, tiempos de vida de pacientes con cierta enfermedad, tiempo en que aparece un tumor, tiempo de recaída de una enfermedad, etc.
+-   *Industriales*: duración de aparatos electrónicos hasta que presentan la primera falla, duración de un billete, etc.
+-   *Financieros y económicos*: períodos de desempleo, pérdida económica entre dos eventos, etc.
 
+Independientemente de las unidades de medición del “tiempo” ( *discretas o continuas* ). Los datos de tiempo a la ocurrencia de un evento son realización de de *variables aleatorias no negativas*. En este sentido el análisis de supervivencia se puede entender como el análisis de variables aleatorias no negativas.
 
-Independientemente de las unidades de medición del “tiempo” ( _discretas o continuas_ ). Los datos de tiempo a la ocurrencia de un evento son realización de de _variables aleatorias no negativas_. En este sentido el análisis de supervivencia se puede entender como el análisis de variables aleatorias no negativas.
+------------------------------------------------------------------------
 
----
+Los tiempos de falla, o de vida, deben de estar determinados de manera precisa. Es decir, necesitamos definir un evento de origen, una escala de medición y un evento de fin para cada individuo.
 
-
-
-Los tiempos de falla, o de vida, deben de estar determinados de manera precisa. Es decir, 
-necesitamos definir un evento de origen, una escala de medición y un evento de fin para cada 
-individuo. 
-
-El evento de origen no necesita ocurrir en el mismo tiempo calendario para todos los  individuos.
+El evento de origen no necesita ocurrir en el mismo tiempo calendario para todos los individuos.
 
 Ejemplos:
 
-- **Ensayos clínicos**: El evento de origen puede ser la entrada del
-paciente al estudio y el evento de fin puede ser la recuperación o a
-muerte.
-- **Industriales**: El evento de origen puede ser el momento
-de creación del billete o el momento en el que sale a circulación, y el
-evento de fin puede ser el momento en el que llega al banco central
-como deteriorado, o el momento en el que se decide destruir.
+-   **Ensayos clínicos**: El evento de origen puede ser la entrada del paciente al estudio y el evento de fin puede ser la recuperación o a muerte.
+-   **Industriales**: El evento de origen puede ser el momento de creación del billete o el momento en el que sale a circulación, y el evento de fin puede ser el momento en el que llega al banco central como deteriorado, o el momento en el que se decide destruir.
+
+La escala de medición por lo general es el tiempo real, aunque también se puede considerar como el *tiempo de operación* de un sistema, o el *kilometraje* de un auto.
+
+## Ejemplos de datos de supervivencia {.smaller .scrollable transition="slide"}
+
+A continuación se presentan algunos ejemplos de datos de supervivencia. Estos ejemplos fueron obtenidos de Klein & Moeshberger (1997).
+
+### Ejemplo de Duración de la remisión en un ensayo clínico para leucemia aguda
 
 
-La escala de medición por lo general es el tiempo real, aunque también
-se puede considerar como el _tiempo de operación_ de un sistema, o el
-_kilometraje_ de un auto.
+> Duración de remisión de un ensayo clínico para leucemia aguda. Resultados de un ensayo clínico en donde se quería compara la efectividad de la droga $6-MP$ versus placebo en 42 niños con leucemia aguda. El evento de inicio es remisión parcial de la enfermedad después de haber sido tratados con la droga prednisone. El evento de fin es recaída o muerte. La escala de medición es tiempo calendario en meses. Algunos individuos no presentaron el evento de fin al término del estudio. Estos casos son marcados con un + y son llamados censurados por la derecha. Más adelante los veremos con detalle.
 
----
+
+![](figura/ejemp1.png){width="40%" fig-align="center"}
+
+
+### Ejemplo de Transplante de médula ósea en pacientes con leucemia.
+
+> Transplante de médula es un procedimiento estándar en pacientes con leucemia aguda. La recuperación después del transplante es un proceso complejo. La prognosis para la recuperación puede depender de factores que se conocen al momento del transplante, como edad y sexo del paciente y donador, etapa de la enfermedad inicial, tiempo entre el diagnóstico y el transplante, etc. La prognosis final depende de cómo evoluciona el paciente después del transplante. Puede generar aversión o rechazo de la medula transplantada (GVHD), que el conteo de plaquetas se vuelva normal o desarrollar infecciones, etc. El transplante se considera fracaso cuando el paciente recae o muere.
+
+
+![](figura/ejemp2.png){width="40%" fig-align="center"}
+
+
+::: {#ejemp-2 layout-ncol="2"}
+![](figura/ejemp2-3.jpg){width="100%" fig-align="center"}
+
+![](figura/ejemp2-2.jpg){width="100%" fig-align="center"}
+:::
+
+### Ejemplo Tiempos de muerte de adultos mayores residentes de un asilo.
+
+
+> Channing House es una casa de retiro en California. Datos con las edades de muerte de 462 individuos (97 hombres y 365 mujeres) que estuvieron en la residencia durante el periodo de enero de 1964 y julio de 1975. Se reportó la edad a la muerte o al momento en que se salían del asilo (en meses) y la edad a la que los individuos entraron al asilo. Estos datos son un ejemplo de truncamiento por la izquierda que más adelante veremos con detalle. Un individuo tiene que sobrevivir lo suficiente para estar en edad de entrar al asilo. Individuos que mueren previamente a la edad de retiro son excluidos del estudio.
+
+
+![](figura/ejemp3.png){fig-align="center" width="40%"}
+
+
+### Ejemplo Tiempo al primer uso de marihuana.
+
+
+> En este estudio a 191 estudiantes de preparatoria se les preguntó: ¿Cuál fue la primera vez que probaste la marihuana?. Las respuestas fueron, “la edad exacta a la que la probaron”, “nunca la he probado”, y “la probé pero no recuerdo cuando fue la primera vez”. En este último caso tenemos una censura por la izquierda. El evento de interés ha ocurrido en algún momento previo a la edad actual del estudiante!.
+
+
+
+![](figura/ejemp4.jpg){fig-align="center" width="4.5in"}
+
+
+### Tiempo a desarrollar sida.
+
+
+> Se reportan datos con tiempos de infección y de inducción para 258 adultos y 37 niños que fueron infectados con el virus del VIH y desarrollaron sida antes del 30 de junio de 1986. Los datos consisten de los tiempos (en años) desde que adultos fueron infectados por el virus por transfusión de sangre contaminada, y el tiempo de espera hasta el desarrollo de sida. Para la población pediátrica, los niños fueron infectados en útero o al nacer. El tiempo base de medición es el 1 de abril de 1978.
+En este estudio, sólo los individuos que han desarrollado sida antes del término del estudio son considerados. Individuos que no han desarrollado sida no son incluidos en el estudio. Este tipo de datos es llamado truncados por la derecha y más adelante los veremos con detalle.
+
+
+::: smaller
+```{r}
+library(tibble)
+
+tabla <- tribble(
+  ~`Infection Time`, ~`Adult Induction Time`, ~`Child Induction Time`,
+  "0.00", "5", "",
+  "0.25", "6.75", "",
+  "0.75", "5, 5, 7.25", "",
+  "1.00", "4.25, 5.75, 6.25, 6.5", "5.5",
+  "1.25", "4, 4.25, 4.75, 5.75", "",
+  "1.50", "2.75, 3.75, 5, 5.5, 6.5", "2.25",
+  "1.75", "2.75, 3, 5.25, 5.25", "",
+  "2.00", "2.25, 3, 4, 4.5, 4.75, 5, 5.25, 5.25, 5.5, 5.5, 6", "",
+  "2.25", "3, 5.5", "3",
+  "2.50", "2.25, 2.25, 2.25, 2.25, 2.5, 2.75, 3, 3.25, 3.25, 4, 4, 4", "",
+  "2.75", "1.25, 1.5, 2.5, 3, 3, 3.25, 3.75, 4.5, 4.5, 5, 5, 5.25, 5.25, 5.25, 5.25, 5.25", "1",
+  "3.00", "2, 3.25, 3.5, 3.75, 4, 4, 4.25, 4.25, 4.25, 4.75, 4.75, 4.75, 5", "1.75",
+  "3.25", "1.25, 1.75, 2, 2.75, 3, 3, 3.5, 3.5, 4.25, 4.5", "",
+  "3.50", "1.25, 2.25, 2.25, 2.5, 2.75, 2.75, 3, 3.25, 3.5, 3.5, 4, 4, 4.25, 4.5, 4.5", "0.75",
+  "3.75", "1.25, 1.75, 1.75, 2, 2.75, 3, 3, 3, 4, 4.25, 4.25", "0.75, 1, 2.75, 3, 3.5, 4.25",
+  "4.00", "1, 1.5, 1.5, 2, 2.25, 2.75, 3.5, 3.75, 3.75, 4", "1",
+  "4.25", "1.25, 1.5, 2, 2, 2.25, 2.5, 2.5, 2.5, 3, 3.5, 3.5", "1.75",
+  "4.50", "1, 1.5, 1.5, 1.5, 1.75, 2.25, 2.25, 2.5, 2.5, 2.5, 2.5, 2.75, 2.75, 2.75, 2.75, 3, 3, 3, 3.25, 3.25", "3.25",
+  "4.75", "1, 1.5, 1.5, 1.5, 1.75, 1.75, 2, 2.25, 2.75, 3, 3, 3.25, 3.25, 3.25, 3.25, 3.25, 3.25", "1, 2.25",
+  "5.00", "0.5, 1.5, 1.5, 1.75, 2, 2.25, 2.25, 2.25, 2.5, 2.5, 3, 3, 3", "0.5, 0.75, 1.5, 2.5",
+  "5.25", "0.25, 0.25, 0.75, 0.75, 0.75, 1, 1, 1.25, 1.25, 1.5, 1.5, 1.5, 1.5, 2.25, 2.25, 2.5, 2.5, 2.75", "0.25, 1, 1.5",
+  "5.50", "1, 1, 1, 1.25, 1.25, 1.75, 2, 2.25, 2.25, 2.5", "0.5, 1.5, 2.5",
+  "5.75", "0.25, 0.75, 1, 1.5, 1.5, 1.5, 2, 2, 2.25", "1.75",
+  "6.00", "0.5, 0.75, 0.75, 0.75, 1, 1, 1, 1.25, 1.25, 1.5, 1.5, 1.75, 1.75, 1.75, 2", "0.5, 1.25",
+  "6.25", "0.75, 1, 1.25, 1.75, 1.75", "0.5, 1.25",
+  "6.50", "0.25, 0.25, 0.75, 1, 1.25, 1.5", "0.75",
+  "6.75", "0.75, 0.75, 0.75, 1, 1.25, 1.25, 1.25", "0.5, 0.75",
+  "7.00", "0.75", "0.75",
+  "7.25", "0.25", "0.25"
+)
+
+knitr::kable(tabla, booktabs = TRUE, 
+             table.attr = "class=\"striped\"", format = "simple",
+             caption="Induction time (in years) for AIDS in adults and children")
+```
+:::
 
 ## Ejemplos de Datos de Supervivencia
 
@@ -106,21 +182,232 @@ library(survival)
 data_sim <- data.frame(time = tiempos, event = status)
 ```
 
-
-
-::: {.smaller}
+::: smaller
 ```{r}
 # Mostrar los primeros 10 registros con fuente más pequeña
 knitr::kable(data_sim[1:8, ], caption = "Primeros 8 registros de data_sim")
 ```
 :::
 
-
 ## 2. Función de Supervivencia y Función de Riesgo
 
-- **Función de supervivencia**: $S(t) = P(T > t)$
-- **Función de densidad**: $f(t) = -dS(t)/dt$
-- **Función de riesgo**: $h(t) = f(t) / S(t)$
+Como se mencionó anteriormente, el análisis de supervivencia es el estudio de variables aleatorias no negativas. Sea $T$ una v. a. no negativa que puede ser discreta o continua.
+
+De los cursos de probabilidad recordamos que toda variable aleatoria $T$ es caracterizada por su función de densidad $f(t)$ o por su función de distribución (acumulada) $F(t)$.
+
+En análisis de supervivencia existen otras funciones más útiles y más interpretables que las funciones de densidad y de distribución. Estas son la función de supervivencia, denotada por $S(t)$, y las función de riesgo (tasa o intensidad) denotada por $h(t)$ y función de riesgo acumulada, denotada por $H(t)$.
+
+------------------------------------------------------------------------
+
+La función de supervivencia $S(t)$ es la función más importante para describir el comportamiento de tiempos de falla y se define como la probabilidad de que un individuo sobreviva más allá del tiempo $t$, es decir, la probabilidad de que un individuo presente su evento de fin en un tiempo posterior a $t$.
+
+>   **Función de supervivencia**: $S(t) = P(T > t)=1-F(t)$
+
+¿Cómo se interpreta una función de supervivencia?. Como presentar el evento de fin no es algo necesariamente bueno, es preferible tener una probabilidad mayor de que el evento de fin ocurra posterior al tiempo $t$.
+
+Las funciones de supervivencia pueden diferir en forma, pero todas mantienen las mismas propiedades básicas:
+
+1.  Son monótonas no crecientes,
+2.  iguales a uno al tiempo cero y tienden a cero cuando el tiempo tiende a infinito.
+
+------------------------------------------------------------------------
+
+La tasa de decaimiento de las funciones de supervivencia varía de acuerdo al riesgo de presentar el evento de fin. Eventos más riesgosos presentan una tasa de decaimiento mayor.
+
+![](figura/Ss.jpg){fig-align="center" width="4in"}
+
+La función de riesgo es una función fundamental en análisis de supervivencia. Se le conoce también como la tasa de falla condicional en análisis de confiabilidad, tasa de mortalidad en demografía o función de intensidad en procesos estocásticos.
+
+>   **Función de riesgo**: $h(t) = f(t) / S(t)$
+
+------------------------------------------------------------------------
+
+Como el tratamiento y la interpretación de la función de densidad es distinto dependiendo si la v. a. $T$ es discreta o continua, definiremos la función de riesgo por separado en los casos discreto y continuo.
+
+### Función de Riesgo Discreta
+
+Sea $T$ una v. a. discreta con soporte en $\{u_1, u_2, \ldots \}$. La función de riesgo discreta se define como la probabilidad condicional de presentar el evento de fin en el tiempo $t$, dado que se ha sobrevivido al tiempo $t$. Se denota por $h(t)$. En notación matemática, $$h(t)=P(T=t \mid T \ge t).$$
+
+Sea $h_k$ la función de riesgo en el tiempo $u_k$, la cual se puede obtener a través de la función de densidad y de la función de supervivencia como $$h_k = h(u_k)= \dfrac{P(T=u_k)}{P(T \ge u_k)}=\dfrac{f(u_k)}{S(U_{k-1})},$$ Como la función de densidad se expresa en términos de la función de supervivencia como $$f(u_k)=S(u_{k-1})-S(u_k),$$ entonces $$h_k = 1- \dfrac{S(u_k)}{S(u_{k-1})},$$
+
+------------------------------------------------------------------------
+
+por lo tanto $$S(t)= \prod_{\{k:u_k \le t\}} \dfrac{S(u_k)}{S(u_{k-1})}=  \prod_{\{k:u_k \le t\}} (1-h_k)$$ De la misma manera, la función de densidad en términos de la función de riesgo se obtiene como $$f(u_j)= h_j \prod_{\{k<j\}} (1-h_k)$$ En demografía, la función de riesgo se interpreta como la probabilidad de morir en el momento $t$ dado que se llegó vivo al tiempo $t$.
+
+Las funciones de riesgo discretas no tienen ninguna restricción más que ser no negativas. Las formas que presentan son variadas. A continuación se presentan algunos ejemplos:
+
+![](figura/ejempRiesgoDiscreto.jpg){fig-align="center" width="4in"}
+
+------------------------------------------------------------------------
+
+### Función de Riesgo Acumulado Discreta
+
+La función de riesgo acumulado discreta es simplemente la acumulación de la función de riesgo hasta el momento $t$ y se denota por $H(t)$. En notación matemática, $$H(t)=\sum_{\{k:u_k \le t\} } h_k$$ Existe una definición alternativa de la función de riesgo acumulado discreta, la cual obedece a la relación que prevalece en el caso continuo. Esta es: $$H(t)= - \sum_{\{k:u_k \le t\} } log(1-h_k)$$ En cualquiera de las dos definiciones, las funciones de riesgo acumulado discretas son funciones monótonas no decrecientes.
+
+------------------------------------------------------------------------
+
+### Función de Riesgo Contínua
+
+Sea $T$ una v. a. continua con soporte en $[0,\infty).$ La función de riesgo continua se define como la tasa instantánea de fallo al tiempo $t$, dado que se ha sobrevivido al tiempo $t$. Se denota por $h(t)$ al igual que en el caso discreto. En notación matemática, $$h(t)=\lim_{\epsilon \to 0} {\frac{1}{\epsilon} P(t<T \le t+\epsilon \mid T \ge t)},$$ lo cual puede expresarse como $$h(t)=\lim_{\epsilon \to 0} {\frac{F(t+\epsilon)-F(t)}{\epsilon \; S(t)}}=\frac{f(t)}{S(t)} .$$
+
+Observe que $F(t)= -S'(t)$ entonces $$h(t)= - \frac{d}{dt}log S(t)$$ al integrar ambos lados tenemos $$log S(t)= - \int_0^t h(u)du$$
+
+------------------------------------------------------------------------
+
+finalmente, como $S(0)=1$ obtenemos que $$S(t)=exp\big\{ - \int_0^t h(u)du \big\}$$ La expresión $h(t)\epsilon$ se pude ver como la “probabilidad aproximada” de que un individuo de edad $t$ experimente el evento de fin en el siguiente instante.
+
+------------------------------------------------------------------------
+
+Al igual que en el caso discreto, hay muchas formas para la función de riesgo. La única restricción es que sea no negativa.
+
+::: smaller
+-   Una función de riesgo creciente implica un envejecimiento natural.
+-   Una función de riesgo decreciente es menos común pero indica un rejuvenecimiento.
+-   Más comúnmente son las funciones de riesgo en forma de “tina de baño” que representan el riesgo de mortalidad en poblaciones que se siguen desde el nacimiento.
+-   Una función de riesgo en forma de montaña representaría el comportamiento del riesgo de muerte por enfermedad después de un tratamiento.
+:::
+
+A continuación se muestran algunos ejemplos:
+
+![](figura/ejempRiesgoContinuo.jpg){fig-align="center" width="4in"}
+
+------------------------------------------------------------------------
+
+![](figura/ejempRiesgoContinuo2.jpg){fig-align="center" width="4in"}
+
+------------------------------------------------------------------------
+
+### Función de Riesgo Acumulado Contínua
+
+La función de riesgo acumulado continua es la integral hasta el momento $t$ de la función de riesgo se denota por $H(t)$. En notación matemática, $$H(t)= \int_0^t h(u)du.$$ Esta función está relacionada con la función de supervivencia por $$S(t)=exp\{-H(t)\}.$$ Si $S(\infty)=0$, entonces $H(\infty)=\infty$.
+
+## Modelos {.scrollable transition="slide"}
+
+![](figura/Functions.jpg){fig-align="center" width="150%"}
+
+## Censura y truncamiento {#sec-censura-y-truncamiento .scrollable transition="slide"}
+
+Los datos de tiempo de fallo se presentan en diferentes formas que crean problemas especiales cuando se analizan. En muchas ocasiones no se conoce con exactitud el valor del tiempo de fallo y únicamente se cuenta con información parcial. Una característica especial, comúnmente presente en datos de tiempo de fallo es la **censura**. De manera amplia, la censura ocurre cuando se conoce que algunos tiempos de fallo han ocurrido en cierto intervalo de tiempo. Existen varias categorías de censura: censura por la *derecha*, censura por la *izquierda* o censura por *intervalo.*
+
+Para incorporar la censura adecuadamente, tenemos que considerar el diseño que fue utilizado para la obtención de los datos de supervivencia. Hay varios tipos de mecanismos de censura dentro de la censura por la izquierda o derecha. Cada tipo dará lugar a una función de verosimilitud distinta.
+
+Una segunda característica que hace distinto al análisis de supervivencia de otros análisis estadísticos es el **truncamiento**. El truncamiento ocurre cuando la observación del tiempo de fallo no sería posible sin la ocurrencia de un tiempo suficientemente corto o largo. Al igual que la censura existen varias categorías de truncamiento: *truncamiento por la derecha* y *truncamiento por la izquierda*.
+
+
+
+## Censura por la derecha {.smaller .scrollable transition="slide"}
+
+Como se mencionó anteriormente existen varias formas de generar censura. Estos mecanismos de censura son: *censura tipo I*, *censura tipo II* y *censura aleatoria*.
+
+### Censura Tipo I
+
+La censura tipo I aplica cuando el tiempo de supervivencia se observa sólo si ese tiempo es menor a un tiempo predeterminado de censura. En caso contrario, la observación se considera censurada por la derecha. Los tiempos de censura pueden variar de individuo a individuo.
+
+Sea $C_i$ el tiempo de censura del individuo $i$. El tiempo de fallo $T_i$ se observa si $T_i \le C_i$, de otra forma sólo conocemos que $T_i > C_i$ . En presencia de censura por la derecha tendremos para cada individuo un par de observaciones $(t_i, \delta_i)$, donde $t_i = min(T_i,C_i)$ y $\delta_i = I_{(T_i \le C_i)}$, es decir $\delta_i=1$ si $T_i \le C_i$ o vale $\delta_i =0$ si $T_i \gt C_i$ es un evento censurado.
+
+**Importante**: Una observación $T_i$ es censurada por la derecha si $T_i > C_i$ .
+
+La forma más común en que ocurre la censura tipo I es cuando en un ensayo clínico, con humanos o con animales, comienza con un número fijo de individuos a los que se les administra un tratamiento. Debido a costos o a tiempos acotados, el investigador decide terminar el estudio antes de que todos los individuos presenten su evento de fin.
+
+> **Ejemplo**: Considérese un experimento animal a gran escala realizado en el Centro Nacional de Investigación Toxicológica (NCTR), en el que se administró a los ratones una dosis determinada de un carcinógeno. El objetivo del experimento era evaluar el efecto del carcinógeno sobre la supervivencia. Con este fin, se hizo un seguimiento de los ratones desde el inicio del experimento hasta su muerte o hasta que se alcanzó un tiempo de censura preestablecido, momento en el cual todos los ejemplares aún vivos fueron sacrificados (censurados).
+
+![](figura/CensuraI.jpg){fig-align="center" width="4in"}
+
+> **Múltiples tiempos de censura**: Considera un estudio con ratones, en donde para cada sexo, 200 ratones fueron aleatoriamente divididos en 4 grupos (niveles de dosis) y cada ratón fue monitoreado hasta la muerte o hasta un tiempo pre-especificado de sacrificio (42 o 104 semanas). Véase la siguiente figura para un esquema de este ensayo correspondiente a un sexo y un nivel de dosis. Se eligieron esos dos tiempos de sacrificio para reducir el costo de mantenimiento de los animales, al mismo tiempo que se obtenía información limitada sobre la supervivencia de los ratones de vida más prolongada.
+
+![](figura/CensuraI-3.jpg){#fig3-2 fig-align="center" width="4in"}
+
+> Considérese otro caso, que origina censura de Tipo I, cuando los individuos ingresan al estudio en distintos momentos y el punto terminal del mismo está predeterminado por el investigador, de modo que los tiempos de censura son conocidos en el momento en que cada individuo se incorpora al estudio. En tales investigaciones (véase la siguiente Figura para un estudio hipotético con solo cuatro sujetos), cada individuo tiene su propio tiempo de censura específico y fijo. Esta forma de censura ha sido denominada censura de Tipo I generalizada.
+
+![](figura/CensuraI-2.jpg){fig-align="center" width="4in"}
+
+### Censura Tipo II
+
+La censura tipo II ocurre cuando un estudio continua hasta que se presenta la falla de los primeros $r<n$ individuos. En este caso, sólo los primeros $r$ tiempos $t_{(1)} \le  t_{(2)} \le \cdots \le t_{(r)}$ son observados y los últimos $n-r$ tiempos quedan censurados por la derecha.
+
+La *censura tipo II* ocurre por lo general en pruebas de la duración de equipo. Todos los aparatos son puestos a funcionar al mismo tiempo y la prueba se termina cuando los primeros $r$ de los $n$ aparatos fallan.
+
+Los experimentos con censura tipo II tienen la desventaja práctica de que el tiempo total del estudio $T_{(r)}$ , que define el tiempo de censura $C$, es aleatorio y desconocido al inicio del estudio. Por otro lado, puede reducir costos y tiempo debido a que pudiera necesitarse un tiempo muy largo en que todos los aparatos fallen.
+
+De igual manera, una observación $T_i$ será censurada por la derecha de tipo II si $T_i > C$, con $C=T_{(r)}$
+
+### Censura Aleatoria
+
+La *censura aleatoria* ocurre cuando los tiempos de censura $C_i$ de cada paciente son consideradas variables aleatorias.
+
+Por ejemplo, en un ensayo clínico, pacientes entran al estudio en momentos distintos y cada uno puede recibir un tratamiento distinto. La censura puede ocurrir por distintas causas que compiten al mismo tiempo, como muerte accidental, migración a otra población, muerte por otra causa distinta al evento de interés, salida del paciente del ensayo clínico, terminación del estudio, etc.
+
+La censura aleatoria ocurre, por ejemplo, en estudios de pacientes con diálisis, donde falla del catéter es la primera razón de censura de los tiempos de infección. Otras razones de censura son muerte del paciente o que el hospital se rehuse a aceptar al paciente por falta de pago.
+
+-   Si el mecanismo de censura aleatoria $C_i$ es dependiente de los tiempos de falla $T_i$, se le conoce como **censura informativa**, es decir, el tiempo de censura nos da información sobre los tiempos de fallo.
+
+-   En caso de que el mecanismo de censura sea independiente del tiempo de fallo, se le conoce como **censura no informativa** y el tratamiento de este tipo de datos es igual a los de censura tipo I.
+
+## Censura por la izquierda y censura por intervalo {.smaller .scrollable transition="slide"}
+
+### Censura por la izquierda
+
+Un tiempo de fallo asociado con un individuo específico en un estudio se considera censurado por la izquierda si es menor a un tiempo de censura observado. Por ejemplo, el evento ocurrió antes del inicio del estudio, o el tiempo de inicio ocurrió después y no se registró.
+
+Si $C_{l}$ denota el tiempo de censura por la izquierda y $T_{i}$ el tiempo de fallo del individuo $i$, entonces el fallo se observa sólo si $T_{i} \ge C_{l}$. En caso contrario ($T_{i} < C_{l}$), la observación está censurada por la izquierda. Los datos con censura por la izquierda se representan como pares $(t_{i}, \delta_{i})$, donde $$
+t_{i} = \max(T_{i}, C_{l})
+\quad\text{y}\quad
+\delta_{i} = I_{(T_{i} \ge C_{l})}\,.
+$$
+
+**Importante**: Una observación $T_{i}$ es censurada por la izquierda si $T_{i} < C_{l}$.
+
+> **Ejemplo de consumo de marihuana**: En un estudio para determinar la distribución del tiempo hasta el primer consumo de marihuana entre alumnos de secundaria en California, se preguntó: “¿Cuándo usaste marihuana por primera vez?” Una de las respuestas fue: “Sí la he usado, pero no recuerdo exactamente cuándo fue la primera vez”. Un chico que da esta respuesta está indicando que el evento ocurrió antes de la edad que tenía al momento de la entrevista, pero se desconoce la edad exacta en que empezó a consumir. Este es un ejemplo de tiempo de evento censurado por la izquierda.
+
+> **Ejemplo de aprendizaje en la primera infancia**: En los centros de aprendizaje en la primera infancia, el interés suele centrarse en evaluar a los niños para determinar cuándo aprenden a realizar ciertas tareas específicas. La edad a la que un niño adquiere la habilidad se consideraría el tiempo hasta el evento. Con frecuencia, algunos niños ya pueden realizar la tarea al incorporarse al estudio. Tales tiempos de evento se consideran censurados por la izquierda.
+
+### Doble censura
+
+A veces ocurre simultáneamente censura por la izquierda y por la derecha, produciendo observaciones doblemente censuradas. En este caso, cada par se define como $$
+t_{i} = \max\{\min(T_{i}, C_{r}),\,C_{l}\},
+\quad
+\delta_{i} =
+\begin{cases}
+1, & \text{si es tiempo exacto},\\
+0, & \text{si es censura por la derecha},\\
+-1,& \text{si es censura por la izquierda},
+\end{cases}
+$$ donde $C_{r}$ y $C_{l}$ son los tiempos de censura por derecha e izquierda, respectivamente.
+
+> **Ejemplo de consumo de marihuana**: Como continuación, otra posible respuesta a la pregunta “¿Cuándo usaste marihuana por primera vez?” fue “Nunca la he usado”, lo cual indica una observación censurada por la derecha. Se presentaron observaciones censuradas por la izquierda y por la derecha, además de conocer con exactitud la edad del primer consumo de marihuana (observaciones no censuradas) en algunos chicos. Así, se trata de un esquema de muestreo doblemente censurado.
+
+> **Ejemplo de aprendizaje en la primera infancia**: Algunos niños sometidos a las pruebas, pueden no aprender la tarea durante todo el periodo de estudio; en ese caso, dichos niños estarían censurados por la derecha. Sumado a las observaciones censuradas por la izquierda mencionadas anteriormente, esta muestra también contendría datos doblemente censurados.
+
+### Censura por intervalo
+
+La censura por intervalo ocurre cuando sólo se conoce que el fallo ocurrió entre dos momentos de observación discretos. Si un individuo no ha presentado el evento antes de $L_{i}$, pero sí en el siguiente control $R_{i}$, entonces $T_{i}$ está censurado en $(L_{i}, R_{i}]$, es decir, $$
+L_{i} < T_{i} \le R_{i}\,.
+$$
+
+> **Ejemplo de Estudio de Corazón**: En el Estudio del Corazón de Framingham, las edades a las que los sujetos desarrollan por primera vez enfermedad coronaria (CHD, por sus siglas en inglés) suelen conocerse con exactitud. Sin embargo, las edades en las que ocurre por primera vez la subcategoría angina de pecho pueden conocerse solo como comprendidas entre dos exámenes clínicos, aproximadamente con dos años de diferencia. Tales observaciones se consideran censuradas por intervalo.
+
+> **Ejemplo de Estudio de radioterapia**: En un estudio retrospectivo que compara los efectos cosméticos de la radioterapia sola frente a la radioterapia con quimioterapia adyuvante en mujeres con cáncer de mama en etapa temprana. Las pacientes fueron observadas inicialmente cada 4 a 6 meses, pero a medida que avanzaba su recuperación, el intervalo entre visitas se fue alargando. El evento de interés fue la primera aparición de retracción moderada o severa del seno, una forma de deterioro cosmético. El momento exacto de la retracción solo se conocía como ubicado dentro del intervalo entre dos visitas (censura por intervalo) o como posterior a la última vez que se observó a la paciente (censura por la derecha).
+
+## Truncamiento {.smaller .scrollable transition="slide"}
+
+El truncamiento difiere de la censura en que los sujetos cuya $T_{i}$ no está en la ventana $(U, V)$ no se observan en absoluto. En cambio, la censura aporta información parcial.
+
+> **Definición**\
+> Un individuo está truncado si su tiempo de fallo $T_{i}$ sólo se incluye cuando $T_{i}\in(U,V)$.
+
+#### Truncamiento por la izquierda
+
+Ocurre cuando sólo entran en el estudio quienes cumplen $T_{i}>U_{i}$ (p. ej., edad de muerte \> 60 años). Se llama también “entrada retrasada”.
+
+> **Ejemplo Centro de retiro**: En un estudio de supervivencia de los residentes del centro de retiro Channing House, ubicado en California. Se registraron las edades al momento de la muerte (en meses), así como las edades a las que los individuos ingresaron a la comunidad de retiro (el evento de truncamiento). Dado que un individuo debe sobrevivir hasta una edad suficiente para poder ingresar al centro de retiro, todos aquellos que murieron antes no ingresan al centro y, por lo tanto, están fuera del alcance del investigador; es decir, dichos individuos no tienen posibilidad de formar parte del estudio y se consideran truncados por la izquierda. Un análisis de supervivencia de este conjunto de datos debe tener en cuenta esta característica.
+
+#### Truncamiento por la derecha
+
+Sucede cuando sólo participan quienes cumplen $T_{i}<V_{i}$ (p. ej., distancia de estrellas \< umbral, o sólo casos que ya desarrollaron sida).
+
+> **Ejemplo sobre SIDA**: En este caso, se tomaron muestras de pacientes con SIDA inducido por transfusión. Se utilizaron determinaciones retrospectivas del momento de la transfusión para estimar el tiempo de espera desde la infección (vía transfusión) hasta la aparición clínica del SIDA. El registro fue muestreado el 30 de junio de 1986, por lo que solo estaban disponibles para observación aquellos cuya espera desde la transfusión hasta el desarrollo del SIDA fue menor que el tiempo transcurrido entre la transfusión y el 30 de junio de 1986. Los pacientes que fueron transfundidos antes del 30 de junio de 1986 y que desarrollaron SIDA después de esa fecha no fueron observados y se consideran truncados por la derecha.
+
+Lo más común es combinar censura por la derecha con truncamiento por la izquierda en estudios de supervivencia.
 
 ## Visualización de Funciones en R
 
@@ -132,9 +419,9 @@ plot(km_fit, xlab = "Tiempo", ylab = "Supervivencia", main = "Curva Kaplan-Meier
 
 ## 3. Censura y Truncamiento
 
-- Censura por la derecha, izquierda e intervalos
-- Truncamiento (izquierdo/ derecho)
-- Impacto en el análisis de supervivencia
+-   Censura por la derecha, izquierda e intervalos
+-   Truncamiento (izquierdo/ derecho)
+-   Impacto en el análisis de supervivencia
 
 ## Ejemplo de Censura por la Derecha
 
@@ -148,8 +435,8 @@ plot(km_fit2, xlab = "Tiempo", ylab = "Supervivencia", main = "Kaplan-Meier con 
 
 ## 4. Modelos Paramétricos Básicos
 
-- Distribuciones exponencial, Weibull, log-logístico
-- Ajuste de modelos en R
+-   Distribuciones exponencial, Weibull, log-logístico
+-   Ajuste de modelos en R
 
 ## Ajuste de Modelo Exponecial y Weibull
 
@@ -164,12 +451,12 @@ summary(weib_fit)
 
 ## 5. Sistemas Reparables y Discusión
 
-- Distinción entre sistemas reparables y no reparables
-- Modelos de procesos de fallas (NHPP, HPP)
-- Aplicaciones en mantenimiento y confiabilidad industrial
+-   Distinción entre sistemas reparables y no reparables
+-   Modelos de procesos de fallas (NHPP, HPP)
+-   Aplicaciones en mantenimiento y confiabilidad industrial
 
 ## Conclusiones y Material Adicional
 
-- Repaso de conceptos vistos
-- Lecturas recomendadas y recursos en línea
-- Próximos pasos: modelado avanzado y análisis multivariado
+-   Repaso de conceptos vistos
+-   Lecturas recomendadas y recursos en línea
+-   Próximos pasos: modelado avanzado y análisis multivariado

@@ -41,6 +41,10 @@ $presentation-heading-text-transform: uppercase !default;
   font-size: 1.25em; /* Ajusta el tamaño según lo necesario */
 }
 
+.smaller {
+  font-size: 0.75em; /* Ajusta el tamaño según lo necesario */
+}
+
 .table-caption {
   text-align: center;
 }
@@ -75,3 +79,12 @@ table {
   padding: 8px;
   text-align: left;
 }
+
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }

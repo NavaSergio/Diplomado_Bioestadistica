@@ -378,7 +378,9 @@ Sergio M. Nava Muñoz
 <section id="definiciones" class="slide level2">
 <h2>1. Definiciones</h2>
 <h3 id="análisis-de-supervivencia-1">Análisis de Supervivencia</h3>
+<blockquote>
 <p><strong>Análisis de Supervivencia</strong> : Es el análisis estadístico de datos de tiempo a la ocurrencia de un evento ( <em>time to event data</em> ), o mejor dicho tiempo entre la ocurrencia de dos eventos, inicio y fin.</p>
+</blockquote>
 <p>Por lo general estos tiempos se conocen como tiempos de vida, tiempos de supervivencia o tiempos de falla, dependiendo de la aplicación. Y generalmente se le denota como <span class="math inline">\(T\)</span></p>
 <p><strong>Aplicaciones</strong> : Las posibles aplicaciones del análisis de supervivencia son:</p>
 <ul>
@@ -399,7 +401,235 @@ Sergio M. Nava Muñoz
 </ul>
 <p>La escala de medición por lo general es el tiempo real, aunque también se puede considerar como el <em>tiempo de operación</em> de un sistema, o el <em>kilometraje</em> de un auto.</p>
 </section>
-<section id="ejemplos-de-datos-de-supervivencia" class="slide level2">
+<section id="ejemplos-de-datos-de-supervivencia" class="slide level2 smaller scrollable" data-transition="slide">
+<h2>Ejemplos de datos de supervivencia</h2>
+<p>A continuación se presentan algunos ejemplos de datos de supervivencia. Estos ejemplos fueron obtenidos de Klein &amp; Moeshberger (1997).</p>
+<h3 id="ejemplo-de-duración-de-la-remisión-en-un-ensayo-clínico-para-leucemia-aguda">Ejemplo de Duración de la remisión en un ensayo clínico para leucemia aguda</h3>
+<blockquote>
+<p>Duración de remisión de un ensayo clínico para leucemia aguda. Resultados de un ensayo clínico en donde se quería compara la efectividad de la droga <span class="math inline">\(6-MP\)</span> versus placebo en 42 niños con leucemia aguda. El evento de inicio es remisión parcial de la enfermedad después de haber sido tratados con la droga prednisone. El evento de fin es recaída o muerte. La escala de medición es tiempo calendario en meses. Algunos individuos no presentaron el evento de fin al término del estudio. Estos casos son marcados con un + y son llamados censurados por la derecha. Más adelante los veremos con detalle.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejemp1.png" class="quarto-figure quarto-figure-center" style="width:40.0%"></p>
+</figure>
+</div>
+<h3 id="ejemplo-de-transplante-de-médula-ósea-en-pacientes-con-leucemia.">Ejemplo de Transplante de médula ósea en pacientes con leucemia.</h3>
+<blockquote>
+<p>Transplante de médula es un procedimiento estándar en pacientes con leucemia aguda. La recuperación después del transplante es un proceso complejo. La prognosis para la recuperación puede depender de factores que se conocen al momento del transplante, como edad y sexo del paciente y donador, etapa de la enfermedad inicial, tiempo entre el diagnóstico y el transplante, etc. La prognosis final depende de cómo evoluciona el paciente después del transplante. Puede generar aversión o rechazo de la medula transplantada (GVHD), que el conteo de plaquetas se vuelva normal o desarrollar infecciones, etc. El transplante se considera fracaso cuando el paciente recae o muere.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejemp2.png" class="quarto-figure quarto-figure-center" style="width:40.0%"></p>
+</figure>
+</div>
+<div>
+
+</div>
+<div id="ejemp-2" class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejemp2-3.jpg" class="quarto-figure quarto-figure-center"></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejemp2-2.jpg" class="quarto-figure quarto-figure-center"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<h3 id="ejemplo-tiempos-de-muerte-de-adultos-mayores-residentes-de-un-asilo.">Ejemplo Tiempos de muerte de adultos mayores residentes de un asilo.</h3>
+<blockquote>
+<p>Channing House es una casa de retiro en California. Datos con las edades de muerte de 462 individuos (97 hombres y 365 mujeres) que estuvieron en la residencia durante el periodo de enero de 1964 y julio de 1975. Se reportó la edad a la muerte o al momento en que se salían del asilo (en meses) y la edad a la que los individuos entraron al asilo. Estos datos son un ejemplo de truncamiento por la izquierda que más adelante veremos con detalle. Un individuo tiene que sobrevivir lo suficiente para estar en edad de entrar al asilo. Individuos que mueren previamente a la edad de retiro son excluidos del estudio.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejemp3.png" class="quarto-figure quarto-figure-center" style="width:40.0%"></p>
+</figure>
+</div>
+<h3 id="ejemplo-tiempo-al-primer-uso-de-marihuana.">Ejemplo Tiempo al primer uso de marihuana.</h3>
+<blockquote>
+<p>En este estudio a 191 estudiantes de preparatoria se les preguntó: ¿Cuál fue la primera vez que probaste la marihuana?. Las respuestas fueron, “la edad exacta a la que la probaron”, “nunca la he probado”, y “la probé pero no recuerdo cuando fue la primera vez”. En este último caso tenemos una censura por la izquierda. El evento de interés ha ocurrido en algún momento previo a la edad actual del estudiante!.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejemp4.jpg" class="quarto-figure quarto-figure-center" style="width:4.5in"></p>
+</figure>
+</div>
+<h3 id="tiempo-a-desarrollar-sida.">Tiempo a desarrollar sida.</h3>
+<blockquote>
+<p>Se reportan datos con tiempos de infección y de inducción para 258 adultos y 37 niños que fueron infectados con el virus del VIH y desarrollaron sida antes del 30 de junio de 1986. Los datos consisten de los tiempos (en años) desde que adultos fueron infectados por el virus por transfusión de sangre contaminada, y el tiempo de espera hasta el desarrollo de sida. Para la población pediátrica, los niños fueron infectados en útero o al nacer. El tiempo base de medición es el 1 de abril de 1978. En este estudio, sólo los individuos que han desarrollado sida antes del término del estudio son considerados. Individuos que no han desarrollado sida no son incluidos en el estudio. Este tipo de datos es llamado truncados por la derecha y más adelante los veremos con detalle.</p>
+</blockquote>
+<div class="smaller">
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>Induction time (in years) for AIDS in adults and children</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Infection Time</th>
+<th style="text-align: left;">Adult Induction Time</th>
+<th style="text-align: left;">Child Induction Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0.00</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.25</td>
+<td style="text-align: left;">6.75</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0.75</td>
+<td style="text-align: left;">5, 5, 7.25</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1.00</td>
+<td style="text-align: left;">4.25, 5.75, 6.25, 6.5</td>
+<td style="text-align: left;">5.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1.25</td>
+<td style="text-align: left;">4, 4.25, 4.75, 5.75</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1.50</td>
+<td style="text-align: left;">2.75, 3.75, 5, 5.5, 6.5</td>
+<td style="text-align: left;">2.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1.75</td>
+<td style="text-align: left;">2.75, 3, 5.25, 5.25</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2.00</td>
+<td style="text-align: left;">2.25, 3, 4, 4.5, 4.75, 5, 5.25, 5.25, 5.5, 5.5, 6</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2.25</td>
+<td style="text-align: left;">3, 5.5</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2.50</td>
+<td style="text-align: left;">2.25, 2.25, 2.25, 2.25, 2.5, 2.75, 3, 3.25, 3.25, 4, 4, 4</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2.75</td>
+<td style="text-align: left;">1.25, 1.5, 2.5, 3, 3, 3.25, 3.75, 4.5, 4.5, 5, 5, 5.25, 5.25, 5.25, 5.25, 5.25</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3.00</td>
+<td style="text-align: left;">2, 3.25, 3.5, 3.75, 4, 4, 4.25, 4.25, 4.25, 4.75, 4.75, 4.75, 5</td>
+<td style="text-align: left;">1.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3.25</td>
+<td style="text-align: left;">1.25, 1.75, 2, 2.75, 3, 3, 3.5, 3.5, 4.25, 4.5</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3.50</td>
+<td style="text-align: left;">1.25, 2.25, 2.25, 2.5, 2.75, 2.75, 3, 3.25, 3.5, 3.5, 4, 4, 4.25, 4.5, 4.5</td>
+<td style="text-align: left;">0.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3.75</td>
+<td style="text-align: left;">1.25, 1.75, 1.75, 2, 2.75, 3, 3, 3, 4, 4.25, 4.25</td>
+<td style="text-align: left;">0.75, 1, 2.75, 3, 3.5, 4.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4.00</td>
+<td style="text-align: left;">1, 1.5, 1.5, 2, 2.25, 2.75, 3.5, 3.75, 3.75, 4</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4.25</td>
+<td style="text-align: left;">1.25, 1.5, 2, 2, 2.25, 2.5, 2.5, 2.5, 3, 3.5, 3.5</td>
+<td style="text-align: left;">1.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4.50</td>
+<td style="text-align: left;">1, 1.5, 1.5, 1.5, 1.75, 2.25, 2.25, 2.5, 2.5, 2.5, 2.5, 2.75, 2.75, 2.75, 2.75, 3, 3, 3, 3.25, 3.25</td>
+<td style="text-align: left;">3.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4.75</td>
+<td style="text-align: left;">1, 1.5, 1.5, 1.5, 1.75, 1.75, 2, 2.25, 2.75, 3, 3, 3.25, 3.25, 3.25, 3.25, 3.25, 3.25</td>
+<td style="text-align: left;">1, 2.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">5.00</td>
+<td style="text-align: left;">0.5, 1.5, 1.5, 1.75, 2, 2.25, 2.25, 2.25, 2.5, 2.5, 3, 3, 3</td>
+<td style="text-align: left;">0.5, 0.75, 1.5, 2.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5.25</td>
+<td style="text-align: left;">0.25, 0.25, 0.75, 0.75, 0.75, 1, 1, 1.25, 1.25, 1.5, 1.5, 1.5, 1.5, 2.25, 2.25, 2.5, 2.5, 2.75</td>
+<td style="text-align: left;">0.25, 1, 1.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">5.50</td>
+<td style="text-align: left;">1, 1, 1, 1.25, 1.25, 1.75, 2, 2.25, 2.25, 2.5</td>
+<td style="text-align: left;">0.5, 1.5, 2.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5.75</td>
+<td style="text-align: left;">0.25, 0.75, 1, 1.5, 1.5, 1.5, 2, 2, 2.25</td>
+<td style="text-align: left;">1.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6.00</td>
+<td style="text-align: left;">0.5, 0.75, 0.75, 0.75, 1, 1, 1, 1.25, 1.25, 1.5, 1.5, 1.75, 1.75, 1.75, 2</td>
+<td style="text-align: left;">0.5, 1.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">6.25</td>
+<td style="text-align: left;">0.75, 1, 1.25, 1.75, 1.75</td>
+<td style="text-align: left;">0.5, 1.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6.50</td>
+<td style="text-align: left;">0.25, 0.25, 0.75, 1, 1.25, 1.5</td>
+<td style="text-align: left;">0.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">6.75</td>
+<td style="text-align: left;">0.75, 0.75, 0.75, 1, 1.25, 1.25, 1.25</td>
+<td style="text-align: left;">0.5, 0.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">7.00</td>
+<td style="text-align: left;">0.75</td>
+<td style="text-align: left;">0.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">7.25</td>
+<td style="text-align: left;">0.25</td>
+<td style="text-align: left;">0.25</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="ejemplos-de-datos-de-supervivencia-1" class="slide level2">
 <h2>Ejemplos de Datos de Supervivencia</h2>
 <div class="smaller">
 <div class="cell">
@@ -453,16 +683,206 @@ Sergio M. Nava Muñoz
 </section>
 <section id="función-de-supervivencia-y-función-de-riesgo" class="slide level2">
 <h2>2. Función de Supervivencia y Función de Riesgo</h2>
+<p>Como se mencionó anteriormente, el análisis de supervivencia es el estudio de variables aleatorias no negativas. Sea <span class="math inline">\(T\)</span> una v. a. no negativa que puede ser discreta o continua.</p>
+<p>De los cursos de probabilidad recordamos que toda variable aleatoria <span class="math inline">\(T\)</span> es caracterizada por su función de densidad <span class="math inline">\(f(t)\)</span> o por su función de distribución (acumulada) <span class="math inline">\(F(t)\)</span>.</p>
+<p>En análisis de supervivencia existen otras funciones más útiles y más interpretables que las funciones de densidad y de distribución. Estas son la función de supervivencia, denotada por <span class="math inline">\(S(t)\)</span>, y las función de riesgo (tasa o intensidad) denotada por <span class="math inline">\(h(t)\)</span> y función de riesgo acumulada, denotada por <span class="math inline">\(H(t)\)</span>.</p>
+</section>
+<section class="slide level2">
+
+<p>La función de supervivencia <span class="math inline">\(S(t)\)</span> es la función más importante para describir el comportamiento de tiempos de falla y se define como la probabilidad de que un individuo sobreviva más allá del tiempo <span class="math inline">\(t\)</span>, es decir, la probabilidad de que un individuo presente su evento de fin en un tiempo posterior a <span class="math inline">\(t\)</span>.</p>
+<blockquote>
+<p><strong>Función de supervivencia</strong>: <span class="math inline">\(S(t) = P(T &gt; t)=1-F(t)\)</span></p>
+</blockquote>
+<p>¿Cómo se interpreta una función de supervivencia?. Como presentar el evento de fin no es algo necesariamente bueno, es preferible tener una probabilidad mayor de que el evento de fin ocurra posterior al tiempo <span class="math inline">\(t\)</span>.</p>
+<p>Las funciones de supervivencia pueden diferir en forma, pero todas mantienen las mismas propiedades básicas:</p>
+<ol type="1">
+<li>Son monótonas no crecientes,</li>
+<li>iguales a uno al tiempo cero y tienden a cero cuando el tiempo tiende a infinito.</li>
+</ol>
+</section>
+<section class="slide level2">
+
+<p>La tasa de decaimiento de las funciones de supervivencia varía de acuerdo al riesgo de presentar el evento de fin. Eventos más riesgosos presentan una tasa de decaimiento mayor.</p>
+
+<img data-src="figura/Ss.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"><p>La función de riesgo es una función fundamental en análisis de supervivencia. Se le conoce también como la tasa de falla condicional en análisis de confiabilidad, tasa de mortalidad en demografía o función de intensidad en procesos estocásticos.</p>
+<blockquote>
+<p><strong>Función de riesgo</strong>: <span class="math inline">\(h(t) = f(t) / S(t)\)</span></p>
+</blockquote>
+</section>
+<section class="slide level2">
+
+<p>Como el tratamiento y la interpretación de la función de densidad es distinto dependiendo si la v. a. <span class="math inline">\(T\)</span> es discreta o continua, definiremos la función de riesgo por separado en los casos discreto y continuo.</p>
+<h3 id="función-de-riesgo-discreta">Función de Riesgo Discreta</h3>
+<p>Sea <span class="math inline">\(T\)</span> una v. a. discreta con soporte en <span class="math inline">\(\{u_1, u_2, \ldots \}\)</span>. La función de riesgo discreta se define como la probabilidad condicional de presentar el evento de fin en el tiempo <span class="math inline">\(t\)</span>, dado que se ha sobrevivido al tiempo <span class="math inline">\(t\)</span>. Se denota por <span class="math inline">\(h(t)\)</span>. En notación matemática, <span class="math display">\[h(t)=P(T=t \mid T \ge t).\]</span></p>
+<p>Sea <span class="math inline">\(h_k\)</span> la función de riesgo en el tiempo <span class="math inline">\(u_k\)</span>, la cual se puede obtener a través de la función de densidad y de la función de supervivencia como <span class="math display">\[h_k = h(u_k)= \dfrac{P(T=u_k)}{P(T \ge u_k)}=\dfrac{f(u_k)}{S(U_{k-1})},\]</span> Como la función de densidad se expresa en términos de la función de supervivencia como <span class="math display">\[f(u_k)=S(u_{k-1})-S(u_k),\]</span> entonces <span class="math display">\[h_k = 1- \dfrac{S(u_k)}{S(u_{k-1})},\]</span></p>
+</section>
+<section class="slide level2">
+
+<p>por lo tanto <span class="math display">\[S(t)= \prod_{\{k:u_k \le t\}} \dfrac{S(u_k)}{S(u_{k-1})}=  \prod_{\{k:u_k \le t\}} (1-h_k)\]</span> De la misma manera, la función de densidad en términos de la función de riesgo se obtiene como <span class="math display">\[f(u_j)= h_j \prod_{\{k&lt;j\}} (1-h_k)\]</span> En demografía, la función de riesgo se interpreta como la probabilidad de morir en el momento <span class="math inline">\(t\)</span> dado que se llegó vivo al tiempo <span class="math inline">\(t\)</span>.</p>
+<p>Las funciones de riesgo discretas no tienen ninguna restricción más que ser no negativas. Las formas que presentan son variadas. A continuación se presentan algunos ejemplos:</p>
+
+<img data-src="figura/ejempRiesgoDiscreto.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"></section>
+<section class="slide level2">
+
+<h3 id="función-de-riesgo-acumulado-discreta">Función de Riesgo Acumulado Discreta</h3>
+<p>La función de riesgo acumulado discreta es simplemente la acumulación de la función de riesgo hasta el momento <span class="math inline">\(t\)</span> y se denota por <span class="math inline">\(H(t)\)</span>. En notación matemática, <span class="math display">\[H(t)=\sum_{\{k:u_k \le t\} } h_k\]</span> Existe una definición alternativa de la función de riesgo acumulado discreta, la cual obedece a la relación que prevalece en el caso continuo. Esta es: <span class="math display">\[H(t)= - \sum_{\{k:u_k \le t\} } log(1-h_k)\]</span> En cualquiera de las dos definiciones, las funciones de riesgo acumulado discretas son funciones monótonas no decrecientes.</p>
+</section>
+<section class="slide level2">
+
+<h3 id="función-de-riesgo-contínua">Función de Riesgo Contínua</h3>
+<p>Sea <span class="math inline">\(T\)</span> una v. a. continua con soporte en <span class="math inline">\([0,\infty).\)</span> La función de riesgo continua se define como la tasa instantánea de fallo al tiempo <span class="math inline">\(t\)</span>, dado que se ha sobrevivido al tiempo <span class="math inline">\(t\)</span>. Se denota por <span class="math inline">\(h(t)\)</span> al igual que en el caso discreto. En notación matemática, <span class="math display">\[h(t)=\lim_{\epsilon \to 0} {\frac{1}{\epsilon} P(t&lt;T \le t+\epsilon \mid T \ge t)},\]</span> lo cual puede expresarse como <span class="math display">\[h(t)=\lim_{\epsilon \to 0} {\frac{F(t+\epsilon)-F(t)}{\epsilon \; S(t)}}=\frac{f(t)}{S(t)} .\]</span></p>
+<p>Observe que <span class="math inline">\(F(t)= -S'(t)\)</span> entonces <span class="math display">\[h(t)= - \frac{d}{dt}log S(t)\]</span> al integrar ambos lados tenemos <span class="math display">\[log S(t)= - \int_0^t h(u)du\]</span></p>
+</section>
+<section class="slide level2">
+
+<p>finalmente, como <span class="math inline">\(S(0)=1\)</span> obtenemos que <span class="math display">\[S(t)=exp\big\{ - \int_0^t h(u)du \big\}\]</span> La expresión <span class="math inline">\(h(t)\epsilon\)</span> se pude ver como la “probabilidad aproximada” de que un individuo de edad <span class="math inline">\(t\)</span> experimente el evento de fin en el siguiente instante.</p>
+</section>
+<section class="slide level2">
+
+<p>Al igual que en el caso discreto, hay muchas formas para la función de riesgo. La única restricción es que sea no negativa.</p>
+<div class="smaller">
 <ul>
-<li><strong>Función de supervivencia</strong>: <span class="math inline">\(S(t) = P(T &gt; t)\)</span></li>
-<li><strong>Función de densidad</strong>: <span class="math inline">\(f(t) = -dS(t)/dt\)</span></li>
-<li><strong>Función de riesgo</strong>: <span class="math inline">\(h(t) = f(t) / S(t)\)</span></li>
+<li>Una función de riesgo creciente implica un envejecimiento natural.</li>
+<li>Una función de riesgo decreciente es menos común pero indica un rejuvenecimiento.</li>
+<li>Más comúnmente son las funciones de riesgo en forma de “tina de baño” que representan el riesgo de mortalidad en poblaciones que se siguen desde el nacimiento.</li>
+<li>Una función de riesgo en forma de montaña representaría el comportamiento del riesgo de muerte por enfermedad después de un tratamiento.</li>
 </ul>
+</div>
+<p>A continuación se muestran algunos ejemplos:</p>
+
+<img data-src="figura/ejempRiesgoContinuo.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"></section>
+<section class="slide level2">
+
+
+<img data-src="figura/ejempRiesgoContinuo2.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"></section>
+<section class="slide level2">
+
+<h3 id="función-de-riesgo-acumulado-contínua">Función de Riesgo Acumulado Contínua</h3>
+<p>La función de riesgo acumulado continua es la integral hasta el momento <span class="math inline">\(t\)</span> de la función de riesgo se denota por <span class="math inline">\(H(t)\)</span>. En notación matemática, <span class="math display">\[H(t)= \int_0^t h(u)du.\]</span> Esta función está relacionada con la función de supervivencia por <span class="math display">\[S(t)=exp\{-H(t)\}.\]</span> Si <span class="math inline">\(S(\infty)=0\)</span>, entonces <span class="math inline">\(H(\infty)=\infty\)</span>.</p>
+</section>
+<section id="modelos" class="slide level2 scrollable" data-transition="slide">
+<h2>Modelos</h2>
+
+<img data-src="figura/Functions.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:150.0%"></section>
+<section id="sec-censura-y-truncamiento" class="slide level2 scrollable" data-transition="slide">
+<h2>Censura y truncamiento</h2>
+<p>Los datos de tiempo de fallo se presentan en diferentes formas que crean problemas especiales cuando se analizan. En muchas ocasiones no se conoce con exactitud el valor del tiempo de fallo y únicamente se cuenta con información parcial. Una característica especial, comúnmente presente en datos de tiempo de fallo es la <strong>censura</strong>. De manera amplia, la censura ocurre cuando se conoce que algunos tiempos de fallo han ocurrido en cierto intervalo de tiempo. Existen varias categorías de censura: censura por la <em>derecha</em>, censura por la <em>izquierda</em> o censura por <em>intervalo.</em></p>
+<p>Para incorporar la censura adecuadamente, tenemos que considerar el diseño que fue utilizado para la obtención de los datos de supervivencia. Hay varios tipos de mecanismos de censura dentro de la censura por la izquierda o derecha. Cada tipo dará lugar a una función de verosimilitud distinta.</p>
+<p>Una segunda característica que hace distinto al análisis de supervivencia de otros análisis estadísticos es el <strong>truncamiento</strong>. El truncamiento ocurre cuando la observación del tiempo de fallo no sería posible sin la ocurrencia de un tiempo suficientemente corto o largo. Al igual que la censura existen varias categorías de truncamiento: <em>truncamiento por la derecha</em> y <em>truncamiento por la izquierda</em>.</p>
+</section>
+<section id="censura-por-la-derecha" class="slide level2 smaller scrollable" data-transition="slide">
+<h2>Censura por la derecha</h2>
+<p>Como se mencionó anteriormente existen varias formas de generar censura. Estos mecanismos de censura son: <em>censura tipo I</em>, <em>censura tipo II</em> y <em>censura aleatoria</em>.</p>
+<h3 id="censura-tipo-i">Censura Tipo I</h3>
+<p>La censura tipo I aplica cuando el tiempo de supervivencia se observa sólo si ese tiempo es menor a un tiempo predeterminado de censura. En caso contrario, la observación se considera censurada por la derecha. Los tiempos de censura pueden variar de individuo a individuo.</p>
+<p>Sea <span class="math inline">\(C_i\)</span> el tiempo de censura del individuo <span class="math inline">\(i\)</span>. El tiempo de fallo <span class="math inline">\(T_i\)</span> se observa si <span class="math inline">\(T_i \le C_i\)</span>, de otra forma sólo conocemos que <span class="math inline">\(T_i &gt; C_i\)</span> . En presencia de censura por la derecha tendremos para cada individuo un par de observaciones <span class="math inline">\((t_i, \delta_i)\)</span>, donde <span class="math inline">\(t_i = min(T_i,C_i)\)</span> y <span class="math inline">\(\delta_i = I_{(T_i \le C_i)}\)</span>, es decir <span class="math inline">\(\delta_i=1\)</span> si <span class="math inline">\(T_i \le C_i\)</span> o vale <span class="math inline">\(\delta_i =0\)</span> si <span class="math inline">\(T_i \gt C_i\)</span> es un evento censurado.</p>
+<p><strong>Importante</strong>: Una observación <span class="math inline">\(T_i\)</span> es censurada por la derecha si <span class="math inline">\(T_i &gt; C_i\)</span> .</p>
+<p>La forma más común en que ocurre la censura tipo I es cuando en un ensayo clínico, con humanos o con animales, comienza con un número fijo de individuos a los que se les administra un tratamiento. Debido a costos o a tiempos acotados, el investigador decide terminar el estudio antes de que todos los individuos presenten su evento de fin.</p>
+<blockquote>
+<p><strong>Ejemplo</strong>: Considérese un experimento animal a gran escala realizado en el Centro Nacional de Investigación Toxicológica (NCTR), en el que se administró a los ratones una dosis determinada de un carcinógeno. El objetivo del experimento era evaluar el efecto del carcinógeno sobre la supervivencia. Con este fin, se hizo un seguimiento de los ratones desde el inicio del experimento hasta su muerte o hasta que se alcanzó un tiempo de censura preestablecido, momento en el cual todos los ejemplares aún vivos fueron sacrificados (censurados).</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/CensuraI.jpg" class="quarto-figure quarto-figure-center" style="width:4in"></p>
+</figure>
+</div>
+<blockquote>
+<p><strong>Múltiples tiempos de censura</strong>: Considera un estudio con ratones, en donde para cada sexo, 200 ratones fueron aleatoriamente divididos en 4 grupos (niveles de dosis) y cada ratón fue monitoreado hasta la muerte o hasta un tiempo pre-especificado de sacrificio (42 o 104 semanas). Véase la siguiente figura para un esquema de este ensayo correspondiente a un sexo y un nivel de dosis. Se eligieron esos dos tiempos de sacrificio para reducir el costo de mantenimiento de los animales, al mismo tiempo que se obtenía información limitada sobre la supervivencia de los ratones de vida más prolongada.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/CensuraI-3.jpg" id="fig3-2" class="quarto-figure quarto-figure-center" style="width:4in"></p>
+</figure>
+</div>
+<blockquote>
+<p>Considérese otro caso, que origina censura de Tipo I, cuando los individuos ingresan al estudio en distintos momentos y el punto terminal del mismo está predeterminado por el investigador, de modo que los tiempos de censura son conocidos en el momento en que cada individuo se incorpora al estudio. En tales investigaciones (véase la siguiente Figura para un estudio hipotético con solo cuatro sujetos), cada individuo tiene su propio tiempo de censura específico y fijo. Esta forma de censura ha sido denominada censura de Tipo I generalizada.</p>
+</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/CensuraI-2.jpg" class="quarto-figure quarto-figure-center" style="width:4in"></p>
+</figure>
+</div>
+<h3 id="censura-tipo-ii">Censura Tipo II</h3>
+<p>La censura tipo II ocurre cuando un estudio continua hasta que se presenta la falla de los primeros <span class="math inline">\(r&lt;n\)</span> individuos. En este caso, sólo los primeros <span class="math inline">\(r\)</span> tiempos <span class="math inline">\(t_{(1)} \le  t_{(2)} \le \cdots \le t_{(r)}\)</span> son observados y los últimos <span class="math inline">\(n-r\)</span> tiempos quedan censurados por la derecha.</p>
+<p>La <em>censura tipo II</em> ocurre por lo general en pruebas de la duración de equipo. Todos los aparatos son puestos a funcionar al mismo tiempo y la prueba se termina cuando los primeros <span class="math inline">\(r\)</span> de los <span class="math inline">\(n\)</span> aparatos fallan.</p>
+<p>Los experimentos con censura tipo II tienen la desventaja práctica de que el tiempo total del estudio <span class="math inline">\(T_{(r)}\)</span> , que define el tiempo de censura <span class="math inline">\(C\)</span>, es aleatorio y desconocido al inicio del estudio. Por otro lado, puede reducir costos y tiempo debido a que pudiera necesitarse un tiempo muy largo en que todos los aparatos fallen.</p>
+<p>De igual manera, una observación <span class="math inline">\(T_i\)</span> será censurada por la derecha de tipo II si <span class="math inline">\(T_i &gt; C\)</span>, con <span class="math inline">\(C=T_{(r)}\)</span></p>
+<h3 id="censura-aleatoria">Censura Aleatoria</h3>
+<p>La <em>censura aleatoria</em> ocurre cuando los tiempos de censura <span class="math inline">\(C_i\)</span> de cada paciente son consideradas variables aleatorias.</p>
+<p>Por ejemplo, en un ensayo clínico, pacientes entran al estudio en momentos distintos y cada uno puede recibir un tratamiento distinto. La censura puede ocurrir por distintas causas que compiten al mismo tiempo, como muerte accidental, migración a otra población, muerte por otra causa distinta al evento de interés, salida del paciente del ensayo clínico, terminación del estudio, etc.</p>
+<p>La censura aleatoria ocurre, por ejemplo, en estudios de pacientes con diálisis, donde falla del catéter es la primera razón de censura de los tiempos de infección. Otras razones de censura son muerte del paciente o que el hospital se rehuse a aceptar al paciente por falta de pago.</p>
+<ul>
+<li><p>Si el mecanismo de censura aleatoria <span class="math inline">\(C_i\)</span> es dependiente de los tiempos de falla <span class="math inline">\(T_i\)</span>, se le conoce como <strong>censura informativa</strong>, es decir, el tiempo de censura nos da información sobre los tiempos de fallo.</p></li>
+<li><p>En caso de que el mecanismo de censura sea independiente del tiempo de fallo, se le conoce como <strong>censura no informativa</strong> y el tratamiento de este tipo de datos es igual a los de censura tipo I.</p></li>
+</ul>
+</section>
+<section id="censura-por-la-izquierda-y-censura-por-intervalo" class="slide level2 smaller scrollable" data-transition="slide">
+<h2>Censura por la izquierda y censura por intervalo</h2>
+<h3 id="censura-por-la-izquierda">Censura por la izquierda</h3>
+<p>Un tiempo de fallo asociado con un individuo específico en un estudio se considera censurado por la izquierda si es menor a un tiempo de censura observado. Por ejemplo, el evento ocurrió antes del inicio del estudio, o el tiempo de inicio ocurrió después y no se registró.</p>
+<p>Si <span class="math inline">\(C_{l}\)</span> denota el tiempo de censura por la izquierda y <span class="math inline">\(T_{i}\)</span> el tiempo de fallo del individuo <span class="math inline">\(i\)</span>, entonces el fallo se observa sólo si <span class="math inline">\(T_{i} \ge C_{l}\)</span>. En caso contrario (<span class="math inline">\(T_{i} &lt; C_{l}\)</span>), la observación está censurada por la izquierda. Los datos con censura por la izquierda se representan como pares <span class="math inline">\((t_{i}, \delta_{i})\)</span>, donde <span class="math display">\[
+t_{i} = \max(T_{i}, C_{l})
+\quad\text{y}\quad
+\delta_{i} = I_{(T_{i} \ge C_{l})}\,.
+\]</span></p>
+<p><strong>Importante</strong>: Una observación <span class="math inline">\(T_{i}\)</span> es censurada por la izquierda si <span class="math inline">\(T_{i} &lt; C_{l}\)</span>.</p>
+<blockquote>
+<p><strong>Ejemplo de consumo de marihuana</strong>: En un estudio para determinar la distribución del tiempo hasta el primer consumo de marihuana entre alumnos de secundaria en California, se preguntó: “¿Cuándo usaste marihuana por primera vez?” Una de las respuestas fue: “Sí la he usado, pero no recuerdo exactamente cuándo fue la primera vez”. Un chico que da esta respuesta está indicando que el evento ocurrió antes de la edad que tenía al momento de la entrevista, pero se desconoce la edad exacta en que empezó a consumir. Este es un ejemplo de tiempo de evento censurado por la izquierda.</p>
+</blockquote>
+<blockquote>
+<p><strong>Ejemplo de aprendizaje en la primera infancia</strong>: En los centros de aprendizaje en la primera infancia, el interés suele centrarse en evaluar a los niños para determinar cuándo aprenden a realizar ciertas tareas específicas. La edad a la que un niño adquiere la habilidad se consideraría el tiempo hasta el evento. Con frecuencia, algunos niños ya pueden realizar la tarea al incorporarse al estudio. Tales tiempos de evento se consideran censurados por la izquierda.</p>
+</blockquote>
+<h3 id="doble-censura">Doble censura</h3>
+<p>A veces ocurre simultáneamente censura por la izquierda y por la derecha, produciendo observaciones doblemente censuradas. En este caso, cada par se define como <span class="math display">\[
+t_{i} = \max\{\min(T_{i}, C_{r}),\,C_{l}\},
+\quad
+\delta_{i} =
+\begin{cases}
+1, &amp; \text{si es tiempo exacto},\\
+0, &amp; \text{si es censura por la derecha},\\
+-1,&amp; \text{si es censura por la izquierda},
+\end{cases}
+\]</span> donde <span class="math inline">\(C_{r}\)</span> y <span class="math inline">\(C_{l}\)</span> son los tiempos de censura por derecha e izquierda, respectivamente.</p>
+<blockquote>
+<p><strong>Ejemplo de consumo de marihuana</strong>: Como continuación, otra posible respuesta a la pregunta “¿Cuándo usaste marihuana por primera vez?” fue “Nunca la he usado”, lo cual indica una observación censurada por la derecha. Se presentaron observaciones censuradas por la izquierda y por la derecha, además de conocer con exactitud la edad del primer consumo de marihuana (observaciones no censuradas) en algunos chicos. Así, se trata de un esquema de muestreo doblemente censurado.</p>
+</blockquote>
+<blockquote>
+<p><strong>Ejemplo de aprendizaje en la primera infancia</strong>: Algunos niños sometidos a las pruebas, pueden no aprender la tarea durante todo el periodo de estudio; en ese caso, dichos niños estarían censurados por la derecha. Sumado a las observaciones censuradas por la izquierda mencionadas anteriormente, esta muestra también contendría datos doblemente censurados.</p>
+</blockquote>
+<h3 id="censura-por-intervalo">Censura por intervalo</h3>
+<p>La censura por intervalo ocurre cuando sólo se conoce que el fallo ocurrió entre dos momentos de observación discretos. Si un individuo no ha presentado el evento antes de <span class="math inline">\(L_{i}\)</span>, pero sí en el siguiente control <span class="math inline">\(R_{i}\)</span>, entonces <span class="math inline">\(T_{i}\)</span> está censurado en <span class="math inline">\((L_{i}, R_{i}]\)</span>, es decir, <span class="math display">\[
+L_{i} &lt; T_{i} \le R_{i}\,.
+\]</span></p>
+<blockquote>
+<p><strong>Ejemplo de Estudio de Corazón</strong>: En el Estudio del Corazón de Framingham, las edades a las que los sujetos desarrollan por primera vez enfermedad coronaria (CHD, por sus siglas en inglés) suelen conocerse con exactitud. Sin embargo, las edades en las que ocurre por primera vez la subcategoría angina de pecho pueden conocerse solo como comprendidas entre dos exámenes clínicos, aproximadamente con dos años de diferencia. Tales observaciones se consideran censuradas por intervalo.</p>
+</blockquote>
+<blockquote>
+<p><strong>Ejemplo de Estudio de radioterapia</strong>: En un estudio retrospectivo que compara los efectos cosméticos de la radioterapia sola frente a la radioterapia con quimioterapia adyuvante en mujeres con cáncer de mama en etapa temprana. Las pacientes fueron observadas inicialmente cada 4 a 6 meses, pero a medida que avanzaba su recuperación, el intervalo entre visitas se fue alargando. El evento de interés fue la primera aparición de retracción moderada o severa del seno, una forma de deterioro cosmético. El momento exacto de la retracción solo se conocía como ubicado dentro del intervalo entre dos visitas (censura por intervalo) o como posterior a la última vez que se observó a la paciente (censura por la derecha).</p>
+</blockquote>
+</section>
+<section id="truncamiento" class="slide level2 smaller scrollable" data-transition="slide">
+<h2>Truncamiento</h2>
+<p>El truncamiento difiere de la censura en que los sujetos cuya <span class="math inline">\(T_{i}\)</span> no está en la ventana <span class="math inline">\((U, V)\)</span> no se observan en absoluto. En cambio, la censura aporta información parcial.</p>
+<blockquote>
+<p><strong>Definición</strong><br>
+Un individuo está truncado si su tiempo de fallo <span class="math inline">\(T_{i}\)</span> sólo se incluye cuando <span class="math inline">\(T_{i}\in(U,V)\)</span>.</p>
+</blockquote>
+<h4 id="truncamiento-por-la-izquierda">Truncamiento por la izquierda</h4>
+<p>Ocurre cuando sólo entran en el estudio quienes cumplen <span class="math inline">\(T_{i}&gt;U_{i}\)</span> (p.&nbsp;ej., edad de muerte &gt; 60 años). Se llama también “entrada retrasada”.</p>
+<blockquote>
+<p><strong>Ejemplo Centro de retiro</strong>: En un estudio de supervivencia de los residentes del centro de retiro Channing House, ubicado en California. Se registraron las edades al momento de la muerte (en meses), así como las edades a las que los individuos ingresaron a la comunidad de retiro (el evento de truncamiento). Dado que un individuo debe sobrevivir hasta una edad suficiente para poder ingresar al centro de retiro, todos aquellos que murieron antes no ingresan al centro y, por lo tanto, están fuera del alcance del investigador; es decir, dichos individuos no tienen posibilidad de formar parte del estudio y se consideran truncados por la izquierda. Un análisis de supervivencia de este conjunto de datos debe tener en cuenta esta característica.</p>
+</blockquote>
+<h4 id="truncamiento-por-la-derecha">Truncamiento por la derecha</h4>
+<p>Sucede cuando sólo participan quienes cumplen <span class="math inline">\(T_{i}&lt;V_{i}\)</span> (p.&nbsp;ej., distancia de estrellas &lt; umbral, o sólo casos que ya desarrollaron sida).</p>
+<blockquote>
+<p><strong>Ejemplo sobre SIDA</strong>: En este caso, se tomaron muestras de pacientes con SIDA inducido por transfusión. Se utilizaron determinaciones retrospectivas del momento de la transfusión para estimar el tiempo de espera desde la infección (vía transfusión) hasta la aparición clínica del SIDA. El registro fue muestreado el 30 de junio de 1986, por lo que solo estaban disponibles para observación aquellos cuya espera desde la transfusión hasta el desarrollo del SIDA fue menor que el tiempo transcurrido entre la transfusión y el 30 de junio de 1986. Los pacientes que fueron transfundidos antes del 30 de junio de 1986 y que desarrollaron SIDA después de esa fecha no fueron observados y se consideran truncados por la derecha.</p>
+</blockquote>
+<p>Lo más común es combinar censura por la derecha con truncamiento por la izquierda en estudios de supervivencia.</p>
 </section>
 <section id="visualización-de-funciones-en-r" class="slide level2">
 <h2>Visualización de Funciones en R</h2>
 
-<img data-src="Presentacion1_files/figure-revealjs/unnamed-chunk-3-1.png" width="960" class="r-stretch"></section>
+<img data-src="Presentacion1_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"></section>
 <section id="censura-y-truncamiento" class="slide level2">
 <h2>3. Censura y Truncamiento</h2>
 <ul>
@@ -474,7 +894,7 @@ Sergio M. Nava Muñoz
 <section id="ejemplo-de-censura-por-la-derecha" class="slide level2">
 <h2>Ejemplo de Censura por la Derecha</h2>
 
-<img data-src="Presentacion1_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"></section>
+<img data-src="Presentacion1_files/figure-revealjs/unnamed-chunk-5-1.png" width="960" class="r-stretch"></section>
 <section id="modelos-paramétricos-básicos" class="slide level2">
 <h2>4. Modelos Paramétricos Básicos</h2>
 <ul>
