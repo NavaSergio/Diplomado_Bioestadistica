@@ -81,20 +81,15 @@ A continuación se presentan algunos ejemplos de datos de supervivencia. Estos e
 
 ### Ejemplo de Duración de la remisión en un ensayo clínico para leucemia aguda
 
-
 > Duración de remisión de un ensayo clínico para leucemia aguda. Resultados de un ensayo clínico en donde se quería compara la efectividad de la droga $6-MP$ versus placebo en 42 niños con leucemia aguda. El evento de inicio es remisión parcial de la enfermedad después de haber sido tratados con la droga prednisone. El evento de fin es recaída o muerte. La escala de medición es tiempo calendario en meses. Algunos individuos no presentaron el evento de fin al término del estudio. Estos casos son marcados con un + y son llamados censurados por la derecha. Más adelante los veremos con detalle.
 
-
 ![](figura/ejemp1.png){width="40%" fig-align="center"}
-
 
 ### Ejemplo de Transplante de médula ósea en pacientes con leucemia.
 
 > Transplante de médula es un procedimiento estándar en pacientes con leucemia aguda. La recuperación después del transplante es un proceso complejo. La prognosis para la recuperación puede depender de factores que se conocen al momento del transplante, como edad y sexo del paciente y donador, etapa de la enfermedad inicial, tiempo entre el diagnóstico y el transplante, etc. La prognosis final depende de cómo evoluciona el paciente después del transplante. Puede generar aversión o rechazo de la medula transplantada (GVHD), que el conteo de plaquetas se vuelva normal o desarrollar infecciones, etc. El transplante se considera fracaso cuando el paciente recae o muere.
 
-
 ![](figura/ejemp2.png){width="40%" fig-align="center"}
-
 
 ::: {#ejemp-2 layout-ncol="2"}
 ![](figura/ejemp2-3.jpg){width="100%" fig-align="center"}
@@ -104,29 +99,19 @@ A continuación se presentan algunos ejemplos de datos de supervivencia. Estos e
 
 ### Ejemplo Tiempos de muerte de adultos mayores residentes de un asilo.
 
-
 > Channing House es una casa de retiro en California. Datos con las edades de muerte de 462 individuos (97 hombres y 365 mujeres) que estuvieron en la residencia durante el periodo de enero de 1964 y julio de 1975. Se reportó la edad a la muerte o al momento en que se salían del asilo (en meses) y la edad a la que los individuos entraron al asilo. Estos datos son un ejemplo de truncamiento por la izquierda que más adelante veremos con detalle. Un individuo tiene que sobrevivir lo suficiente para estar en edad de entrar al asilo. Individuos que mueren previamente a la edad de retiro son excluidos del estudio.
-
 
 ![](figura/ejemp3.png){fig-align="center" width="40%"}
 
-
 ### Ejemplo Tiempo al primer uso de marihuana.
-
 
 > En este estudio a 191 estudiantes de preparatoria se les preguntó: ¿Cuál fue la primera vez que probaste la marihuana?. Las respuestas fueron, “la edad exacta a la que la probaron”, “nunca la he probado”, y “la probé pero no recuerdo cuando fue la primera vez”. En este último caso tenemos una censura por la izquierda. El evento de interés ha ocurrido en algún momento previo a la edad actual del estudiante!.
 
-
-
-![](figura/ejemp4.jpg){fig-align="center" width="4.5in"}
-
+![](figura/ejemp4.jpg){fig-align="center" width="5in"}
 
 ### Tiempo a desarrollar sida.
 
-
-> Se reportan datos con tiempos de infección y de inducción para 258 adultos y 37 niños que fueron infectados con el virus del VIH y desarrollaron sida antes del 30 de junio de 1986. Los datos consisten de los tiempos (en años) desde que adultos fueron infectados por el virus por transfusión de sangre contaminada, y el tiempo de espera hasta el desarrollo de sida. Para la población pediátrica, los niños fueron infectados en útero o al nacer. El tiempo base de medición es el 1 de abril de 1978.
-En este estudio, sólo los individuos que han desarrollado sida antes del término del estudio son considerados. Individuos que no han desarrollado sida no son incluidos en el estudio. Este tipo de datos es llamado truncados por la derecha y más adelante los veremos con detalle.
-
+> Se reportan datos con tiempos de infección y de inducción para 258 adultos y 37 niños que fueron infectados con el virus del VIH y desarrollaron sida antes del 30 de junio de 1986. Los datos consisten de los tiempos (en años) desde que adultos fueron infectados por el virus por transfusión de sangre contaminada, y el tiempo de espera hasta el desarrollo de sida. Para la población pediátrica, los niños fueron infectados en útero o al nacer. El tiempo base de medición es el 1 de abril de 1978. En este estudio, sólo los individuos que han desarrollado sida antes del término del estudio son considerados. Individuos que no han desarrollado sida no son incluidos en el estudio. Este tipo de datos es llamado truncados por la derecha y más adelante los veremos con detalle.
 
 ::: smaller
 ```{r}
@@ -191,7 +176,9 @@ knitr::kable(data_sim[1:8, ], caption = "Primeros 8 registros de data_sim")
 
 ## 2. Función de Supervivencia y Función de Riesgo
 
-Como se mencionó anteriormente, el análisis de supervivencia es el estudio de variables aleatorias no negativas. Sea $T$ una v. a. no negativa que puede ser discreta o continua.
+Como se mencionó anteriormente, el análisis de supervivencia es el estudio de variables aleatorias no negativas.
+
+> Sea $T$ una v. a. no negativa que puede ser discreta o continua.
 
 De los cursos de probabilidad recordamos que toda variable aleatoria $T$ es caracterizada por su función de densidad $f(t)$ o por su función de distribución (acumulada) $F(t)$.
 
@@ -199,36 +186,69 @@ En análisis de supervivencia existen otras funciones más útiles y más interp
 
 ------------------------------------------------------------------------
 
+### Función de Supervivencia
+
 La función de supervivencia $S(t)$ es la función más importante para describir el comportamiento de tiempos de falla y se define como la probabilidad de que un individuo sobreviva más allá del tiempo $t$, es decir, la probabilidad de que un individuo presente su evento de fin en un tiempo posterior a $t$.
 
->   **Función de supervivencia**: $S(t) = P(T > t)=1-F(t)$
+> **Función de supervivencia**: $S(t) = P(T > t)=1-F(t)$
 
-¿Cómo se interpreta una función de supervivencia?. Como presentar el evento de fin no es algo necesariamente bueno, es preferible tener una probabilidad mayor de que el evento de fin ocurra posterior al tiempo $t$.
-
+::: {.smaller .scrollable}
 Las funciones de supervivencia pueden diferir en forma, pero todas mantienen las mismas propiedades básicas:
 
-1.  Son monótonas no crecientes,
-2.  iguales a uno al tiempo cero y tienden a cero cuando el tiempo tiende a infinito.
+1.  Son monótonas no crecientes.
+2.  Iguales a uno al tiempo cero y tienden a cero cuando el tiempo tiende a infinito.
+:::
+
+![](figura/Ss.jpg){fig-align="center" width="60%"}
 
 ------------------------------------------------------------------------
 
-La tasa de decaimiento de las funciones de supervivencia varía de acuerdo al riesgo de presentar el evento de fin. Eventos más riesgosos presentan una tasa de decaimiento mayor.
+### Función de Riesgo
 
-![](figura/Ss.jpg){fig-align="center" width="4in"}
+La función de riesgo es una función fundamental en análisis de supervivencia. Se le conoce también como la *tasa de falla condicional* en análisis de confiabilidad, *tasa de mortalidad* en demografía o *función de intensidad* en procesos estocásticos.
 
-La función de riesgo es una función fundamental en análisis de supervivencia. Se le conoce también como la tasa de falla condicional en análisis de confiabilidad, tasa de mortalidad en demografía o función de intensidad en procesos estocásticos.
+> **Función de riesgo**: $h(t) = f(t) / S(t)$
 
->   **Función de riesgo**: $h(t) = f(t) / S(t)$
+::: smaller
+Como el tratamiento y la interpretación de la función de densidad es distinto dependiendo si la v. a. $T$ es discreta o continua, definiremos la función de riesgo por separado en los casos discreto y continuo. 
+
+La única restricción para una función de riesgo es que sea no negativa.
+:::
+
+::: {.columns}
+
+::: {.column width="50%"}
+
+
+:::: smaller
+
+-   Una función de riesgo creciente implica un envejecimiento natural.
+-   Una función de riesgo decreciente es menos común pero indica un rejuvenecimiento.
+-   Más comúnmente son las funciones de riesgo en forma de “tina de baño” que representan el riesgo de mortalidad en poblaciones que se siguen desde el nacimiento.
+-   Una función de riesgo en forma de montaña representaría el comportamiento del riesgo de muerte por enfermedad después de un tratamiento.
+
+::::
+:::
+
+::: {.column width="50%"}
+![](figura/ejempRiesgoContinuo.jpg){fig-align="center" width="4in"}
+:::
+
+:::
+
+
 
 ------------------------------------------------------------------------
 
-Como el tratamiento y la interpretación de la función de densidad es distinto dependiendo si la v. a. $T$ es discreta o continua, definiremos la función de riesgo por separado en los casos discreto y continuo.
+![](figura/ejempRiesgoContinuo2.jpg){fig-align="center" width="4in"}
+
+------------------------------------------------------------------------
 
 ### Función de Riesgo Discreta
 
 Sea $T$ una v. a. discreta con soporte en $\{u_1, u_2, \ldots \}$. La función de riesgo discreta se define como la probabilidad condicional de presentar el evento de fin en el tiempo $t$, dado que se ha sobrevivido al tiempo $t$. Se denota por $h(t)$. En notación matemática, $$h(t)=P(T=t \mid T \ge t).$$
 
-Sea $h_k$ la función de riesgo en el tiempo $u_k$, la cual se puede obtener a través de la función de densidad y de la función de supervivencia como $$h_k = h(u_k)= \dfrac{P(T=u_k)}{P(T \ge u_k)}=\dfrac{f(u_k)}{S(U_{k-1})},$$ Como la función de densidad se expresa en términos de la función de supervivencia como $$f(u_k)=S(u_{k-1})-S(u_k),$$ entonces $$h_k = 1- \dfrac{S(u_k)}{S(u_{k-1})},$$
+Sea $h_k$ la función de riesgo en el tiempo $u_k$, la cual se puede obtener a través de la función de densidad y de la función de supervivencia como $$h_k = h(u_k)= \dfrac{P(T=u_k)}{P(T \ge u_k)}=\dfrac{f(u_k)}{S(u_{k-1})},$$ Como la función de densidad se expresa en términos de la función de supervivencia como $$f(u_k)=S(u_{k-1})-S(u_k),$$ entonces $$h_k = 1- \dfrac{S(u_k)}{S(u_{k-1})},$$
 
 ------------------------------------------------------------------------
 
@@ -256,24 +276,7 @@ Observe que $F(t)= -S'(t)$ entonces $$h(t)= - \frac{d}{dt}log S(t)$$ al integrar
 
 finalmente, como $S(0)=1$ obtenemos que $$S(t)=exp\big\{ - \int_0^t h(u)du \big\}$$ La expresión $h(t)\epsilon$ se pude ver como la “probabilidad aproximada” de que un individuo de edad $t$ experimente el evento de fin en el siguiente instante.
 
-------------------------------------------------------------------------
 
-Al igual que en el caso discreto, hay muchas formas para la función de riesgo. La única restricción es que sea no negativa.
-
-::: smaller
--   Una función de riesgo creciente implica un envejecimiento natural.
--   Una función de riesgo decreciente es menos común pero indica un rejuvenecimiento.
--   Más comúnmente son las funciones de riesgo en forma de “tina de baño” que representan el riesgo de mortalidad en poblaciones que se siguen desde el nacimiento.
--   Una función de riesgo en forma de montaña representaría el comportamiento del riesgo de muerte por enfermedad después de un tratamiento.
-:::
-
-A continuación se muestran algunos ejemplos:
-
-![](figura/ejempRiesgoContinuo.jpg){fig-align="center" width="4in"}
-
-------------------------------------------------------------------------
-
-![](figura/ejempRiesgoContinuo2.jpg){fig-align="center" width="4in"}
 
 ------------------------------------------------------------------------
 
@@ -292,8 +295,6 @@ Los datos de tiempo de fallo se presentan en diferentes formas que crean problem
 Para incorporar la censura adecuadamente, tenemos que considerar el diseño que fue utilizado para la obtención de los datos de supervivencia. Hay varios tipos de mecanismos de censura dentro de la censura por la izquierda o derecha. Cada tipo dará lugar a una función de verosimilitud distinta.
 
 Una segunda característica que hace distinto al análisis de supervivencia de otros análisis estadísticos es el **truncamiento**. El truncamiento ocurre cuando la observación del tiempo de fallo no sería posible sin la ocurrencia de un tiempo suficientemente corto o largo. Al igual que la censura existen varias categorías de truncamiento: *truncamiento por la derecha* y *truncamiento por la izquierda*.
-
-
 
 ## Censura por la derecha {.smaller .scrollable transition="slide"}
 

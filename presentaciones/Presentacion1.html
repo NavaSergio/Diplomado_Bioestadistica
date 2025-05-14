@@ -458,7 +458,7 @@ Sergio M. Nava Muñoz
 </blockquote>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figura/ejemp4.jpg" class="quarto-figure quarto-figure-center" style="width:4.5in"></p>
+<p><img data-src="figura/ejemp4.jpg" class="quarto-figure quarto-figure-center" style="width:5in"></p>
 </figure>
 </div>
 <h3 id="tiempo-a-desarrollar-sida.">Tiempo a desarrollar sida.</h3>
@@ -683,38 +683,67 @@ Sergio M. Nava Muñoz
 </section>
 <section id="función-de-supervivencia-y-función-de-riesgo" class="slide level2">
 <h2>2. Función de Supervivencia y Función de Riesgo</h2>
-<p>Como se mencionó anteriormente, el análisis de supervivencia es el estudio de variables aleatorias no negativas. Sea <span class="math inline">\(T\)</span> una v. a. no negativa que puede ser discreta o continua.</p>
+<p>Como se mencionó anteriormente, el análisis de supervivencia es el estudio de variables aleatorias no negativas.</p>
+<blockquote>
+<p>Sea <span class="math inline">\(T\)</span> una v. a. no negativa que puede ser discreta o continua.</p>
+</blockquote>
 <p>De los cursos de probabilidad recordamos que toda variable aleatoria <span class="math inline">\(T\)</span> es caracterizada por su función de densidad <span class="math inline">\(f(t)\)</span> o por su función de distribución (acumulada) <span class="math inline">\(F(t)\)</span>.</p>
 <p>En análisis de supervivencia existen otras funciones más útiles y más interpretables que las funciones de densidad y de distribución. Estas son la función de supervivencia, denotada por <span class="math inline">\(S(t)\)</span>, y las función de riesgo (tasa o intensidad) denotada por <span class="math inline">\(h(t)\)</span> y función de riesgo acumulada, denotada por <span class="math inline">\(H(t)\)</span>.</p>
 </section>
 <section class="slide level2">
 
+<h3 id="función-de-supervivencia">Función de Supervivencia</h3>
 <p>La función de supervivencia <span class="math inline">\(S(t)\)</span> es la función más importante para describir el comportamiento de tiempos de falla y se define como la probabilidad de que un individuo sobreviva más allá del tiempo <span class="math inline">\(t\)</span>, es decir, la probabilidad de que un individuo presente su evento de fin en un tiempo posterior a <span class="math inline">\(t\)</span>.</p>
 <blockquote>
 <p><strong>Función de supervivencia</strong>: <span class="math inline">\(S(t) = P(T &gt; t)=1-F(t)\)</span></p>
 </blockquote>
-<p>¿Cómo se interpreta una función de supervivencia?. Como presentar el evento de fin no es algo necesariamente bueno, es preferible tener una probabilidad mayor de que el evento de fin ocurra posterior al tiempo <span class="math inline">\(t\)</span>.</p>
+<div class="smaller scrollable">
 <p>Las funciones de supervivencia pueden diferir en forma, pero todas mantienen las mismas propiedades básicas:</p>
 <ol type="1">
-<li>Son monótonas no crecientes,</li>
-<li>iguales a uno al tiempo cero y tienden a cero cuando el tiempo tiende a infinito.</li>
+<li>Son monótonas no crecientes.</li>
+<li>Iguales a uno al tiempo cero y tienden a cero cuando el tiempo tiende a infinito.</li>
 </ol>
-</section>
+</div>
+
+<img data-src="figura/Ss.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
 <section class="slide level2">
 
-<p>La tasa de decaimiento de las funciones de supervivencia varía de acuerdo al riesgo de presentar el evento de fin. Eventos más riesgosos presentan una tasa de decaimiento mayor.</p>
-
-<img data-src="figura/Ss.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"><p>La función de riesgo es una función fundamental en análisis de supervivencia. Se le conoce también como la tasa de falla condicional en análisis de confiabilidad, tasa de mortalidad en demografía o función de intensidad en procesos estocásticos.</p>
+<h3 id="función-de-riesgo">Función de Riesgo</h3>
+<p>La función de riesgo es una función fundamental en análisis de supervivencia. Se le conoce también como la <em>tasa de falla condicional</em> en análisis de confiabilidad, <em>tasa de mortalidad</em> en demografía o <em>función de intensidad</em> en procesos estocásticos.</p>
 <blockquote>
 <p><strong>Función de riesgo</strong>: <span class="math inline">\(h(t) = f(t) / S(t)\)</span></p>
 </blockquote>
+<div class="smaller">
+<p>Como el tratamiento y la interpretación de la función de densidad es distinto dependiendo si la v. a. <span class="math inline">\(T\)</span> es discreta o continua, definiremos la función de riesgo por separado en los casos discreto y continuo.</p>
+<p>La única restricción para una función de riesgo es que sea no negativa.</p>
+</div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="smaller">
+<ul>
+<li>Una función de riesgo creciente implica un envejecimiento natural.</li>
+<li>Una función de riesgo decreciente es menos común pero indica un rejuvenecimiento.</li>
+<li>Más comúnmente son las funciones de riesgo en forma de “tina de baño” que representan el riesgo de mortalidad en poblaciones que se siguen desde el nacimiento.</li>
+<li>Una función de riesgo en forma de montaña representaría el comportamiento del riesgo de muerte por enfermedad después de un tratamiento.</li>
+</ul>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figura/ejempRiesgoContinuo.jpg" class="quarto-figure quarto-figure-center" style="width:4in"></p>
+</figure>
+</div>
+</div></div>
 </section>
 <section class="slide level2">
 
-<p>Como el tratamiento y la interpretación de la función de densidad es distinto dependiendo si la v. a. <span class="math inline">\(T\)</span> es discreta o continua, definiremos la función de riesgo por separado en los casos discreto y continuo.</p>
+
+<img data-src="figura/ejempRiesgoContinuo2.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"></section>
+<section class="slide level2">
+
 <h3 id="función-de-riesgo-discreta">Función de Riesgo Discreta</h3>
 <p>Sea <span class="math inline">\(T\)</span> una v. a. discreta con soporte en <span class="math inline">\(\{u_1, u_2, \ldots \}\)</span>. La función de riesgo discreta se define como la probabilidad condicional de presentar el evento de fin en el tiempo <span class="math inline">\(t\)</span>, dado que se ha sobrevivido al tiempo <span class="math inline">\(t\)</span>. Se denota por <span class="math inline">\(h(t)\)</span>. En notación matemática, <span class="math display">\[h(t)=P(T=t \mid T \ge t).\]</span></p>
-<p>Sea <span class="math inline">\(h_k\)</span> la función de riesgo en el tiempo <span class="math inline">\(u_k\)</span>, la cual se puede obtener a través de la función de densidad y de la función de supervivencia como <span class="math display">\[h_k = h(u_k)= \dfrac{P(T=u_k)}{P(T \ge u_k)}=\dfrac{f(u_k)}{S(U_{k-1})},\]</span> Como la función de densidad se expresa en términos de la función de supervivencia como <span class="math display">\[f(u_k)=S(u_{k-1})-S(u_k),\]</span> entonces <span class="math display">\[h_k = 1- \dfrac{S(u_k)}{S(u_{k-1})},\]</span></p>
+<p>Sea <span class="math inline">\(h_k\)</span> la función de riesgo en el tiempo <span class="math inline">\(u_k\)</span>, la cual se puede obtener a través de la función de densidad y de la función de supervivencia como <span class="math display">\[h_k = h(u_k)= \dfrac{P(T=u_k)}{P(T \ge u_k)}=\dfrac{f(u_k)}{S(u_{k-1})},\]</span> Como la función de densidad se expresa en términos de la función de supervivencia como <span class="math display">\[f(u_k)=S(u_{k-1})-S(u_k),\]</span> entonces <span class="math display">\[h_k = 1- \dfrac{S(u_k)}{S(u_{k-1})},\]</span></p>
 </section>
 <section class="slide level2">
 
@@ -737,24 +766,6 @@ Sergio M. Nava Muñoz
 
 <p>finalmente, como <span class="math inline">\(S(0)=1\)</span> obtenemos que <span class="math display">\[S(t)=exp\big\{ - \int_0^t h(u)du \big\}\]</span> La expresión <span class="math inline">\(h(t)\epsilon\)</span> se pude ver como la “probabilidad aproximada” de que un individuo de edad <span class="math inline">\(t\)</span> experimente el evento de fin en el siguiente instante.</p>
 </section>
-<section class="slide level2">
-
-<p>Al igual que en el caso discreto, hay muchas formas para la función de riesgo. La única restricción es que sea no negativa.</p>
-<div class="smaller">
-<ul>
-<li>Una función de riesgo creciente implica un envejecimiento natural.</li>
-<li>Una función de riesgo decreciente es menos común pero indica un rejuvenecimiento.</li>
-<li>Más comúnmente son las funciones de riesgo en forma de “tina de baño” que representan el riesgo de mortalidad en poblaciones que se siguen desde el nacimiento.</li>
-<li>Una función de riesgo en forma de montaña representaría el comportamiento del riesgo de muerte por enfermedad después de un tratamiento.</li>
-</ul>
-</div>
-<p>A continuación se muestran algunos ejemplos:</p>
-
-<img data-src="figura/ejempRiesgoContinuo.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"></section>
-<section class="slide level2">
-
-
-<img data-src="figura/ejempRiesgoContinuo2.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:4in"></section>
 <section class="slide level2">
 
 <h3 id="función-de-riesgo-acumulado-contínua">Función de Riesgo Acumulado Contínua</h3>
