@@ -1,0 +1,114 @@
+---
+title: "sorteo SP1"
+output: html_document
+date: "2025-05-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Seminario de proyectos I
+
+
+```{r SP1,echo=FALSE}
+# Lista completa de nombres
+nombres <- c(
+  "Francisco Alvarez Soriano", "Adolfo Barceinas Guevara", "Jessica Nicole Bracamonte Dzib",
+  "Christopher Jesús Camacho Pérez", "Daniela Carmona León", "Oscar Castaneda Hernandez",
+  "Pedro Ezequiel Catzin Baquedano", "Miriam Gabriela Colín Núñez", "Eduardo Leonel Contreras Hernandez",
+  "Jesus Fernando Elizalde Soto", "Carlos Agustin Escamilla Marin", "Pablo Ezequiel Gallardo Fonseca",
+  "Mario Emmanuel Gamboa Chan", "Leonel Esteban García Nunez", "Eduardo Camilo Carlos Hernandez Garcia",
+  "Alberto Herrera Lopez", "Maria Barbarita Hidalgo Chairez", "Luis Fernando Izquierdo Berdugo",
+  "Salvador Medina Perez", "Jos Roberto Mendoza Martinez", "Andrea Severiana Montañez Guerrero",
+  "Juan Emilio Moreno Zapata", "Joaquin Alberto Nunez Garcia", "Mario Rodrguez Felix",
+  "David Rodriguez Gutierrez", "Jose Adrian Rodriguez Mayo", "Emmanuel Rosas Rosas",
+  "Miroslava Sandria Yong", "Diana Nadia Tamayo Celada", "Mauricio Daniel Tellez Nava",
+  "Marisol Vazquez Herrera"
+)
+
+# Restricciones
+forzados_martes <- c("Pedro Ezequiel Catzin Baquedano", "Joaquin Alberto Nunez Garcia")
+restriccion_miriam <- "Miriam Gabriela Colín Núñez"
+
+# Restar nombres con restricciones del conjunto general
+resto <- setdiff(nombres, c(forzados_martes, restriccion_miriam))
+
+# Fijar semilla
+set.seed(123)
+
+# Sortear el resto
+orden_restante <- sample(resto)
+
+# Asignar 14 al lunes (sin restricciones)
+lunes <- orden_restante[1:14]
+
+# Miriam debe ir después de las 19:00 => turnos 7-18 (espacios 8 al 18), puede ir en lunes o martes
+# Supongamos que la colocamos en el lunes, en el primer turno disponible después de las 19:00
+lunes <- append(lunes, restriccion_miriam, after = 6)  # turno 7 (19:00 h)
+
+# El resto (17 estudiantes), más los dos forzados al martes
+martes <- c(orden_restante[15:length(orden_restante)], forzados_martes)
+
+# Función para generar horarios
+generar_horarios <- function(nombres, fecha) {
+  inicio <- as.POSIXct(paste(fecha, "18:00:00"))
+  horarios <- inicio + seq(0, by = 10 * 60, length.out = length(nombres))
+  data.frame(
+    Turno = 1:length(nombres),
+    Nombre = nombres,
+    Dia = fecha,
+    Hora = format(horarios, "%H:%M")
+  )
+}
+
+# Crear cronogramas
+horario_lunes <- generar_horarios(lunes, "2025-05-26")
+horario_martes <- generar_horarios(martes, "2025-05-27")
+
+# Unir resultados
+horario_total <- rbind(horario_lunes, horario_martes)
+
+# Mostrar
+#print(horario_total)
+knitr::kable(horario_total)
+
+```
+
+## Seminario de proyectos II
+
+```{r SP2, echo=FALSE}
+# Lista de nombres
+nombres <- c(
+  "Jose Luis Cruz Marquez",
+  "Cristal Sarahí Delgado López",
+  "ARTURO HERRERA DIAZ",
+  "DIEGO LEONEL LUNA LOPEZ",
+  "DIANA ELIZABETH MARTINEZ LEO LIM",
+  "Jesus Ortiz Bejar",
+  "Dulce Aide Ramirez Vazquez",
+  "ROSAURA IXCHEL XICALI LOPEZ"
+)
+
+# Semilla fija
+set.seed(127)
+
+# Sortear orden
+orden <- sample(nombres)
+
+# Generar horarios para el miércoles 28 de mayo, 15 minutos por presentación
+inicio <- as.POSIXct("2025-05-28 18:00:00")
+horarios <- inicio + seq(0, by = 15 * 60, length.out = length(orden))
+
+# Crear data frame
+presentaciones <- data.frame(
+  Turno = 1:length(orden),
+  Nombre = orden,
+  Dia = "2025-05-28",
+  Hora = format(horarios, "%H:%M")
+)
+
+# Mostrar resultado
+#print(presentaciones)
+knitr::kable(presentaciones)
+```
