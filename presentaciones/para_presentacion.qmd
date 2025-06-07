@@ -6,8 +6,6 @@ editor: visual
 
 ## Quarto
 
-
-
 ```{r}
 library(survival)
 tabla=as.table(survexp.us[,,"2004"])
@@ -16,7 +14,6 @@ knitr::kable(tabla, booktabs = TRUE, digits = 5,format.args = list(scientific = 
              format = "simple",
              caption="Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año 2004")
 ```
-
 
 ```{r}
 tm <- c(0, # birth
@@ -72,7 +69,6 @@ title("Survival of US males and females in 2004")
 
 
 ```
-
 
 ```{r}
 #| echo: false
