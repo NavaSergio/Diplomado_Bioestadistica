@@ -215,6 +215,15 @@ Sergio M. Nava Muñoz
 
   <p class="date">2025-06-01</p>
 </section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code> survival     asaur survminer 
+     TRUE      TRUE      TRUE </code></pre>
+</div>
+</div>
+</section>
 <section id="qué-es-el-análisis-de-supervivencia" class="slide level2">
 <h2>1. ¿Qué es el Análisis de Supervivencia?</h2>
 <ul>
@@ -303,7 +312,7 @@ Sergio M. Nava Muñoz
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-2-1.png" width="768"></p>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-3-1.png" width="768"></p>
 <figcaption>Reclutamiento y seguimiento</figcaption>
 </figure>
 </div>
@@ -361,27 +370,18 @@ Sergio M. Nava Muñoz
 </table>
 </div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">Surv</span>(tiempo, status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 7+ 6  6+ 5+ 2  4 </code></pre>
-</div>
-</div>
-</div><div class="column smaller" style="width:70%;">
-<div class="cell">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-5-1.png" width="768"></p>
-<figcaption>Tiempo del paciente</figcaption>
-</figure>
-</div>
-</div>
-</div>
 <ul>
 <li>Círculo abierto = censura</li>
 <li>X = evento (muerte)</li>
 </ul>
+</div><div class="column smaller" style="width:70%;">
+<div class="cell quarto-layout-panel" data-layout-ncol="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-5-1.png" width="768"></p>
+</div>
+</div>
+</div>
 </div></div>
 </section>
 <section id="programación-en-r" class="slide level2">
@@ -389,28 +389,113 @@ Sergio M. Nava Muñoz
 <ul>
 <li>Librería <code>survival</code>:</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(survival)</span>
-<span id="cb3-2"><a href=""></a><span class="fu">Surv</span>(tiempo, status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb2-2"><a href=""></a><span class="fu">Surv</span>(tiempo, status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li>Este objeto puede usarse en:
 <ul>
-<li><code>survfit()</code> para curvas Kaplan-Meier</li>
-<li><code>coxph()</code> para modelos de Cox</li>
+<li><a href="https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/Surv">Surv()</a> codifica la información de tiempo y censura.</li>
+<li><a href="https://www.rdocumentation.org/packages/survival/versions/3.8-3/topics/survfit.formula">survfit()</a> ajusta curvas de supervivencia (Kaplan-Meier).</li>
+<li><a href="https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/coxph">coxph()</a> para modelos de Cox</li>
 </ul></li>
 </ul>
 </section>
-<section id="curva-de-supervivencia-de-kaplan-meier" class="slide level2">
-<h2>7. Curva de Supervivencia de Kaplan-Meier</h2>
+<section class="slide level2">
+
+<h3 id="la-función-surv-de-survival">La función <code>Surv()</code> de <code>survival</code></h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>ajuste <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(tiempo, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> datos)</span>
-<span id="cb4-2"><a href=""></a><span class="fu">plot</span>(ajuste, <span class="at">xlab=</span><span class="st">"Tiempo"</span>, <span class="at">ylab=</span><span class="st">"Probabilidad de supervivencia"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb3-2"><a href=""></a></span>
+<span id="cb3-3"><a href=""></a><span class="co"># Censura derecha</span></span>
+<span id="cb3-4"><a href=""></a>tiempos <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">12</span>, <span class="dv">3</span>, <span class="dv">10</span>)</span>
+<span id="cb3-5"><a href=""></a>evento <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)  <span class="co"># 1 = evento, 0 = censurado</span></span>
+<span id="cb3-6"><a href=""></a></span>
+<span id="cb3-7"><a href=""></a>datos <span class="ot">&lt;-</span> <span class="fu">Surv</span>(tiempos, evento)</span>
+<span id="cb3-8"><a href=""></a>datos</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  5   8+ 12   3  10+</code></pre>
+</div>
+</div>
+<ul>
+<li>Crea un objeto de clase <code>Surv</code>.</li>
+<li>Es la base para ajustar modelos de supervivencia.</li>
+</ul>
+<h3 id="visualizando-surv-con-tipos-de-censura">Visualizando <code>Surv()</code> con tipos de censura</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="co"># Censura izquierda</span></span>
+<span id="cb5-2"><a href=""></a>tiempos <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">12</span>, <span class="dv">3</span>, <span class="dv">10</span>)</span>
+<span id="cb5-3"><a href=""></a>evento <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb5-4"><a href=""></a><span class="fu">Surv</span>(tiempos, evento, <span class="at">type =</span> <span class="st">"left"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  5   8- 12   3  10-</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="co"># Censura por intervalo</span></span>
+<span id="cb7-2"><a href=""></a>inferior <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb7-3"><a href=""></a>superior <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">6</span>, <span class="dv">3</span>)</span>
+<span id="cb7-4"><a href=""></a>evento <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">3</span>)  <span class="co"># 3 = intervalo</span></span>
+<span id="cb7-5"><a href=""></a><span class="fu">Surv</span>(inferior, superior, <span class="at">type =</span> <span class="st">"interval2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] [2, 4] 6      [7, 9] [5, 6] [1, 3]</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="ajuste-con-survfit">Ajuste con <code>survfit()</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb9-2"><a href=""></a></span>
+<span id="cb9-3"><a href=""></a><span class="co"># Datos con censura derecha</span></span>
+<span id="cb9-4"><a href=""></a>tiempos <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">12</span>, <span class="dv">3</span>, <span class="dv">10</span>)</span>
+<span id="cb9-5"><a href=""></a>evento <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb9-6"><a href=""></a>datos <span class="ot">&lt;-</span> <span class="fu">Surv</span>(tiempos, evento)</span>
+<span id="cb9-7"><a href=""></a><span class="fu">print</span>(datos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  5   8+ 12   3  10+</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>modelo <span class="ot">&lt;-</span> <span class="fu">survfit</span>(datos <span class="sc">~</span> <span class="dv">1</span>)  <span class="co"># sin covariables</span></span>
+<span id="cb11-2"><a href=""></a><span class="fu">summary</span>(modelo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = datos ~ 1)
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    3      5       1      0.8   0.179        0.516            1
+    5      4       1      0.6   0.219        0.293            1
+   12      1       1      0.0     NaN           NA           NA</code></pre>
+</div>
+</div>
+<ul>
+<li><code>survfit()</code> ajusta una curva de Kaplan-Meier.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="graficando-la-curva-de-supervivencia">Graficando la curva de supervivencia</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">plot</span>(modelo, <span class="at">xlab =</span> <span class="st">"Tiempo"</span>, <span class="at">ylab =</span> <span class="st">"Supervivencia estimada"</span>,</span>
+<span id="cb13-2"><a href=""></a>     <span class="at">main =</span> <span class="st">"Curva de Kaplan-Meier"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"><blockquote>
+<p>Puedes usar <a href="https://www.rdocumentation.org/packages/survminer/versions/0.4.9/topics/ggsurvplot">ggsurvplot()</a> del paquete <code>survminer</code> para una mejor presentación visual.</p>
+</blockquote>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>survminer<span class="sc">::</span><span class="fu">ggsurvplot</span>(modelo,<span class="at">data=</span>datos, <span class="at">xlab =</span> <span class="st">"Tiempo"</span>, <span class="at">ylab =</span> <span class="st">"Supervivencia estimada"</span>,</span>
+<span id="cb14-2"><a href=""></a>     <span class="at">title =</span> <span class="st">"Curva de Kaplan-Meier"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
 <section id="conjunto-de-datos-gastricxelox-de-la-biblioteca-asaur" class="slide level2">
 <h2>8. Conjunto de datos <code>gastricXelox</code> de la biblioteca <code>asaur</code></h2>
 <div class="columns">
 <div class="column" style="width:40%;">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a><span class="fu">library</span>(asaur)</span>
+<span id="cb15-2"><a href=""></a><span class="fu">data</span>(<span class="st">"gastricXelox"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top">
@@ -468,7 +553,7 @@ Sergio M. Nava Muñoz
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-8-1.png" width="960"></p>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-13-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -477,7 +562,7 @@ Sergio M. Nava Muñoz
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-9-1.png" width="960"></p>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-14-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -556,7 +641,7 @@ Sergio M. Nava Muñoz
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-11-1.png" width="960"></p>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-16-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -620,7 +705,7 @@ Sergio M. Nava Muñoz
 
 </div>
 
-<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-18-1.png" width="960" class="r-stretch"></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

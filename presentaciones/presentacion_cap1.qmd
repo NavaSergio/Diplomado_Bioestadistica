@@ -22,7 +22,52 @@ format:
     background-transition: fade
     title-slide-attributes:
       data-background-size: 100% 100%;   
+execute:
+  echo: false
+  warning: false
+  message: false
+      
 ---
+
+
+
+```{r}
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+
+sapply(packages, require, character.only=TRUE)
+
+graficar_supervivencia_individual <- function(datos) {
+  if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
+    stop("El data.frame debe contener las columnas: paciente, tiempo, status")
+  }
+
+  # Asegurar orden por paciente descendente (opcional, para que se vea como ejemplo original)
+  datos <- datos[order(-datos$paciente), ]
+
+  # Graficar fondo vacío
+  plot(0, 0, type = "n",
+       xlim = c(0, max(datos$tiempo, na.rm = TRUE) + 1),
+       ylim = c(0.5, nrow(datos) + 0.5),
+       xlab = "Tiempo", ylab = "Paciente",
+       yaxt = "n")
+  
+  axis(2, at = 1:nrow(datos), labels = datos$paciente)
+
+  # Dibujar segmentos y símbolos
+  for (i in 1:nrow(datos)) {
+    points(0, i, pch = 16, cex = 1.2)  
+    lines(c(0, datos$tiempo[i]), c(i, i), lwd = 2)
+    points(datos$tiempo[i], i,
+           pch = ifelse(datos$status[i] == 1, 4, 1),
+           cex = 1.5)
+  }
+}
+```
+
+
 
 ## 1. ¿Qué es el Análisis de Supervivencia?
 
@@ -121,59 +166,36 @@ for (i in 1:nrow(datos)) {
 
 
 ```{r}
-library(survival)
 paciente <- 1:6
 tiempo <- c(7, 6, 6, 5, 2, 4)
 status <- c(0, 1, 0, 0, 1, 1)
-datos <- data.frame(paciente, tiempo, status)
-knitr::kable(datos, caption = "Ejemplo")
+datos_S1 <- data.frame(paciente, tiempo, status)
+knitr::kable(datos_S1, caption = "Ejemplo")
 ```
 
-```{r echo=TRUE}
-Surv(tiempo, status)
-```
+
+- Círculo abierto = censura
+- X = evento (muerte)
+
 
 :::
 
 ::: {.column width="70%" .smaller}
 
 
-```{r fig.cap="Tiempo del paciente", fig.width=8, fig.height=4}
+```{r}
+#| fig-width: 8
+#| fig-height: 7
+#| layout-ncol: 1
 
-graficar_supervivencia_individual <- function(datos) {
-  if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
-    stop("El data.frame debe contener las columnas: paciente, tiempo, status")
-  }
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
 
-  # Asegurar orden por paciente descendente (opcional, para que se vea como ejemplo original)
-  datos <- datos[order(-datos$paciente), ]
-
-  # Graficar fondo vacío
-  plot(0, 0, type = "n",
-       xlim = c(0, max(datos$tiempo, na.rm = TRUE) + 1),
-       ylim = c(0.5, nrow(datos) + 0.5),
-       xlab = "Tiempo", ylab = "Paciente",
-       yaxt = "n")
-  
-  axis(2, at = 1:nrow(datos), labels = datos$paciente)
-
-  # Dibujar segmentos y símbolos
-  for (i in 1:nrow(datos)) {
-    points(0, i, pch = 16, cex = 1.2)  
-    lines(c(0, datos$tiempo[i]), c(i, i), lwd = 2)
-    points(datos$tiempo[i], i,
-           pch = ifelse(datos$status[i] == 1, 4, 1),
-           cex = 1.5)
-  }
-}
-
-graficar_supervivencia_individual(datos)
+graficar_supervivencia_individual(datos_S1)
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
+plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia", main= "Curva de Supervivencia de Kaplan-Meier")
+par(mfrow = c(1,1))
 ```
 
-
-
-- Círculo abierto = censura
-- X = evento (muerte)
 
 :::
 
@@ -193,16 +215,86 @@ Surv(tiempo, status)
 ```
 
 - Este objeto puede usarse en:
-  - `survfit()` para curvas Kaplan-Meier
-  - `coxph()` para modelos de Cox
+  - [Surv()](https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/Surv) codifica la información de tiempo y censura.
+  - [survfit()](https://www.rdocumentation.org/packages/survival/versions/3.8-3/topics/survfit.formula)  ajusta curvas de supervivencia (Kaplan-Meier).
+  - [coxph()](https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/coxph) para modelos de Cox
 
 ---
 
-## 7. Curva de Supervivencia de Kaplan-Meier
+### La función `Surv()` de `survival`
 
-```{r echo=TRUE}
-ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
-plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia")
+```{r}
+#| echo: true
+library(survival)
+
+# Censura derecha
+tiempos <- c(5, 8, 12, 3, 10)
+evento <- c(1, 0, 1, 1, 0)  # 1 = evento, 0 = censurado
+
+datos <- Surv(tiempos, evento)
+datos
+```
+
+- Crea un objeto de clase `Surv`.
+- Es la base para ajustar modelos de supervivencia.
+
+
+
+### Visualizando `Surv()` con tipos de censura
+
+```{r}
+#| echo: true
+# Censura izquierda
+tiempos <- c(5, 8, 12, 3, 10)
+evento <- c(1, 0, 1, 1, 0)
+Surv(tiempos, evento, type = "left")
+
+# Censura por intervalo
+inferior <- c(2, 6, 7, 5, 1)
+superior <- c(4, 6, 9, 6, 3)
+evento <- c(3, 0, 3, 0, 3)  # 3 = intervalo
+Surv(inferior, superior, type = "interval2")
+```
+
+---
+
+
+### Ajuste con `survfit()`
+
+```{r}
+#| echo: true
+library(survival)
+
+# Datos con censura derecha
+tiempos <- c(5, 8, 12, 3, 10)
+evento <- c(1, 0, 1, 1, 0)
+datos <- Surv(tiempos, evento)
+print(datos)
+modelo <- survfit(datos ~ 1)  # sin covariables
+summary(modelo)
+```
+
+- `survfit()` ajusta una curva de Kaplan-Meier.
+
+---
+
+### Graficando la curva de supervivencia
+
+```{r}
+#| echo: true
+plot(modelo, xlab = "Tiempo", ylab = "Supervivencia estimada",
+     main = "Curva de Kaplan-Meier")
+```
+
+> Puedes usar [ggsurvplot()](https://www.rdocumentation.org/packages/survminer/versions/0.4.9/topics/ggsurvplot) del paquete `survminer` para una mejor presentación visual.
+
+
+---
+
+```{r}
+#| echo: true
+survminer::ggsurvplot(modelo,data=datos, xlab = "Tiempo", ylab = "Supervivencia estimada",
+     title = "Curva de Kaplan-Meier")
 ```
 
 ---
@@ -212,7 +304,13 @@ plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia")
 
 ::: {.column width="40%" }
 ```{r}
+#| echo: true
 library(asaur)
+data("gastricXelox")
+```
+
+
+```{r}
 set.seed(157)
 datos2 <- gastricXelox[sample(1:nrow(gastricXelox),replace = FALSE),]
 datos2 <- data.frame(
