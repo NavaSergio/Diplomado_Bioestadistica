@@ -9,7 +9,8 @@
 <link href="presentacion_cap1_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.31">
 
-  <meta name="author" content="Basado en Dirk F. Moore">
+  <meta name="author" content="Sergio M. Nava Muñoz">
+  <meta name="dcterms.date" content="2025-06-01">
   <title>Análisis de Supervivencia con R: Capítulo 1</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -95,10 +96,13 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="presentacion_cap1_files/libs/revealjs/dist/theme/quarto-f563837468303362081e247dddd440d0.css">
+  <link rel="stylesheet" href="presentacion_cap1_files/libs/revealjs/dist/theme/quarto-d738cf732ec81b3aa03e4187d7f8056b.css">
+  <link rel="stylesheet" href="style.css">
   <link href="presentacion_cap1_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="presentacion_cap1_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="presentacion_cap1_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="presentacion_cap1_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="presentacion_cap1_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="presentacion_cap1_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -192,17 +196,24 @@
   <div class="reveal">
     <div class="slides">
 
-<section id="title-slide" class="quarto-title-block center">
+<section id="title-slide" data-background-size="100% 100%;" class="quarto-title-block center">
   <h1 class="title">Análisis de Supervivencia con R: Capítulo 1</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Basado en Dirk F. Moore 
+Sergio M. Nava Muñoz 
 </div>
+<div class="quarto-title-author-email">
+<a href="mailto:nava@cimat.mx">nava@cimat.mx</a>
 </div>
+        <p class="quarto-title-affiliation">
+            CIMAT
+          </p>
+    </div>
 </div>
 
+  <p class="date">2025-06-01</p>
 </section>
 <section id="qué-es-el-análisis-de-supervivencia" class="slide level2">
 <h2>1. ¿Qué es el Análisis de Supervivencia?</h2>
@@ -233,30 +244,145 @@ Basado en Dirk F. Moore
 </section>
 <section id="ejemplo-ensayo-clínico-con-cáncer" class="slide level2">
 <h2>4. Ejemplo: Ensayo clínico con cáncer</h2>
+<div class="columns">
+<div class="column smaller" style="width:30%;">
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>  paciente tiempo status
-1        1      7      0
-2        2      6      1
-3        3      6      0
-4        4      5      0
-5        5      2      1
-6        6      4      1</code></pre>
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: right;">paciente</th>
+<th style="text-align: right;">entrada</th>
+<th style="text-align: right;">fin</th>
+<th style="text-align: right;">evento</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">2006</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2001</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: right;">2004</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: right;">2006</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div><div class="column" style="width:70%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-2-1.png" width="768"></p>
+<figcaption>Reclutamiento y seguimiento</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="representación-gráfica-del-seguimiento" class="slide level2">
+<h2>5. Representación gráfica del seguimiento</h2>
+<div class="columns">
+<div class="column smaller" style="width:30%;">
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>Ejemplo</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">paciente</th>
+<th style="text-align: right;">tiempo</th>
+<th style="text-align: right;">status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">Surv</span>(tiempo, status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 7+ 6  6+ 5+ 2  4 </code></pre>
 </div>
 </div>
-</section>
-<section id="representación-gráfica-del-seguimiento" class="slide level2">
-<h2>5. Representación gráfica del seguimiento</h2>
-
-<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"><ul>
+</div><div class="column smaller" style="width:70%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-5-1.png" width="768"></p>
+<figcaption>Tiempo del paciente</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
 <li>Círculo abierto = censura</li>
 <li>X = evento (muerte)</li>
 </ul>
+</div></div>
 </section>
 <section id="programación-en-r" class="slide level2">
 <h2>6. Programación en R</h2>
@@ -275,27 +401,89 @@ Basado en Dirk F. Moore
 </section>
 <section id="curva-de-supervivencia-de-kaplan-meier" class="slide level2">
 <h2>7. Curva de Supervivencia de Kaplan-Meier</h2>
-
-<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-5-1.png" width="960" class="r-stretch"></section>
-<section id="conjunto-de-datos-gastricxelox" class="slide level2">
-<h2>8. Conjunto de datos <code>gastricXelox</code></h2>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>  timeWeeks delta
-1         4     1
-2         8     1
-3         8     1
-4         8     1
-5         9     1
-6        11     1</code></pre>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>ajuste <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(tiempo, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> datos)</span>
+<span id="cb4-2"><a href=""></a><span class="fu">plot</span>(ajuste, <span class="at">xlab=</span><span class="st">"Tiempo"</span>, <span class="at">ylab=</span><span class="st">"Probabilidad de supervivencia"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<section id="conjunto-de-datos-gastricxelox-de-la-biblioteca-asaur" class="slide level2">
+<h2>8. Conjunto de datos <code>gastricXelox</code> de la biblioteca <code>asaur</code></h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>Ejemplo</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">paciente</th>
+<th style="text-align: right;">tiempo</th>
+<th style="text-align: right;">status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">76</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <ul>
-<li>Tiempo: semanas hasta progresión o muerte</li>
+<li>Tiempo: semanas hasta progresión o muerte<br>
+</li>
 <li><code>delta = 1</code> si hubo evento, <code>0</code> si censurado</li>
+<li>Los datos se desordenaron para este ejemplo</li>
 </ul>
-
-<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch"></section>
+</div><div class="column" style="width:60%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-8-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-9-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
 <section id="censura-informativa-vs-no-informativa" class="slide level2">
 <h2>9. Censura informativa vs no-informativa</h2>
 <ul>
@@ -321,6 +509,8 @@ Basado en Dirk F. Moore
 </section>
 <section id="ejercicio-propuesto" class="slide level2">
 <h2>12. Ejercicio propuesto</h2>
+<div class="columns">
+<div class="column smaller" style="width:40%;">
 <ul>
 <li>Usar R para:
 <ul>
@@ -331,7 +521,7 @@ Basado en Dirk F. Moore
 </ul>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Call: survfit(formula = Surv(timeMonths, delta) ~ 1)
+<pre><code>Call: survfit(formula = Surv(timeMonths, delta) ~ 1, data = gastricXelox)
 
    time n.risk n.event survival std.err lower 95% CI upper 95% CI
   0.926     48       1    0.979  0.0206        0.940        1.000
@@ -360,10 +550,77 @@ Basado en Dirk F. Moore
  17.587     11       1    0.303  0.0734        0.189        0.487
  18.050     10       1    0.273  0.0720        0.163        0.458</code></pre>
 </div>
+</div>
+</div><div class="column" style="width:60%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-11-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="otros" class="slide level2">
+<h2>Otros</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>Ejemplo</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">paciente</th>
+<th style="text-align: right;">tiempo_inicio</th>
+<th style="text-align: right;">tiempo_fin</th>
+<th style="text-align: left;">tipo_censura</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">observado</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">intervalo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">derecha</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">izquierda</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">derecha</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">observado</td>
+</tr>
+</tbody>
+</table>
+</div>
 
 </div>
 
-<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
+<img data-src="presentacion_cap1_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -378,6 +635,7 @@ Basado en Dirk F. Moore
   <script src="presentacion_cap1_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="presentacion_cap1_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="presentacion_cap1_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="presentacion_cap1_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="presentacion_cap1_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -399,7 +657,8 @@ Basado en Dirk F. Moore
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -420,7 +679,7 @@ Basado en Dirk F. Moore
         progress: true,
 
         // Display the page number of the current slide
-        slideNumber: false,
+        slideNumber: 'c/t',
 
         // 'all', 'print', or 'speaker'
         showSlideNumber: 'all',
@@ -525,14 +784,14 @@ Basado en Dirk F. Moore
         previewLinks: false,
 
         // Transition style (none/fade/slide/convex/concave/zoom)
-        transition: 'none',
+        transition: 'slide',
 
         // Transition speed (default/fast/slow)
         transitionSpeed: 'default',
 
         // Transition style for full page slide backgrounds
         // (none/fade/slide/convex/concave/zoom)
-        backgroundTransition: 'none',
+        backgroundTransition: 'fade',
 
         // Number of slides away from the current that are visible
         viewDistance: 3,
@@ -570,7 +829,7 @@ Basado en Dirk F. Moore
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealMath,
           RevealNotes,

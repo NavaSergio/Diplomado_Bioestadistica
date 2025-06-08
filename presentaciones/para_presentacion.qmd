@@ -1,6 +1,6 @@
 ---
 title: "Para_presentacion"
-format: html
+format: revealjs
 editor: visual
 ---
 
@@ -16,6 +16,8 @@ knitr::kable(tabla, booktabs = TRUE, digits = 5,format.args = list(scientific = 
              format = "simple",
              caption=paste("Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año",as.character(año)))
 ```
+
+-----
 
 ```{r}
 tm <- c(0, # birth

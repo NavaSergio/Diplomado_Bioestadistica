@@ -1,7 +1,27 @@
 ---
 title: "Análisis de Supervivencia con R: Capítulo 1"
-author: "Basado en Dirk F. Moore"
-format: revealjs
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    css: style.css
+    chalkboard: true
+    menu: TRUE
+    transition: slide
+    background-transition: fade
+    title-slide-attributes:
+      data-background-size: 100% 100%;   
 ---
 
 ## 1. ¿Qué es el Análisis de Supervivencia?
@@ -32,24 +52,94 @@ format: revealjs
 
 ## 4. Ejemplo: Ensayo clínico con cáncer
 
+::: {.columns}
+
+::: {.column width="30%" .smaller}
+
+```{r}
+# Datos de entrada manualmente extraídos de la figura
+datos <- data.frame(
+  paciente = 6:1,
+  entrada = c(2002, 2002, 2002, 2001, 2000, 2000),
+  fin      = c(2006, 2004, 2007, 2007, 2006, 2007),
+  evento   = c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
+)
+datos2 <- datos[6:1,]
+datos2$evento <- as.numeric(datos2$evento)
+knitr::kable(datos2, label = "prueba", row.names = FALSE  )
+```
+
+
+:::
+
+::: {.column width="70%"}
+
+
+
+```{r fig.cap="Reclutamiento y seguimiento", fig.width=8, fig.height=4}
+# Crear la figura
+plot(0, 0, type = "n", xlim = c(2000, 2010), ylim = c(0.5, 6.5),
+     xlab = "Year of entry – calendar time",  ylab = "Paciente", yaxt = "n", xaxt = "n")
+
+# Ejes personalizados
+axis(1, at = seq(2000, 2010, by = 2))
+axis(2, at = 1:6, labels = 6:1, las = 1)
+
+# Líneas verticales punteadas
+abline(v = 2000, lty = 2, col = "red")
+abline(v = 2002, lty = 2, col = "red")
+abline(v = 2007, lty = 2, col = "red")
+
+# Dibujar trayectorias y puntos
+for (i in 1:nrow(datos)) {
+  y <- i
+  x0 <- datos$entrada[i]
+  x1 <- datos$fin[i]
+  segments(x0, y, x1, y, lwd = 2)
+  points(x0, y, pch = 16, cex = 1.2)  # Punto de entrada sólido
+  points(x1, y, pch = ifelse(datos$evento[i], 4, 1), cex = 1.5)  # X = evento, ◯ = censura
+}
+
+
+```
+
+
+:::
+
+:::
+
+
+
+-----
+
+
+## 5. Representación gráfica del seguimiento
+
+::: {.columns}
+
+::: {.column width="30%" .smaller}
+
+
 ```{r}
 library(survival)
 paciente <- 1:6
 tiempo <- c(7, 6, 6, 5, 2, 4)
 status <- c(0, 1, 0, 0, 1, 1)
 datos <- data.frame(paciente, tiempo, status)
-datos
+knitr::kable(datos, caption = "Ejemplo")
 ```
 
-```{r}
+```{r echo=TRUE}
 Surv(tiempo, status)
 ```
 
----
+:::
 
-## 5. Representación gráfica del seguimiento
+::: {.column width="70%" .smaller}
 
-```{r}
+
+```{r fig.cap="Tiempo del paciente", fig.width=8, fig.height=4}
+
 graficar_supervivencia_individual <- function(datos) {
   if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
     stop("El data.frame debe contener las columnas: paciente, tiempo, status")
@@ -69,6 +159,7 @@ graficar_supervivencia_individual <- function(datos) {
 
   # Dibujar segmentos y símbolos
   for (i in 1:nrow(datos)) {
+    points(0, i, pch = 16, cex = 1.2)  
     lines(c(0, datos$tiempo[i]), c(i, i), lwd = 2)
     points(datos$tiempo[i], i,
            pch = ifelse(datos$status[i] == 1, 4, 1),
@@ -76,17 +167,22 @@ graficar_supervivencia_individual <- function(datos) {
   }
 }
 
-```
-
-```{r}
 graficar_supervivencia_individual(datos)
 ```
+
 
 
 - Círculo abierto = censura
 - X = evento (muerte)
 
+:::
+
+:::
+
+
 ---
+
+
 
 ## 6. Programación en R
 
@@ -104,29 +200,50 @@ Surv(tiempo, status)
 
 ## 7. Curva de Supervivencia de Kaplan-Meier
 
-```{r}
-ajuste <- survfit(Surv(tiempo, status) ~ 1)
+```{r echo=TRUE}
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
 plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia")
 ```
 
 ---
 
-## 8. Conjunto de datos `gastricXelox`
+## 8. Conjunto de datos `gastricXelox` de la biblioteca `asaur`
+::: {.columns}
 
+::: {.column width="40%" }
 ```{r}
 library(asaur)
-head(gastricXelox)
+set.seed(157)
+datos2 <- gastricXelox[sample(1:nrow(gastricXelox),replace = FALSE),]
+datos2 <- data.frame(
+  paciente=1:nrow(datos2),
+  tiempo=datos2$timeWeeks,
+  status=datos2$delta)
+knitr::kable(head(datos2), caption = "Ejemplo")
 ```
 
-- Tiempo: semanas hasta progresión o muerte
+- Tiempo: semanas hasta progresión o muerte  
 - `delta = 1` si hubo evento, `0` si censurado
+- Los datos se desordenaron para este ejemplo
+:::
+
+::: {.column width="60%"}
+```{r}
+
+graficar_supervivencia_individual(datos2)
+```
 
 ```{r}
-attach(gastricXelox)
-timeMonths <- gastricXelox$timeWeeks * 7 / 30.25
-km <- survfit(Surv(timeMonths, delta) ~ 1)
+
+gastricXelox$timeMonths <- gastricXelox$timeWeeks * 7 / 30.25
+
+km <- survfit(Surv(timeMonths, delta) ~ 1,data = gastricXelox)
+
 plot(km, xlab="Meses", ylab="Supervivencia estimada")
 ```
+:::
+
+:::
 
 ---
 
@@ -155,17 +272,91 @@ plot(km, xlab="Meses", ylab="Supervivencia estimada")
 
 ## 12. Ejercicio propuesto
 
+::: {.columns}
+
+::: {.column width="40%" .smaller }
+
+
 - Usar R para:
   - Estimar la curva de supervivencia de `gastricXelox`
   - Obtener la mediana de supervivencia
   - Graficar con intervalo de confianza
 
 ```{r}
-ajuste <- survfit(Surv(timeMonths, delta) ~ 1)
+ajuste <- survfit(Surv(timeMonths, delta) ~ 1, data = gastricXelox )
 summary(ajuste)
-plot(ajuste, conf.int=TRUE, xlab="Meses", ylab="Supervivencia")
+
 ```
+
+:::
+
+::: {.column width="60%"}
+
+
+
 ```{r}
+plot(ajuste, conf.int=TRUE, xlab="Meses", ylab="Supervivencia")
+
+```
+
+:::
+
+:::
+
+
+
+## Otros
+
+```{r}
+graficar_censura_general <- function(datos) {
+  if (!all(c("paciente", "tiempo_inicio", "tiempo_fin", "tipo_censura") %in% names(datos))) {
+    stop("El data.frame debe tener las columnas: paciente, tiempo_inicio, tiempo_fin, tipo_censura")
+  }
+
+  datos <- datos[order(-datos$paciente), ]
+
+  plot(0, 0, type = "n",
+       xlim = c(0, max(c(datos$tiempo_inicio, datos$tiempo_fin), na.rm = TRUE) + 1),
+       ylim = c(0.5, nrow(datos) + 0.5),
+       xlab = "Tiempo", ylab = "Paciente",
+       yaxt = "n")
+  
+  axis(2, at = 1:nrow(datos), labels = datos$paciente)
+
+  for (i in 1:nrow(datos)) {
+    tipo <- datos$tipo_censura[i]
+    y <- i
+    t_ini <- datos$tiempo_inicio[i]
+    t_fin <- datos$tiempo_fin[i]
+    
+    if (tipo == "observado") {
+      segments(0, y, t_fin, y, lwd = 2)
+      points(t_fin, y, pch = 4, cex = 1.5) # X = evento
+    } else if (tipo == "derecha") {
+      segments(0, y, t_ini, y, lwd = 2)
+      points(t_ini, y, pch = 1, cex = 1.5) # círculo = censura a la derecha
+    } else if (tipo == "izquierda") {
+      arrows(t_fin, y, max(c(datos$tiempo_inicio, datos$tiempo_fin), na.rm = TRUE) + 0.5, y,
+             length = 0.1, lwd = 2, code = 2) # ← indica evento ocurrió antes
+      points(t_fin, y, pch = 5, cex = 1.5) # □ = censura a la izquierda
+    } else if (tipo == "intervalo") {
+      segments(t_ini, y, t_fin, y, lwd = 2, lty = 2)
+      points(mean(c(t_ini, t_fin)), y, pch = 0, cex = 1.5) # ▢ = censura por intervalo
+    }
+  }
+}
+```
+
+
+```{r}
+datos <- data.frame(
+  paciente = 1:6,
+  tiempo_inicio = c(0, 5, 3, NA, 6, 2),
+  tiempo_fin =     c(7, 5, NA, 4, NA, 2),
+  tipo_censura = c("observado", "intervalo", "derecha", "izquierda", "derecha", "observado")
+)
+knitr::kable(datos, caption = "Ejemplo")
+graficar_censura_general(datos)
 
 ```
 
