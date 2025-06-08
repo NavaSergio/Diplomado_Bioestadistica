@@ -1,0 +1,171 @@
+---
+title: "Análisis de Supervivencia con R: Capítulo 1"
+author: "Basado en Dirk F. Moore"
+format: revealjs
+---
+
+## 1. ¿Qué es el Análisis de Supervivencia?
+
+- Estudio del tiempo hasta que ocurre un evento de interés.
+- Común en estudios clínicos, observacionales y experimentos animales.
+- Ejemplos: tiempo hasta la muerte, recaída, progreso de enfermedad o respuesta a tratamiento.
+- Incluye también eventos "positivos" (e.g., recuperación).
+
+> El objetivo puede ser estimar la distribución de supervivencia, comparar grupos o estudiar factores asociados al tiempo hasta el evento.
+
+---
+
+## 2. Características clave
+
+- Variable respuesta: tiempo positivo (discreto o continuo).
+- Censura: información incompleta sobre el tiempo hasta el evento.
+
+---
+
+## 3. Tipos de censura
+
+- **Censura a la derecha**: el evento no ha ocurrido al finalizar el seguimiento.
+- **Censura a la izquierda**: el evento ocurrió antes del inicio del seguimiento.
+- **Censura por intervalo**: el evento ocurrió dentro de un intervalo conocido.
+
+---
+
+## 4. Ejemplo: Ensayo clínico con cáncer
+
+```{r}
+library(survival)
+paciente <- 1:6
+tiempo <- c(7, 6, 6, 5, 2, 4)
+status <- c(0, 1, 0, 0, 1, 1)
+datos <- data.frame(paciente, tiempo, status)
+datos
+```
+
+```{r}
+Surv(tiempo, status)
+```
+
+---
+
+## 5. Representación gráfica del seguimiento
+
+```{r}
+graficar_supervivencia_individual <- function(datos) {
+  if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
+    stop("El data.frame debe contener las columnas: paciente, tiempo, status")
+  }
+
+  # Asegurar orden por paciente descendente (opcional, para que se vea como ejemplo original)
+  datos <- datos[order(-datos$paciente), ]
+
+  # Graficar fondo vacío
+  plot(0, 0, type = "n",
+       xlim = c(0, max(datos$tiempo, na.rm = TRUE) + 1),
+       ylim = c(0.5, nrow(datos) + 0.5),
+       xlab = "Tiempo", ylab = "Paciente",
+       yaxt = "n")
+  
+  axis(2, at = 1:nrow(datos), labels = datos$paciente)
+
+  # Dibujar segmentos y símbolos
+  for (i in 1:nrow(datos)) {
+    lines(c(0, datos$tiempo[i]), c(i, i), lwd = 2)
+    points(datos$tiempo[i], i,
+           pch = ifelse(datos$status[i] == 1, 4, 1),
+           cex = 1.5)
+  }
+}
+
+```
+
+```{r}
+graficar_supervivencia_individual(datos)
+```
+
+
+- Círculo abierto = censura
+- X = evento (muerte)
+
+---
+
+## 6. Programación en R
+
+- Librería `survival`:
+```r{}
+library(survival)
+Surv(tiempo, status)
+```
+
+- Este objeto puede usarse en:
+  - `survfit()` para curvas Kaplan-Meier
+  - `coxph()` para modelos de Cox
+
+---
+
+## 7. Curva de Supervivencia de Kaplan-Meier
+
+```{r}
+ajuste <- survfit(Surv(tiempo, status) ~ 1)
+plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia")
+```
+
+---
+
+## 8. Conjunto de datos `gastricXelox`
+
+```{r}
+library(asaur)
+head(gastricXelox)
+```
+
+- Tiempo: semanas hasta progresión o muerte
+- `delta = 1` si hubo evento, `0` si censurado
+
+```{r}
+attach(gastricXelox)
+timeMonths <- gastricXelox$timeWeeks * 7 / 30.25
+km <- survfit(Surv(timeMonths, delta) ~ 1)
+plot(km, xlab="Meses", ylab="Supervivencia estimada")
+```
+
+---
+
+## 9. Censura informativa vs no-informativa
+
+- **No-informativa**: el mecanismo de censura es independiente del riesgo.
+- **Informativa**: censura correlacionada con el riesgo (puede sesgar resultados).
+
+---
+
+## 10. Objetivos del Análisis de Supervivencia
+
+1. Estimar la función de supervivencia \( S(t) \)
+2. Comparar curvas de supervivencia entre grupos
+3. Estimar el efecto de covariables sobre el tiempo hasta evento
+
+---
+
+## 11. Consideraciones finales
+
+- Es fundamental distinguir entre eventos observados y censurados.
+- El paquete `survival` permite un análisis flexible con curvas, modelos y tests.
+- Los datos reales como `gastricXelox` permiten practicar los conceptos.
+
+---
+
+## 12. Ejercicio propuesto
+
+- Usar R para:
+  - Estimar la curva de supervivencia de `gastricXelox`
+  - Obtener la mediana de supervivencia
+  - Graficar con intervalo de confianza
+
+```{r}
+ajuste <- survfit(Surv(timeMonths, delta) ~ 1)
+summary(ajuste)
+plot(ajuste, conf.int=TRUE, xlab="Meses", ylab="Supervivencia")
+```
+```{r}
+
+```
+

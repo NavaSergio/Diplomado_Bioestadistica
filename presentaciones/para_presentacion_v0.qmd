@@ -8,20 +8,18 @@ editor: visual
 
 ```{r}
 library(survival)
-dimnames(survexp.us)
-año = 2020
-tabla=as.table(survexp.us[,,as.character(año)])
+tabla=as.table(survexp.us[,,"2004"])
 
 knitr::kable(tabla, booktabs = TRUE, digits = 5,format.args = list(scientific = FALSE),
              format = "simple",
-             caption=paste("Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año",as.character(año)))
+             caption="Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año 2004")
 ```
 
 ```{r}
 tm <- c(0, # birth
         1:110) # subsequent years
-hazMale <- survexp.us[,"male",as.character(año)] # 2004 males
-hazFemale <- survexp.us[,"female",as.character(año)] # 2004 females
+hazMale <- survexp.us[,"male","2004"] # 2004 males
+hazFemale <- survexp.us[,"female","2004"] # 2004 females
 tm.diff <- diff(tm)
 survMale <- exp(-cumsum(hazMale*tm.diff)*365.24)
 survFemale <- exp(-cumsum(hazFemale*tm.diff)*365.24)
@@ -49,7 +47,7 @@ axis(2, at=yyLabsLog, labels=c(expression(10^-7), expression(10^-6),
 axis(1, cex.axis=1.3)   
 legend("bottomright", legend=c("males","females"),
        lty=c(1,2), col=c("blue","red"), lwd=2, cex=1.3)
-title(paste("Hazards for US males and females in ",as.character(año)))
+title("Hazards for US males and females in 2004")
 
 
 tm.diff <- diff(tm)         # same length as "tm"
@@ -67,7 +65,14 @@ plot(survMale ~ tm[-1],type="l",          # lower case "L" indicates line plot
 lines(survFemale ~ tm[-1], col="red", lwd=2, lty=2)    # add a red dashed line to the plot
 legend("bottomleft", legend=c("males","females"),
        lty=c(1,2), col=c("blue","red"), lwd=2, cex=1.3)
-title(paste("Survival of US males and females in ", as.character(año)))
+title("Survival of US males and females in 2004")
 
 
 ```
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
