@@ -1,5 +1,5 @@
 ---
-title: "Análisis de Supervivencia con R: Capítulo 1"
+title: "Análisis de Supervivencia con R"
 author: 
   - name: Sergio M. Nava Muñoz
     id: sn
@@ -15,13 +15,16 @@ format:
     slide-number: true
     theme: simple
     fontsize: 1.5em
+    logo: figs/CIMAT.png
     css: style.css
     chalkboard: true
     menu: TRUE
     transition: slide
     background-transition: fade
     title-slide-attributes:
-      data-background-size: 100% 100%;   
+      data-background-image: figs/Banner_diplomado.jpg
+      data-background-size: 70%
+      data-background-position: top center
 execute:
   echo: false
   warning: false
@@ -32,12 +35,13 @@ execute:
 
 
 ```{r}
+#| message: false
 packages <- c("survival","asaur","survminer")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
 }
 
-sapply(packages, require, character.only=TRUE)
+invisible(sapply(packages, require, character.only = TRUE))
 
 graficar_supervivencia_individual <- function(datos) {
   if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
@@ -67,6 +71,7 @@ graficar_supervivencia_individual <- function(datos) {
 }
 ```
 
+::: {.slide-with-banner}
 
 
 ## 1. ¿Qué es el Análisis de Supervivencia?
@@ -77,6 +82,9 @@ graficar_supervivencia_individual <- function(datos) {
 - Incluye también eventos "positivos" (e.g., recuperación).
 
 > El objetivo puede ser estimar la distribución de supervivencia, comparar grupos o estudiar factores asociados al tiempo hasta el evento.
+
+:::
+
 
 ---
 

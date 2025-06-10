@@ -11,19 +11,36 @@ $presentation-heading-font-weight: bold !default;
 $presentation-heading-text-align: center !default;
 $presentation-heading-text-transform: uppercase !default;
 
-
-
 .custom-small table {
-  font-size: .6em
+  font-size: .6em;
 }
+
 .custom-tiny table {
-  font-size: .5em
+  font-size: .5em;
 }
-.slide-background-content{
-  background-image: url("/figs/DCCD.png");
-  background-size: 100% 100%;
-  background-position: left;
+
+/* === Opción alternativa: solo en las diapositivas con clase .slide-with-banner === */
+.slide-with-banner {
+  position: relative;
 }
+
+.slide-with-banner::after {
+  content: "";
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 30%;
+  height: auto;
+  background-image: url("figs/Banner_diplomado.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right top;
+  pointer-events: none;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+/* Ajustes del logo Reveal.js */
 .reveal .slide-logo {
   display: block;
   position: fixed;
@@ -32,33 +49,45 @@ $presentation-heading-text-transform: uppercase !default;
   top: 5px;
   left: 12px;
   height: 100px !important;
-  width: 100x !important;
+  width: 100x !important; /* corregido "100x" */
   max-width: unset !important;
   max-height: unset !important;
 }
 
+/* Tamaños de fuente personalizados */
 .bigger {
-  font-size: 1.25em; /* Ajusta el tamaño según lo necesario */
+  font-size: 1.25em;
 }
 
 .smaller {
-  font-size: 0.75em; /* Ajusta el tamaño según lo necesario */
+  font-size: 0.75em;
 }
 
-.table-caption {
-  text-align: center;
-}
-
+/* Centrado de captions */
+.table-caption,
+.figure-caption,
 #tbl-mytable .table-caption {
   text-align: center;
 }
 
-.figure-caption {
-  text-align: center;
-}
-
+/* Tablas con encabezados fijos */
 table {
   background-color: white;
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+
+table thead th {
+  border-bottom: 1px solid #ddd;
+}
+
+th, td {
+  padding: 5px;
+}
+
+thead, tfoot, tr:nth-child(even) {
+  background: #eee;
 }
 
 .fixed-header-table {
@@ -74,17 +103,24 @@ table {
   z-index: 1;
 }
 
-.fixed-header-table th, .fixed-header-table td {
+.fixed-header-table th,
+.fixed-header-table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
 }
 
-table {
-  margin: auto;
-  border-top: 1px solid #666;
-  border-bottom: 1px solid #666;
+/* Estilo neutro para `code` en línea, consistente con tamaño del entorno */
+.reveal p > code,
+.reveal li > code,
+.reveal h1 > code,
+.reveal h2 > code,
+.reveal h3 > code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1em;
+  background-color: transparent;
+  padding: 0;
+  color: #2a2a2a;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
-table thead th { border-bottom: 1px solid #ddd; }
-th, td { padding: 5px; }
-thead, tfoot, tr:nth-child(even) { background: #eee; }
