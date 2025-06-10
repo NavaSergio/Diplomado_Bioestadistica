@@ -1,0 +1,776 @@
+---
+title: "Análisis de Datos de Tiempos de Vida"
+author: "Sergio Nava"
+date: "2025-06-16"
+format:
+  html:
+    theme: united
+    toc: true
+    toc-float: true
+    toc-depth: 2
+    number-sections: false
+    toc-collapsed: true
+    smooth-scroll: true
+execute:
+  echo: true
+  eval: true
+bibliography: bibliografia.bib
+csl: apa.csl  # opcional, usa otro estilo si prefieres
+---
+
+## Introducción
+
+En esta página se presentan las principales herramientas computacionales para llevar a cabo un análisis de tiempos de vida utilizando el lenguaje de programación R, en particular mediante el paquete `survival`. Estas funciones son fundamentales para el estudio de datos censurados y/o truncados, como suele encontrarse en bioestadística, análisis de fiabilidad, y otras áreas donde interesa modelar el tiempo hasta un evento (por ejemplo, muerte, recaída o falla mecánica).
+
+Aquí nos enfocamos en herramientas prácticas para aplicar modelos de supervivencia en datos reales con R. Para un tratamiento teórico más profundo, se recomienda consultar los textos clásicos de @klein2003, así como @therneau2000.
+
+Para comenzar, es necesario cargar la biblioteca `survival`, que contiene las funciones centrales para el análisis de supervivencia en R.
+
+```{r}
+
+library(survival)
+
+```
+
+El paquete incluye varios conjuntos de datos precargados que pueden utilizarse para ilustrar métodos de análisis de supervivencia, entre ellos:
+
+``` r
+data(package = "survival")
+```
+
+## Conjuntos de datos del paquete `survival`
+
+A continuación se listan algunos de los datasets incluidos en el paquete `survival`, ampliamente utilizados para ilustrar técnicas de análisis de supervivencia:
+
+| Nombre del dataset | Descripción |
+|-----------------|-------------------------------------------------------|
+| `lung` | Supervivencia en pacientes con cáncer de pulmón |
+| `ovarian` | Ensayo clínico de mantenimiento en pacientes con cáncer de ovario |
+| `aml` | Datos de pacientes con leucemia mieloide aguda |
+| `veteran` | Ensayo clínico en cáncer de pulmón con dos tratamientos |
+| `jasa` | Supervivencia de pacientes en lista de espera para trasplante de corazón |
+| `heart` | Datos de entrada/salida de pacientes en el programa de trasplante cardíaco |
+| `pbc` | Estudio longitudinal sobre colangitis biliar primaria |
+| `colon` | Datos de supervivencia en pacientes con cáncer de colon |
+| `kidney` | Tiempo hasta el fallo de catéteres renales |
+| `cancer` | Datos de distintos tipos de cáncer (datos ilustrativos) |
+
+Puedes cargar cualquiera de estos conjuntos con `data(nombre, package = "survival")`, por ejemplo:
+
+``` r
+data(lung, package = "survival")
+```
+
+## 1. La función `Surv`
+
+Esta función permite crear objetos de tipo supervivencia. Es la base para trabajar con modelos de supervivencia en R.
+
+``` r
+Surv(time, time2, event, type = c('right', 'left', 'interval', 'counting', 'interval2'), origin = 0)
+```
+
+``` r
+is.Surv(x)
+```
+
+-   `time`: Representa el tiempo de inicio de la observación. Para datos de intervalo, el primer argumento es el extremo inicial del intervalo.
+-   `time2`: Representa el indicador de estado, normalmente 0 = vivo (censurado), 1 = muerto (no censurado). Otras opciones son VERDADERO/FALSO (VERDADERO = la muerte) o 1/2 (2 = muerto). Para datos con censura de intervalo, el indicador de estado es 0 = censura a la derecha, 1 = suceso ocurrido en `time`, 2 = censura a la izquierda, 3 = censura de intervalo. Este indicador puede ser omitido en el caso de que se asuma que todos los sujetos tienen el mismo estado.
+-   `event`: Representa el tiempo de finalización de la observación para un intervalo censurado o proceso de conteo. Se asume que los intervalos están abiertos a la izquierda y cerrados a la derecha, (el principio, el final\]. Para un proceso de recuento de datos `event` indica si un acontecimiento ocurrió al final del intervalo.
+-   `origin`: Es una utilidad que permite trabajar bajo el enfoque de los procesos de recuento. Esta opción es usada en un modelo que contiene estratos dependientes del tiempo, para enumerar los sujetos correctamente que cambian de un estrato a otro. En raras ocasiones se suele emplear.
+-   `x`: Cualquier objeto de R.
+
+### Ejemplos
+
+#### Cuando se observan longitudes de tiempo
+
+::: {.callout-note icon="🧬" title="Datos del ejemplo: lung"}
+El conjunto de datos `lung` se refiere al estudio de supervivencia en pacientes con cáncer de pulmón, recopilado por el *North Central Cancer Treatment Group*.
+
+Contiene **228 registros** y **10 variables**, que son:
+
+-   `inst`: código de la institución médica\
+-   `time`: tiempo de supervivencia o censura (en días)\
+-   `status`: estado del paciente (1 = censurado, 2 = fallecido)\
+-   `age`: edad del paciente (en años)\
+-   `sex`: sexo del paciente (1 = hombre, 2 = mujer)\
+-   `ph.ecog`: puntaje ECOG (estado funcional del paciente)\
+-   `ph.karno`: puntaje Karnofsky según el médico\
+-   `pat.karno`: puntaje Karnofsky según el paciente\
+-   `meal.cal`: calorías ingeridas diariamente\
+-   `wt.loss`: pérdida de peso en los últimos seis meses (en libras)
+
+Este conjunto permite analizar cómo variables clínicas y funcionales se asocian con el tiempo de supervivencia en pacientes con cáncer avanzado.
+:::
+
+```{r}
+
+
+data(cancer, package="survival")
+head(lung)
+```
+
+```{r}
+
+Surv(lung$time, lung$status) 
+```
+
+#### Cuando se registran tiempos de entrada y salida
+
+El segundo conjunto de datos usado como ejemplo en este caso es el conjunto “heart", contiene información sobre supervivencia de 172 pacientes en la lista de espera del programa de transplantes de corazón del hospital de Standford. El registro se muestra como sigue en la siguiente figura.
+
+```{r}
+
+head(heart)
+```
+
+En este caso cada individuo se incorpora al estudio en el instante que indica la variable `start`, y abandona el estudio en el instante indicado por `stop`. Es decir los pacientes entran en el estudio de manera escalonada, esta es la forma habitual en que los individuos son incorporados en estudios de Supervivencia, a diferencia de en estudios de Fiabilidad, donde todos los sujetos entran en estudio a la vez. No sólo estamos interesados en la longitud del intervalo que determina el tiempo de vida si también de dónde está localizado. La variable `event` nos dice de cada individuo si está vivo o falleció al final del estudio. Además se incluye otro tipo de información como la edad del individuo (`age`), si se le ha realizado un transplante o no (`transplant`) y si ha recibido otro tipo de cirugía antes (`surgery`). Ahora el resultado de la función `Surv` es el objeto que se muestra, en parte, a continuación.
+
+```{r}
+
+with(heart,Surv(start, stop, event))
+```
+
+### Ejercicio
+
+-   Carga el dataset `ovarian` y construye el objeto `Surv(futime, fustat)`. ¿Qué tipo de censura presentan los datos?
+
+## 2. La función `survfit`
+
+Permite calcular curvas de supervivencia no paramétricas (Kaplan-Meier o Fleming-Harrington) o estimar curvas ajustadas a modelos de Cox.
+
+``` r
+survfit(formula, data, type = "kaplan-meier")
+```
+
+-   `formula`: Objeto que define la fórmula del modelo a ajustar.
+
+-   `data`: Conjunto de datos que se utiliza para interpretar las variables mencionadas en los argumentos `formula`, `subset` y `weights`.
+
+-   `weights`: Pesos aplicados a cada caso u observación.
+
+-   `subset`: Expresión que indica un subconjunto de las filas del conjunto de datos que se utilizarán en la estimación. Puede ser:
+
+    -   un vector lógico (de longitud igual al número de observaciones),
+    -   un vector numérico que indique los índices de observaciones a incluir (o excluir si son negativos),
+    -   un vector de caracteres con los nombres de las filas. Por defecto, se incluyen todas las observaciones.
+
+-   `na.action`: Función utilizada para tratar los valores perdidos (`NA`). Se aplica al marco del modelo después de aplicar `subset`. Por defecto es `options()$na.action`. Un valor común es `na.omit`, que excluye las observaciones con datos faltantes.
+
+-   `times`: Vector de tiempos en los cuales se evalúa la curva de supervivencia. Por defecto, la curva se evalúa en cada valor distinto del vector de tiempos especificado en `formula`.
+
+-   `type`: Cadena de caracteres que especifica el tipo de curva de supervivencia a estimar. Los valores posibles son:
+
+    -   `"kaplan-meier"` (por defecto),
+    -   `"fleming-harrington"`,
+    -   `"fh2"` (cuando se proporciona una fórmula).
+
+-   `error`: Cadena de caracteres que indica el método para estimar el error estándar. Los valores permitidos son:
+
+    -   `"greenwood"`: utiliza la fórmula de Greenwood,
+    -   `"tsiatis"`: utiliza la fórmula de Tsiatis. Basta con especificar la primera letra del nombre.
+
+-   `conf.type`: Tipo de intervalo de confianza. Las opciones son:
+
+    -   `"none"`: no se calculan intervalos de confianza,
+    -   `"plain"`: intervalo estándar de la forma `curve ± k × se(curve)`,
+    -   `"log"` (por defecto): intervalos basados en `log(survival)`,
+    -   `"log-log"`: intervalos basados en `log(-log(survival))`.
+
+-   `start.time`: Valor numérico que indica el instante de tiempo a partir del cual comenzar a calcular la supervivencia. La curva estimada será condicional a haber sobrevivido hasta ese punto.
+
+-   `conf.int`: Nivel de confianza para los intervalos calculados. Por defecto, se usa `0.95` para construir intervalos al 95%.
+
+-   `se.fit`: Valor lógico (`TRUE` o `FALSE`) que indica si deben calcularse los errores estándar de la estimación. Su valor por defecto es `TRUE`.
+
+### Resultados
+
+-   `n`: Número total de sujetos incluidos en cada curva de supervivencia.
+
+-   `time`: Instantes temporales en los que la curva de supervivencia presenta un salto (es decir, ocurre un evento).
+
+-   `n.risk`: Número de sujetos en riesgo justo antes de cada tiempo `t`.
+
+-   `n.event`: Número de eventos (sucesos observados) que ocurren en cada tiempo `t`.
+
+-   `n.enter`: Solo para datos de procesos de recuento. Indica cuántos sujetos entran al conjunto de riesgo en el tiempo `t`.
+
+-   `n.censor`: Solo para procesos de recuento. Representa el número de sujetos que salen del conjunto de riesgo sin haber experimentado el evento, en el tiempo `t`.
+
+-   `surv`: Estimación de la función de supervivencia justo después del tiempo `t` (es decir, en `t+0`).
+
+-   `std.err`: Error estándar asociado a la estimación de la función de supervivencia o del riesgo acumulado, según el tipo de salida.
+
+-   `upper`: Límite superior del intervalo de confianza para la función de supervivencia.
+
+-   `lower`: Límite inferior del intervalo de confianza para la función de supervivencia.
+
+-   `strata`: Si se estiman múltiples curvas (por ejemplo, por grupos), esta componente indica el número de elementos de `time`, `surv`, etc. que corresponden a cada una. Los nombres asociados sirven como etiquetas de las curvas.
+
+### Ejemplo
+
+::: {.callout-note icon="📊" title="Datos del ejemplo: aml"}
+El conjunto de datos utilizado en este ejemplo, llamado `aml`, se refiere al análisis de supervivencia en pacientes con leucemia mieloide aguda.
+
+-   `time`: tiempo hasta el evento (supervivencia o censura),
+-   `status`: indicador del estado del evento (1 = evento, 0 = censura),
+-   `x`: grupo de tratamiento (si se mantuvo o no la quimioterapia).
+
+Este conjunto de datos permite explorar la siguiente pregunta clínica:\
+**¿Debería extenderse el tratamiento de quimioterapia a ciclos adicionales para mejorar la supervivencia?**
+:::
+
+```{r}
+
+head(aml)
+leukemia.surv <- survfit(Surv(time, status) ~ x, data = aml)
+plot(leukemia.surv, lty = 2:3)
+legend(100,.9,c("Maintenance","No Maintenance"),lty=2:3)
+title("Kaplan-Meier Curves\nfor AML Maintenance Study")
+lsurv2<-survfit(Surv(time,status)~x,aml, type='fleming')
+plot(lsurv2,lty=2:3,fun="cumhaz",xlab="Months",ylab="Cumulative Hazard")
+```
+
+Observando la curva de supervivencia que hemos obtenido , vemos como en los 50 primeros meses de tratamiento de la enfermedad con quimioterapia, la supervivencia de estos pacientes aumentaba progresivamente, hasta mantenerse casi estable a partir de ese tiempo.
+
+## 3. La función `survexp`
+
+Devuelve la supervivencia esperada de una cohorte de sujetos, o la supervivencia esperada para cada sujeto de forma individual.
+
+``` r
+survexp(formula, data, weights, subset, na.action, times, cohort=TRUE,
+conditional=FALSE, ratetable=survexp.us, scale=1, npoints,
+se.fit, model=FALSE, x=FALSE, y=FALSE)
+```
+
+-   `Formula`. Fórmula o modelo antes descrito.
+
+### Ejemplo
+
+::: {.callout-note icon="📋" title="Datos del ejemplo: pbc"}
+
+El conjunto de datos `pbc` (*Primary Biliary Cirrhosis*) proviene de un estudio clínico de la *Mayo Clinic* sobre una enfermedad hepática autoinmune crónica. Contiene información clínica y de seguimiento sobre pacientes con esta enfermedad.
+
+Incluye **418 observaciones** y las siguientes variables principales:
+
+- `id`: identificador del paciente  
+- `time`: tiempo de seguimiento en días  
+- `status`: indicador del evento (0 = censurado, 1 = trasplante, 2 = muerte)  
+- `trt`: grupo de tratamiento (1 = D-penicilamina, 2 = placebo)  
+- `age`: edad del paciente en años  
+- `sex`: sexo del paciente (`"m"` para masculino, `"f"` para femenino)  
+- `ascites`: presencia de ascitis (0 = no, 1 = sí)  
+- `hepato`: presencia de hepatomegalia (0 = no, 1 = sí)  
+- `spiders`: presencia de arañas vasculares (0 = no, 1 = sí)  
+- `edema`: grado de edema periférico  
+- `bili`: nivel de bilirrubina sérica (mg/dL)  
+- `chol`: nivel de colesterol sérico (mg/dL)  
+- `albumin`: nivel de albúmina sérica (g/dL)  
+- `copper`: nivel de cobre sérico (mcg/dL)  
+- `alk.phos`: fosfatasa alcalina (U/L)  
+- `ast`: transaminasa glutámico oxalacética (SGOT/AST)  
+- `trig`: triglicéridos (mg/dL)  
+- `platelet`: conteo de plaquetas (mil/mm³)  
+- `protime`: tiempo de protrombina (segundos)  
+- `stage`: estadio histológico de la enfermedad (1 a 4)
+
+Este conjunto permite modelar la supervivencia de pacientes hepáticos con múltiples variables clínicas y de laboratorio, y comparar dicha supervivencia con la de la población general mediante tablas de vida.
+
+:::
+
+
+
+```{r}
+
+head(pbc)
+```
+
+#### Resultado
+
+```{r}
+# Cargar librería y datos
+library(survival)
+data(pbc)
+
+# Preparar las variables necesarias
+pbc$age_years <- pbc$age                 # edad ya viene en años
+pbc$year <- 1974                         # año promedio de inicio del estudio
+pbc$sex <- factor(ifelse(pbc$sex == "m", "male", "female"))  # convertir a formato requerido
+
+# Estimar supervivencia esperada usando la tabla de vida de EE.UU.
+fit_exp <- survexp(Surv(time / 365.25, status == 2) ~ 1,
+                   ratetable = survexp.us,
+                   data = pbc,
+                   times = seq(0, 15, by = 1),
+                   cohort = TRUE)  # tiempos en años
+
+# Mostrar resultados
+fit_exp
+```
+
+### Comparación con curva Kaplan-Meier
+
+```{r}
+# Estimar curva KM observada
+fit_km <- survfit(Surv(time / 365.25, status == 2) ~ 1, data = pbc)
+
+# Graficar ambas curvas
+plot(fit_km, col = "blue", xlab = "Años", ylab = "Supervivencia", lty = 1,
+     main = "Supervivencia Observada vs Esperada")
+lines(fit_exp$time, fit_exp$surv, col = "red", lty = 2)
+
+legend("topright", legend = c("Kaplan-Meier (observada)", "Esperada (EE.UU.)"),
+       col = c("blue", "red"), lty = 1:2)
+```
+
+Este análisis compara la supervivencia observada en el estudio `pbc` con la supervivencia esperada de la población general de EE.UU., emparejada por edad, sexo y año de inicio.
+
+
+## 4. La función `survdiff()`
+
+Permite realizar pruebas de comparación entre curvas de supervivencia de distintos grupos mediante pruebas de rango, como la prueba log-rank o sus extensiones ponderadas (@harrington1982).
+
+```r
+survdiff(formula, data, subset, weights, na.action, rho = 0)
+```
+
+- `formula`: fórmula del tipo `Surv(tiempo, estado) ~ grupo`, donde el grupo define la variable categórica a comparar.  
+- `rho`: parámetro de ponderación; `rho = 0` da la prueba log-rank estándar; valores positivos asignan más peso a eventos tardíos.  
+- `data`: conjunto de datos donde se encuentran las variables.  
+- `weights`: pesos opcionales para cada observación.
+
+### Ejemplo
+
+::: {.callout-note icon="📋" title="Datos del ejemplo: lung"}
+
+El conjunto de datos `lung` proviene del *North Central Cancer Treatment Group* y contiene información sobre la supervivencia de pacientes con cáncer de pulmón. El dataset incluye 228 registros con las siguientes variables principales:
+
+- `time`: tiempo de observación (en días)  
+- `status`: estado del paciente al final del estudio (1 = censurado, 2 = fallecido)  
+- `sex`: sexo del paciente (1 = hombre, 2 = mujer)  
+- `age`: edad en años  
+- `ph.ecog`, `ph.karno`, `pat.karno`: medidas del estado funcional  
+- `meal.cal`, `wt.loss`: calorías ingeridas y pérdida de peso reciente  
+
+:::
+
+```{r}
+
+head(lung)
+```
+
+### Comparación de supervivencia entre sexos
+
+```{r}
+
+data(cancer, package = "survival")
+
+# Comparar curvas por sexo con prueba log-rank (rho = 0)
+survdiff(Surv(time, status == 2) ~ sex, data = lung)
+```
+
+### Comparación con ponderación de Fleming-Harrington (rho = 1)
+
+```{r}
+# Prueba log-rank ponderada, con más peso a diferencias en tiempos tardíos
+survdiff(Surv(time, status == 2) ~ sex, data = lung, rho = 1)
+```
+
+### Visualización con curvas Kaplan–Meier
+
+```{r}
+fit_km <- survfit(Surv(time, status == 2) ~ sex, data = lung)
+
+plot(fit_km, col = c("blue", "red"), lty = 1:2,
+     xlab = "Días", ylab = "Supervivencia",
+     main = "Supervivencia por sexo")
+legend("bottomleft", legend = c("Hombres", "Mujeres"),
+       col = c("blue", "red"), lty = 1:2)
+```
+
+## 5. La función `survreg()`
+
+La función `survreg()` permite ajustar **modelos paramétricos de supervivencia**. A diferencia del modelo de Cox, que es semiparamétrico, aquí se especifica la distribución del tiempo de supervivencia. Es útil cuando se desea una interpretación explícita del efecto temporal o cuando la función de riesgo se ajusta bien a una distribución conocida (Weibull, exponencial, log-normal, etc.).
+
+```r
+survreg(formula, data, subset, weights, na.action, dist = "weibull", scale = 1)
+```
+
+- `formula`: especifica la relación entre la variable de supervivencia y las covariables.
+- `data`: conjunto de datos que contiene las variables.
+- `dist`: distribución paramétrica a utilizar. Puede ser `"weibull"`, `"exponential"`, `"lognormal"`, `"loglogistic"`, `"gaussian"`, entre otras.
+- `scale`: parámetro de escala (opcional).
+- `weights`, `subset`, `na.action`: argumentos estándar para manejo de subconjuntos, pesos o valores faltantes.
+
+### Ejemplo
+
+::: {.callout-note icon="📋" title="Datos del ejemplo: lung"}
+
+El conjunto `lung` contiene información sobre pacientes con cáncer de pulmón. Las variables relevantes para este modelo incluyen:
+
+- `time`: tiempo hasta el evento (en días)  
+- `status`: indicador del evento (1 = censurado, 2 = fallecido)  
+- `age`: edad del paciente  
+- `sex`: sexo (1 = hombre, 2 = mujer)
+
+:::
+
+```{r}
+# Ajuste de modelo exponencial
+fit_exp <- survreg(Surv(time, status == 2) ~ age + sex, data = lung, dist = "exponential")
+summary(fit_exp)
+```
+
+### Cambio de distribución
+
+```{r}
+# Ajuste con distribución log-normal
+fit_ln <- survreg(Surv(time, status == 2) ~ age + sex, data = lung, dist = "lognormal")
+summary(fit_ln)
+```
+
+### Comparación por AIC
+
+```{r}
+AIC(fit_exp, fit_ln)
+```
+
+Esto permite determinar cuál modelo se ajusta mejor a los datos.
+
+### Interpretación
+
+Los coeficientes estimados en `survreg()` se interpretan en el marco de una regresión acelerada del tiempo de falla (**Accelerated Failure Time Model**), es decir, una multiplicación del tiempo esperado de supervivencia por un factor exponencial del predictor.
+
+
+
+Para una discusión detallada sobre modelos paramétricos de supervivencia, consulta @klein2003 y @therneau2000.
+
+## 6. La función `coxph()`
+
+La función `coxph()` ajusta el modelo de regresión de Cox (modelo de riesgos proporcionales), ampliamente utilizado en análisis de supervivencia. Es un modelo **semiparamétrico**, ya que no especifica la forma funcional de la línea base de la función de riesgo, pero estima los efectos relativos de las covariables.
+
+```r
+coxph(formula, data, weights, subset, na.action, ties = "efron", ...)
+```
+
+- `formula`: especifica la relación entre `Surv(tiempo, evento)` y las covariables.
+- `data`: marco de datos con las variables.
+- `ties`: método para manejar empates (opciones comunes: `"efron"` [por defecto], `"breslow"`, `"exact"`).
+- `weights`, `subset`, `na.action`: argumentos estándar para subconjuntos, pesos y manejo de datos faltantes.
+
+### Ejemplo
+
+::: {.callout-note icon="📋" title="Datos del ejemplo: lung"}
+
+El dataset `lung` contiene datos sobre pacientes con cáncer de pulmón. Entre las variables relevantes:
+
+- `time`: tiempo de observación (días)  
+- `status`: 1 = censurado, 2 = fallecido  
+- `age`: edad del paciente  
+- `sex`: 1 = hombre, 2 = mujer  
+
+:::
+
+```{r}
+# Ajustar un modelo de Cox
+fit_cox <- coxph(Surv(time, status == 2) ~ age + sex, data = lung)
+summary(fit_cox)
+```
+
+### Interpretación
+
+En este modelo, los coeficientes estimados representan el **logaritmo del hazard ratio**. Un hazard ratio mayor que 1 indica mayor riesgo del evento asociado a esa covariable, mientras que uno menor que 1 indica menor riesgo.
+
+```{r}
+exp(coef(fit_cox))        # hazard ratios
+confint(fit_cox)          # intervalos de confianza
+```
+
+### Evaluación de ajuste
+
+```{r}
+# Evaluar bondad de ajuste
+cox.zph(fit_cox)          # prueba de proporcionalidad
+plot(survfit(fit_cox), xlab = "Días", ylab = "Supervivencia")
+```
+
+
+
+El modelo de regresión de Cox fue introducido por Cox (1972) y es ampliamente tratado en @therneau2000 y @klein2003.
+
+## 7. La función `survfit.coxph()`
+
+Una vez ajustado un modelo de Cox con `coxph()`, es posible estimar curvas de supervivencia **ajustadas** para valores específicos de las covariables mediante `survfit()` aplicado al modelo ajustado. Esto permite visualizar la supervivencia predicha para diferentes perfiles de paciente.
+
+```r
+survfit(object, newdata, se.fit = TRUE, conf.int = 0.95)
+```
+
+- `object`: objeto resultante de `coxph()`.
+- `newdata`: marco de datos que especifica los valores de las covariables para los cuales se desea predecir la supervivencia.
+- `se.fit`: si se deben calcular los errores estándar.
+- `conf.int`: nivel de confianza para los intervalos.
+
+### Ejemplo
+
+```{r}
+# Ajustar modelo de Cox
+fit_cox <- coxph(Surv(time, status == 2) ~ age + sex, data = lung)
+
+# Estimar curva de supervivencia para un perfil específico
+nuevo_paciente <- data.frame(age = 60, sex = 1)
+fit_surv <- survfit(fit_cox, newdata = nuevo_paciente)
+
+# Graficar la curva de supervivencia estimada
+plot(fit_surv, xlab = "Días", ylab = "Supervivencia estimada",
+     main = "Curva de supervivencia estimada para paciente masculino de 60 años")
+```
+
+### Tabla de supervivencia estimada
+
+```{r}
+# Mostrar una tabla resumen con tiempo y supervivencia estimada
+head(data.frame(
+  Tiempo = fit_surv$time,
+  Supervivencia = round(fit_surv$surv, 4),
+  `Límite inferior` = round(fit_surv$lower, 4),
+  `Límite superior` = round(fit_surv$upper, 4)
+), 10)
+```
+
+### Comparación entre perfiles
+
+También es posible comparar curvas para distintos perfiles:
+
+```{r}
+nuevo_pacientes <- data.frame(
+  age = c(60, 60),
+  sex = c(1, 2)  # hombre vs mujer
+)
+
+fit_comparado <- survfit(fit_cox, newdata = nuevo_pacientes)
+plot(fit_comparado, col = c("blue", "red"), lty = 1:2,
+     xlab = "Días", ylab = "Supervivencia",
+     main = "Supervivencia ajustada por sexo a edad 60")
+legend("bottomleft", legend = c("Hombre", "Mujer"),
+       col = c("blue", "red"), lty = 1:2)
+```
+
+### Interpretación
+
+Este tipo de predicción es útil para generar estimaciones personalizadas de supervivencia condicional, y es ampliamente utilizado en aplicaciones clínicas para comunicar pronósticos basados en modelos multivariados.
+
+
+
+La interpretación y uso de curvas ajustadas en el modelo de Cox está discutida en @therneau2000.
+
+## 8. La función `basehaz()`
+
+La función `basehaz()` permite extraer la **función de riesgo acumulado base** (*baseline cumulative hazard*) a partir de un modelo de Cox ajustado con `coxph()`. Esta función es útil para visualizar cómo se acumula el riesgo a lo largo del tiempo en ausencia de covariables.
+
+```r
+basehaz(fit, centered = TRUE)
+```
+
+- `fit`: modelo ajustado mediante `coxph()`.
+- `centered`: si es `TRUE` (por defecto), el riesgo acumulado se estima para un individuo promedio (valores medios de las covariables). Si se establece en `FALSE`, el riesgo no se centra y refleja los valores brutos.
+
+### Ejemplo
+
+```{r}
+# Ajustar modelo de Cox
+fit_cox <- coxph(Surv(time, status == 2) ~ age + sex, data = lung)
+
+# Extraer riesgo acumulado base
+haz_base <- basehaz(fit_cox, centered = TRUE)
+```
+
+### Tabla de riesgo acumulado
+
+```{r}
+# Mostrar primeras filas como tabla
+head(data.frame(
+  Tiempo = haz_base$time,
+  `Riesgo acumulado` = round(haz_base$hazard, 4)
+), 10)
+```
+
+### Visualización
+
+```{r}
+# Graficar función de riesgo acumulado base
+plot(haz_base$time, haz_base$hazard, type = "l",
+     xlab = "Días", ylab = "Riesgo acumulado",
+     main = "Función de riesgo acumulado base")
+```
+
+### Interpretación
+
+La función de riesgo acumulado es clave en el modelo de Cox, ya que permite reconstruir la función de supervivencia predicha cuando se combina con los efectos de las covariables. Una pendiente más pronunciada en la curva indica mayor ocurrencia de eventos en esa región del tiempo.
+
+
+
+Una descripción técnica del cálculo e interpretación de la función de riesgo acumulado puede encontrarse en @therneau2000.
+
+## 9. La función `residuals.coxph()`
+
+La función `residuals.coxph()` permite obtener diferentes tipos de **residuos** a partir de un modelo de Cox ajustado con `coxph()`. Estos residuos son útiles para diagnosticar el ajuste del modelo, detectar observaciones influyentes o evaluar supuestos.
+
+```r
+residuals(object, type = c("martingale", "deviance", "schoenfeld", "dfbeta", "score"))
+```
+
+- `object`: modelo ajustado mediante `coxph()`.
+- `type`: tipo de residuo a calcular:
+  - `"martingale"`: para evaluar el ajuste del modelo
+  - `"deviance"`: transformación simétrica de los residuos de martingala
+  - `"schoenfeld"`: usados para evaluar el supuesto de riesgos proporcionales
+  - `"dfbeta"`: influencia de cada observación en los coeficientes
+  - `"score"`: residuo de score para cada observación
+
+### Ejemplo
+
+```{r}
+# Ajustar modelo de Cox
+fit_cox <- coxph(Surv(time, status == 2) ~ age + sex, data = lung)
+
+# Calcular residuos de martingala
+res_mart <- residuals(fit_cox, type = "martingale")
+```
+
+### Tabla de residuos
+
+```{r}
+# Mostrar los primeros residuos de martingala
+head(data.frame(
+  ID = 1:length(res_mart),
+  `Residuo martingala` = round(res_mart, 4)
+), 10)
+```
+
+### Visualización del ajuste
+
+```{r}
+# Residuo martingala vs edad
+plot(lung$age, res_mart, xlab = "Edad", ylab = "Residuo de martingala",
+     main = "Diagnóstico de ajuste (edad vs residuo)")
+abline(h = 0, lty = 2, col = "gray")
+```
+
+### Interpretación
+
+- Residuos **de martingala** cercanos a 0 indican buen ajuste.
+- Valores extremos (positivos o negativos) pueden indicar **mal ajuste o valores atípicos**.
+- La relación de los residuos con covariables puede revelar **no linealidades** o **necesidad de transformación**.
+
+
+
+Para una explicación detallada de los residuos diagnósticos en modelos de Cox, consulta @therneau2000.
+
+
+## 10. La función `cox.zph()`
+
+La función `cox.zph()` permite evaluar el **supuesto de riesgos proporcionales** en el modelo de Cox. Este supuesto implica que el efecto de las covariables sobre la razón de riesgos es constante a lo largo del tiempo.
+
+Este diagnóstico se basa en los **residuos de Schoenfeld**, y puede visualizarse gráficamente junto con una prueba estadística de correlación entre el tiempo y el residuo.
+
+```r
+cox.zph(fit, transform = "rank", terms = TRUE, global = TRUE)
+```
+
+- `fit`: modelo ajustado con `coxph()`.
+- `transform`: tipo de transformación del tiempo para el test (por defecto `"rank"`).
+- `terms`: si se debe aplicar el test individual a cada covariable.
+- `global`: si se incluye una prueba conjunta para todo el modelo.
+
+### Ejemplo
+
+```{r}
+# Ajustar modelo de Cox
+fit_cox <- coxph(Surv(time, status == 2) ~ age + sex, data = lung)
+
+# Evaluar el supuesto de riesgos proporcionales
+zph_test <- cox.zph(fit_cox)
+zph_test
+```
+
+### Visualización
+
+```{r}
+# Gráfico de residuos de Schoenfeld
+plot(zph_test, var = "age", resid = TRUE,
+     xlab = "Tiempo transformado", ylab = "Residuo de Schoenfeld",
+     main = "Evaluación de proporcionalidad para 'age'")
+abline(h = 0, col = "red", lty = 2)
+```
+
+```{r}
+# Otro ejemplo: para 'sex'
+plot(zph_test, var = "sex", resid = TRUE,
+     main = "Evaluación de proporcionalidad para 'sex'")
+```
+
+### Interpretación
+
+- Si la curva estimada es **horizontal y cercana a cero**, se cumple el supuesto.
+- Si hay una tendencia sistemática en el tiempo, el efecto **no es proporcional**.
+- El valor `p` asociado a cada covariable permite formalizar el test:
+  - `p < 0.05` → evidencia contra el supuesto de proporcionalidad.
+  - `p > 0.05` → no hay evidencia suficiente para rechazarlo.
+
+
+
+El método de evaluación del supuesto de riesgos proporcionales mediante residuos de Schoenfeld se encuentra detallado en @therneau2000.
+
+## 11. La función `strata()`
+
+La función `strata()` se utiliza dentro de una fórmula de modelo en `coxph()` para indicar que una o más variables deben tratarse como **estratos**. Esto permite ajustar un modelo de Cox donde el efecto de ciertas variables **no se modela directamente**, sino que se **permite que la función de riesgo base varíe por estrato**.
+
+Esto es especialmente útil cuando una covariable **no cumple el supuesto de riesgos proporcionales** pero se desea conservar su estructura en el modelo.
+
+```r
+coxph(Surv(tiempo, evento) ~ covariables + strata(estrato), data = datos)
+```
+
+- `strata(...)`: se coloca dentro de la fórmula para indicar que las curvas de riesgo base deben estimarse por separado para cada nivel del estrato.
+
+### Ejemplo
+
+```{r}
+# Modelo con estratificación por institución
+fit_strat <- coxph(Surv(time, status == 2) ~ age + strata(inst), data = lung)
+summary(fit_strat)
+```
+
+En este ejemplo, la variable `inst` representa diferentes instituciones médicas. Al usarla como estrato, se permite que cada institución tenga su propia curva de riesgo base, pero se estima un efecto común de la edad en todos los grupos.
+
+### Comparación con modelo sin estratificación
+
+```{r}
+fit_no_strat <- coxph(Surv(time, status == 2) ~ age + inst, data = lung)
+```
+
+Este segundo modelo estima un coeficiente para cada nivel de `inst`, asumiendo proporcionalidad, lo cual puede ser inadecuado si el supuesto no se cumple.
+
+### Visualización
+
+```{r}
+plot(survfit(fit_strat), col = 1:3, lty = 1,
+     xlab = "Días", ylab = "Supervivencia",
+     main = "Curvas estratificadas por institución")
+legend("bottomleft", legend = levels(factor(lung$inst)), col = 1:3, lty = 1)
+```
+
+### Interpretación
+
+La estratificación permite controlar por una variable que afecta la forma del riesgo base pero **no interesa modelar directamente su efecto**. Así, se mejora la validez del modelo para otras covariables de interés.
+
+
+
+El uso de estratos en modelos de Cox está ampliamente discutido en @therneau2000 y es una herramienta clave para relajar el supuesto de riesgos proporcionales.
+
+
+
+## Referencias
+
+::: {#refs}
+:::

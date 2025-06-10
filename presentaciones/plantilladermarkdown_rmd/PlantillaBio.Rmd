@@ -1,0 +1,182 @@
+---
+title: "Título del documento"
+author: "Autor"
+date: "Fecha de actualización: `r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+.table.cover {
+  background: linear-gradient(0deg, #385245, #3F3F3F);
+}
+
+:root {
+  --titulos: #254342;
+  --color-principal:#39b771;
+}
+
+header{
+  display: none;
+}
+
+html {
+  font-family: Montserrat;
+}
+
+h1, h2 {
+  color:var(--titulos)!important;
+}
+
+code {
+  color: var(--color-principal)!important;
+}
+
+th{
+  background-color:#385245!important;
+}
+
+
+.author_name {
+  color: var(--color-principal)!important ;
+  font-weight: 50px!important;
+  
+}
+.author_bio.mbm{
+  color:#FFFFFF;
+}
+
+.banner{
+    width: 100%;
+    height: auto;
+    position: relative;
+    display: inline-block;
+    text-align: center;
+}
+ 
+.texto-banner{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+</style>
+
+<div class="banner">
+  <img src="https://filedn.com/l7tn2DSPOKzBTk4whXjXWof/Diplomado%20en%20Bio/Banner%20diplomado.jpg" />
+  <div class="texto-banner"><!-- Texto encima de banner --></div>
+</div>
+
+
+<!-- INICIO DE DOCUMENTO R MARKDOWN -->
+
+
+# Título 
+
+## Subtitulo 1 
+
+### Subtítulo 2 - Ejemplo de Contenido R Markdown
+
+`numeric`: Es el tipo de los números.
+Secuencia de dígitos (pueden incluir el - para negativos y el punto como separador de decimales) que representan números.
+Por ejemplo, `1`,`-2.0`, `3.1415` o `4.5e3`.
+Por defecto, cualquier número que se teclee tomará este tipo.
+
+`integer`: Es el tipo de los números enteros.
+Secuencia de dígitos sin separador de decimales que representan un número entero.
+Por ejemplo `1` o `-2`.
+Son una subclase del tipo de datos numérico.
+
+`double`: Es el tipo de los números reales.
+Secuencia de dígitos que incluyen decimales separados por punto.
+Por ejemplo `3.1415` o `-2.0`.
+Son una subclase del tipo de datos numérico.
+
+`character`: Es el tipo de las cadenas de caracteres.
+Secuencia de caracteres alfanuméricos que representan texto.
+Se escriben entre comillas simples o dobles.
+Por ejemplo `"Hola"` o `'Hola'`.
+
+`logical`: Es el tipo de los booleanos.
+Puede tomar cualquiera de los dos valores lógicos `TRUE` (verdadero) o `FALSE` (falso).
+También se pueden abreviar como `T` o `F`.
+
+`NA`: Se utiliza para representar datos desconocidos o perdidos.
+Aunque en realidad es un dato lógico, puede considerarse con un tipo de dato especial.
+
+`NULL`: Se utiliza para representar la ausencia de datos.
+La principal diferencia con `NA` es que `NULL` aparece cuando se intenta acceder a un dato que no existe, mientras que `NA` se utiliza para representar explícitamente datos perdidos en un estudio.
+
+Para averiguar el tipo de un dato se puede utilizar la siguiente función:
+
+`class(x)`: Devuelve el tipo del dato `x`.
+
+```{r cars}
+summary(cars)
+```
+
+
+## Operaciones de comparación de cadena
+
+-   `x == y` : Devuelve `TRUE` si la cadena `x` es igual que la cadena `y`, y `FALSE` en caso contrario.
+-   `x > y` : Devuelve `TRUE` si la cadena `x` sucede a la cadena `y`, y `FALSE` en caso contrario.
+-   `x < y` : Devuelve `TRUE` si la cadena `x` antecede a la cadena `y`, y `FALSE` en caso contrario.
+-   `x >= y` : Devuelve `TRUE` si la cadena `x` sucede o es igual a la cadena `y`, y `FALSE` en caso contrario.
+-   `x <= y` : Devuelve `TRUE` si la cadena `x` antecede o es igual a la cadena `y`, y `FALSE` en caso contrario.
+-   `x != y` : Devuelve `TRUE` si la cadena `x` es distinta de la cadena `y`, y `FALSE` en caso contrario.
+
+Tabla de verdad
+
+```{r, echo=F}
+logicas <- data.frame(matrix(c("FALSE",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
+"FALSE",	"TRUE",	"TRUE",	"FALSE",	"TRUE",
+"TRUE",	"FALSE",	"FALSE",	"FALSE",	"TRUE",
+"TRUE",	"TRUE",	"FALSE",	"TRUE",	"TRUE" ),ncol=5,byrow=T) )
+colnames(logicas) = c("x",	"y",	"!x",	"x & y",	"x | y") 
+```
+
+```{r, echo=F}
+knitr::kable(logicas, "simple")
+```
+
+
+## El paquete `dplyr`
+
+El paquete `dplyr` proporciona una gramática para el preprocesamiento de data frames o tibbles, de manera que cada acción sobre data frame se corresponde con un verbo y las funciones que realizan esa acción tienen como nombre el verbo correspondiente.
+Las funciones de preprocesamiento más habituales incluidas en el paquete `dplyr` son:
+
+-   `count`: Cuenta el número de observaciones de un data frame.
+-   `select`: Selecciona un subconjunto de columnas de un data frame.
+-   `filter`: Selecciona un subconjunto de filas de un data frame.
+-   `arrange`: Reordena las filas de un data frame.
+-   `rename`: Renombra las columnas de un data frame.
+-   `mutate`: Añade nuevas columnas a un data frame o transforma las existentes.
+-   `summarise`: Genera resúmenes estadísticos de las columnas de un data frame.
+-   `group_by`: Divide las filas de un data frame en grupos de acuerdo a una columna categórica.
+
+
+<!-- FIN DE DOCUMENTO R MARKDOWN -->
+
+
+<footer>
+<div class="banner container">
+  <div class="row">
+  <div class="texto-banner"><!-- Texto footer --> CIMAT</div>
+  </div>
+</div>
+</footer>
+

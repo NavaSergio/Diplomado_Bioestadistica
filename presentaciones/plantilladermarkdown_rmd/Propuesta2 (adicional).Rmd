@@ -1,0 +1,732 @@
+---
+title: "R para Bioestadísticos"
+author: "Dr. Hector de la Torre Gutiérrez"
+date: "Actualizado al: `r Sys.Date()`"
+output:
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+library(tint)
+library(tufte)
+
+
+
+
+
+## R Markdown
+
+En R existen distintos tipos de datos simples predefinidos:
+
+`numeric`: Es el tipo de los números.
+Secuencia de dígitos (pueden incluir el - para negativos y el punto como separador de decimales) que representan números.
+Por ejemplo, `1`,`-2.0`, `3.1415` o `4.5e3`.
+Por defecto, cualquier número que se teclee tomará este tipo.
+
+`integer`: Es el tipo de los números enteros.
+Secuencia de dígitos sin separador de decimales que representan un número entero.
+Por ejemplo `1` o `-2`.
+Son una subclase del tipo de datos numérico.
+
+`double`: Es el tipo de los números reales.
+Secuencia de dígitos que incluyen decimales separados por punto.
+Por ejemplo `3.1415` o `-2.0`.
+Son una subclase del tipo de datos numérico.
+
+`character`: Es el tipo de las cadenas de caracteres.
+Secuencia de caracteres alfanuméricos que representan texto.
+Se escriben entre comillas simples o dobles.
+Por ejemplo `"Hola"` o `'Hola'`.
+
+`logical`: Es el tipo de los booleanos.
+Puede tomar cualquiera de los dos valores lógicos `TRUE` (verdadero) o `FALSE` (falso).
+También se pueden abreviar como `T` o `F`.
+
+`NA`: Se utiliza para representar datos desconocidos o perdidos.
+Aunque en realidad es un dato lógico, puede considerarse con un tipo de dato especial.
+
+`NULL`: Se utiliza para representar la ausencia de datos.
+La principal diferencia con `NA` es que `NULL` aparece cuando se intenta acceder a un dato que no existe, mientras que `NA` se utiliza para representar explícitamente datos perdidos en un estudio.
+
+Para averiguar el tipo de un dato se puede utilizar la siguiente función:
+
+`class(x)`: Devuelve el tipo del dato `x`.
+
+```{r cars}
+summary(cars)
+```
+
+También pueden utilizarse las siguientes funciones que devuelven un booleano:
+
+-   `is.numeric(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `numeric`.
+-   `is.double(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `double`.
+-   `is.integer(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `integer`.
+-   `is.character(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `character`.
+-   `is.logical(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `logical`.
+-   `is.na(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `NA`.
+-   `is.null(x)`: Devuelve el booleano `TRUE` si $x$ es del tipo `NULL`.
+
+## Conversión de tipos
+
+En muchas ocasiones es posible convertir un dato de un tipo a otro distinto.
+Para ello se usan las siguientes funciones:
+
+-   `as.numeric(x)`: Convierte el dato de `x` al tipo `numeric` siempre que sea posible o tenga sentido la conversión. Para convertir una cadena en un número, la cadena tiene que representar un número. El valor lógico `TRUE` se convierte en 1 y el `FALSE` en 0.\
+-   `as.integer(x)`: Convierte el dato de `x` al tipo `integer` siempre que sea posible o tenga sentido la conversión. Para convertir una cadena en un número entero, la cadena tiene que representar un número entero. El valor lógico `TRUE` se convierte en 1 y el `FALSE` en 0.\
+-   `as.character(x)`: Convierte el tipo de dato de `x` al tipo `character` simplemente añadiendo comillas.\
+-   `as.logical(x)`: Convierte el tipo de dato de `x` al tipo lógico. Para datos numéricos, el 0 se convierte en `FALSE` y cualquier otro número en `TRUE.` Para cadenas se obtiene `NA` excepto para las cadenas `"TRUE"` y `"true"` que se convierten a `TRUE` y las cadenas `"FALSE"` y `"false"` que se convierten a `FALSE.`\
+
+El tipo `NA` no se puede convertir a ningún otro tipo pues representa la ausencia del dato.
+Lo mismo ocurre con `NULL`.
+
+# Operaciones con R. R como una calculadora lógica.
+
+Los siguientes operadores permiten realizar las clásicas operaciones aritméticas entre datos numéricos:
+
+-   `x + y`: Devuelve la suma de `x` e `y`.
+-   `x - y`: Devuelve la resta de `x` e `y`.
+-   `x * y`: Devuelve el producto de `x` e `y`.
+-   `x / y`: Devuelve el cociente de `x` e `y`.
+-   `x %% y`: Devuelve el resto de la división entera de `x` e `y`.
+-   `x ^ y`: Devuelve la potencia `x` elevado a `y`.
+
+## Operadores relacionales
+
+Comparan dos números y devuelven un valor lógico.
+
+-   `x == y`: Devuelve `TRUE` si el número `x` es igual que el número `y`, y `FALSE` en caso contrario.
+-   `x > y`: Devuelve `TRUE` si el número `x` es mayor que el número `y`, y `FALSE` en caso contrario.
+-   `x < y`: Devuelve `TRUE` si el número `x` es menor que el número `y`, y `FALSE` en caso contrario.
+-   `x >= y`: Devuelve `TRUE` si el número `x` es mayor o igual que el número `y`, y `FALSE` en caso contrario.
+-   `x <= y`: Devuelve `TRUE` si el número `x` es menor o igual a que el número `y`, y `FALSE` en caso contrario.
+-   `x != y`: Devuelve `TRUE` si el número `x` es distinto del número `y`, y `FALSE` en caso contrario.
+
+## Funciones y constantes numéricas
+
+Las siguientes constantes y funciones matemáticas también están ya predefinidas.
+
+-   `pi`: Devuelve el número $\pi$.
+-   `sqrt(x)`: Devuelve la raíz cuadrada de `x`.
+-   `abs(x)`: Devuelve el valor absoluto de `x`.
+-   `round(x, n)`: Devuelve el redondeo de `x` a `n` decimales.
+-   `exp(x)`: Devuelve la exponencial de `x` ($e^x$).
+-   `log(x)`: Devuelve el logaritmo neperiano de `x`.
+-   `sin(x)`: Devuelve el seno del ángulo `x` en radianes.
+-   `cos(x)`: Devuelve el coseno del ángulo `x` en radianes.
+-   `tan(x)`: Devuelve la tangente del ángulo `x` en radianes.
+-   `asin(x)`: Devuelve el arcoseno de `x`.
+-   `acos(x)`: Devuelve el arcocoseno de `x`.
+-   `atan(x)`: Devuelve el arcotangente de `x`.
+
+## Funciones para cadenas de caracteres
+
+Existen muchas funciones para cadenas de texto pero las más comunes son:
+
+-   `nchar(c)`: Devuelve el número de caracteres de la cadena.
+-   `paste(x, y, ..., sep=s)`: Concatena las cadenas `x`, `y`, etc. separándolas por la cadena `s`. Por defecto la cadena de separación es un espacio en blanco.
+-   `substr(c, start=i, stop=j)`: Devuelve la subcadena de la cadena `c` desde la posición `i` hasta la posición `j`. El primer carácter de una cadena ocupa la posición 1.
+-   `tolower(c)`: Devuelve la cadena que resulta de convertir la cadena `c` a minúsculas.
+-   `toupper(c)`: Devuelve la cadena que resulta de convertir la cadena `c` a mayúsculas.
+
+## Operaciones de comparación de cadena
+
+-   `x == y` : Devuelve `TRUE` si la cadena `x` es igual que la cadena `y`, y `FALSE` en caso contrario.
+-   `x > y` : Devuelve `TRUE` si la cadena `x` sucede a la cadena `y`, y `FALSE` en caso contrario.
+-   `x < y` : Devuelve `TRUE` si la cadena `x` antecede a la cadena `y`, y `FALSE` en caso contrario.
+-   `x >= y` : Devuelve `TRUE` si la cadena `x` sucede o es igual a la cadena `y`, y `FALSE` en caso contrario.
+-   `x <= y` : Devuelve `TRUE` si la cadena `x` antecede o es igual a la cadena `y`, y `FALSE` en caso contrario.
+-   `x != y` : Devuelve `TRUE` si la cadena `x` es distinta de la cadena `y`, y `FALSE` en caso contrario.
+
+Tabla de verdad
+
+```{r, echo=F}
+logicas <- data.frame(matrix(c("FALSE",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
+"FALSE",	"TRUE",	"TRUE",	"FALSE",	"TRUE",
+"TRUE",	"FALSE",	"FALSE",	"FALSE",	"TRUE",
+"TRUE",	"TRUE",	"FALSE",	"TRUE",	"TRUE" ),ncol=5,byrow=T) )
+colnames(logicas) = c("x",	"y",	"!x",	"x & y",	"x | y") 
+```
+
+```{r, echo=F}
+knitr::kable(logicas, "simple")
+```
+
+# Tipos de datos estructurados
+
+Los tipos estructurados de datos, a diferencia de los simples, son colecciones de datos con una determinada estructura.
+En R existen varios tipos tipos estructurados de datos que pueden clasificarse de acuerdo a su dimensión y a si son homogéneos (todos sus elementos son del mismo tipo) o heterogéneos.
+
+-   Los "vectores" son representaciones cuya dimensión es uno, todos sus elementos son numéricos (homogémeos)
+-   Si los elementos coleccionados en un arreglo unidimensional (dimensión = 1), estaremos hablando de "listas"
+-   Si el arreglo es bidimensional (dimensión = 2) y, toda la información contenida es del mismo tipo, se le llama "matriz" al arreglo.
+-   Si en el arreglo se es contenida información de distintos tipos (factores, numéricos, etc.) y el arreglo es bidimensional, se está hablando de un arreglo llamado "Data frame" (marco de datos)
+-   Si la dimensión del arreglo de datos estructurados es mayor a 2, se le llamará "array". Estos guardan similitudes con los llamados "tensores".
+
+Para averiguar del tipo de arreglo de datos se está trabajando, se debe de utilizar la la instrucción `str(x)`.
+
+
+## Creación de vectores
+
+Para construir un vector se utiliza la función de combinación `c()`:
+
+`c(x1, x2, ...)`: Devuelve el vector formado por los elementos `x1`, `x2`, etc.
+También es posible utilizar el operador `:` para generar un vector de números enteros consecutivos:
+
+`x:y`: Devuelve el vector de números enteros consecutivos desde `x` hasta `y`.
+
+Es posible asignar un nombre a cada elemento de un vector.
+Los nombres son etiquetas de texto que se asocian a cada elemento.
+Para asociar un nombre a un elemento se utiliza la sintaxis `nombre = valor`, donde `nombre` es una cadena de caracteres y `valor` es el elemento del vector.
+(Similar a los diccionarios en Python)
+
+`names(x)`: Devuelve un vector de cadenas de caracteres con los nombres de los elementos del vector `x`.
+
+## Coerción de elementos
+
+Puesto que los elementos de un vector tienen que ser del mismo tipo, cuando se crea un vector con datos de distintos tipos, la función `c()` los convertirá al mismo tipo, lo que se conoce como coerción de tipos.
+La coerción se produce de los tipos menos flexibles a los más flexibles: `logical` \< `integer` \< `double` \< `character`.
+
+## Acceso a los elementos de un vector
+
+Para acceder a los elementos de un vector se utiliza un índice.
+Como veremos a continuación, este índice puede ser entero, lógico o de cadena de caracteres y se indica siempre entre corchetes `[ ]` a continuación del vector.
+
+Los elementos de un vector están ordenados y el acceso más simple a ellos es mediante su número de orden, es decir, indicando entre corchetes `[ ]` el entero que corresponde a su número de orden.
+Se puede acceder simultáneamente a varios elementos mediante un vector con sus números de orden.
+
+Cuando se utiliza un índice lógico, se obtienen los elementos correspondientes a las posiciones donde está el valor booleano `TRUE`.
+
+Esta forma de acceder es útil cuando se genera el vector de índices mediante operadores relacionales.
+Cuando se aplica un operador relacional a un vector se obtiene otro vector lógico que resulta de aplicar el operador relacional a cada uno de los elementos del vector.
+De esta manera se puede realizar filtros para obtener los elementos de un vector que cumplen una determinada condición.
+
+Si los elementos de un vector tienen nombre, es posible acceder a ellos usando sus nombres como índices.
+Esto aplica para los arreglos tipo lista o los arreglos tipo Data frame.
+
+## Pertenencia a un vector
+
+Para comprobar si un valor en particular es un elemento de un vector se puede utilizar el operador `%in%`:
+
+```{r}
+x <- 1:3
+2 %in% x
+```
+
+## Modificación de los elementos de un vector
+
+Para modificar uno o varios elementos de un vector basta con acceder a esos elementos y usar el operador de asignación para asignar nuevos valores.
+
+`v[i] <- x`: Asigna el dato `x` a la posición `i` del vector `v`. `v[c(i,j,...)] <- x`: Asigna el dato `x` a las posiciones `i`, `j`, etc. del vector `v`.
+
+## Añadir elementos a un vector
+
+Para añadir nuevos elementos a un vector pueden usarse las siguientes funciones:
+
+`c(x, y)`: Devuelve el vector que resulta de añadir al vector `x` los elementos del vector `y`.
+`append(x, y, pos)`: Devuelve el vector que resulta de añadir al vector `x` los elementos del vector `y`, a continuación de la posición `pos`.
+El parámetro `pos` es opcional `y` si no se indica, los elementos de `y` se añaden al final de los de `x`.
+
+## Eliminar/omitir elementos de un vector
+
+Para eliminar los elementos que ocupan una determinada posición se utiliza el operador de acceso, es decir, los corchetes `[ ]` pero con los índices correspondientes a las posiciones a eliminar, en negativo.
+
+Eliminación de un vector Para eliminar los elementos de un vector basta con asignar `NULL` a la variable que lo contiene, pero si se quiere liberar la memoria que ocupa la variable se utiliza la función `rm()`.
+
+## Operaciones aritméticas con vectores
+
+-   Operaciones aritméticas elemento a elemento Para vectores numéricos las operaciones aritméticas habituales se aplican elemento a elemento. Si los vectores tienen distinto tamaño, el tamaño del vector más pequeño se equipara al tamaño del mayor, reutilizando sus elementos, empezando por el primero.
+
+### Producto escalar de vectores
+
+Para calcular el producto escalar de dos vectores numéricos se utiliza el operador `%*%`.
+Si los vectores tienen distinto tamaño se produce un error.
+
+## Factores
+
+-   Operaciones con factores
+
+Un factor es una estructura de datos especial que se utiliza para representar categorías de variables cualitativas y por tanto puede tomar un conjunto finito de valores predefinidos conocido como niveles del factor.
+
+Para definir un factor se utiliza la siguiente función:
+
+`factor(x, levels = niveles)`: Crea un dato de tipo factor con los elementos del vector `x`.
+Los niveles del factor pueden indicarse mediante el parámetro `levels`, pasándole un vector con los valores posibles.
+Si no se indica el parámetro `levels` los niveles del factor se obtienen automáticamente a partir de los elementos del vector `x` (tantos niveles con valores distintos tenga).
+
+Los factores son en realidad vectores de números enteros a los que se le añade un atributo especial para indicar los niveles del factor.
+
+Para definir un factor se utiliza la siguiente función:
+
+`factor(x, levels = niveles)`: Crea un dato de tipo factor con los elementos del vector `x`.
+Los niveles del factor pueden indicarse mediante el parámetro `levels`, pasándole un vector con los valores posibles.
+Si no se indica el parámetro `levels` los niveles del factor se obtienen automáticamente a partir de los elementos del vector `x` (tantos niveles con valores distintos tenga).
+
+Los factores son en realidad vectores de números enteros a los que se le añade un atributo especial para indicar los niveles del factor.
+
+Es posible establecer un orden entre los niveles de un factor añadiendo el parámetro `ordered = TRUE` a la función anterior.
+Esto es útil para representar categorías ordinales entre las que existe un orden natural.
+
+`is.factor(x)`: Devuelve el booleano `TRUE` si `x` es del tipo factor, y `FALSE` en caso contrario.
+
+Se puede modificar los elementos de un factor de manera similar a como se modifican los elementos de un vector, es decir accediendo al elemento que se quiere modificar y asignándole un nuevo valor.
+La única diferencia con los vectores es que si el nuevo valor que se quiere asignar no está entre los niveles del factor, se obtiene el valor `NA.`
+
+# Listas
+
+Las listas son colecciones ordenadas de elementos que pueden ser de distintos tipos.
+Los elementos de una lista también pueden ser de tipos estructurados (vectores o listas), lo que las convierte en el tipo de dato más versátil de R.
+Como veremos más adelante, otras estructuras de datos como los data frames o los propios modelos estadísticos se construyen usando listas.
+
+## Creación de listas
+
+Para construir una lista se utiliza la función `list()`:
+
+`list(x1, x2, ...)`: Devuelve la lista con los elementos `x1`, `x2`, etc.
+
+Al igual que con los vectores, es posible asignar un nombre a cada uno de los elementos de una lista.
+
+```{r}
+list("nombre" = "María", "edad" = 21, "dirección" = list("calle" = "Delicias", "número" = 24, "municipio" = "Madrid"))
+```
+
+El número de elementos de una lista es su tamaño y puede averiguarse con la siguiente función:
+
+`lenght(x)`: Devuelve el número de elementos de la lista `x`.
+
+## Acceso a los elementos de una lista
+
+Se accede a los elementos de una lista de forma similar a los vectores, mediante índices enteros, lógicos o de cadena, entre corchetes [ ].
+
+Al igual que los vectores, los elementos de una lista están ordenados y se puede utilizar un índice entero para acceder a los elementos que ocupan una determinada posición.
+
+### Modificación de los elementos de una lista
+
+Para modificar uno o varios elementos de una lista basta con acceder a esos elementos y reasignarles valores con el operador de asignación.
+
+```{r}
+persona <- list("nombre" = "María", "edad" = 21)
+persona$edad <- 22
+persona
+```
+
+### Añadir elementos a una lista
+
+La forma más sencilla de añadir un elemento con nombre a una lista es indicando el nombre con el operador `$` y asignándole un valor con el operador de asignación `<-`:
+
+`x$nombre` `<-` `y`: Añade el elemento `y` a la lista `x` con el nombre nombre.
+El nuevo elemento se añade siempre al final de la lista.
+
+Para añadir elementos sin nombre o en una posición determinada se puede utilizar la función `append()`:
+
+`append(x, y, pos)`: Devuelve la lista vector que resulta de añadir a `x` los elementos de la lista `y`, a continuación de la posición `pos`.
+El parámetro `pos` es opcional y, si no se indica, los elementos de `y` se añaden al final de los de `x`.
+
+```{r}
+persona <- list("nombre" = "María", "edad" = 21)
+persona$email <- "maria@ceu.es"
+persona
+```
+
+```{r}
+append(persona, list("sexo" = "Mujer"), 2)
+```
+
+Es posible convertir una lista en un vector con la siguiente función:
+
+`unlist(x)`: Devuelve el vector que resulta de aplanar recursivamente la lista `x` y convertir todos los elementos al mismo tipo mediante coerción de tipos.
+
+# Matrices
+
+Una matriz es una estructura de datos bidimensional de elementos del mismo tipo organizados en filas y columnas.
+Una matriz es similar a un vector pero contiene una atributo adicional con sus dimensiones (número de filas y número de columnas).
+
+## Creación de matrices
+
+Para crear una matriz se utiliza la siguiente función:
+
+`matrix(x, nrow = m, ncol = n)`: Devuelve la matriz con los elementos del vector `x` organizados en `n` filas y \`mc columnas.
+Habitualmente basta con especificar el número de filas o el número de columnas.
+
+Como se puede observar en el ejemplo anterior, los elementos se disponen por columnas, pero se pueden disponer los elementos por filas pasando el parámetro `byrow = TRUE` a la función matrix.
+
+Es posible poner nombres a las filas y a las columnas de una matriz añadiendo el parámetro dimnames y pasándole una lista de dos vectores de cadenas con los nombres de las filas y las columnas respectivamente.
+
+Para obtener los nombres de las filas y las columnas de una matriz se utilizan las siguientes funciones:
+
+-   `rownames(x)`: Devuelve un vector de cadenas de caracteres con los nombres de las filas de la matriz `x`.\
+-   `colnames(x)`: Devuelve un vector de cadenas de caracteres con los nombres de las columnas de la matriz `x`.
+
+Para obtener el número de elementos y las dimensiones de una matriz se pueden utilizar las siguientes funciones:
+
+-   `length(x)`: Devuelve un entero con el número de elementos de la matriz `x`.
+-   `nrow(x)`: Devuelve un entero con el número de filas de la matriz `x`.
+-   `ncol(x)`: Devuelve un entero con el número de columnas de la matriz `x`.
+-   `dim(x)`: Devuelve un vector de dos enteros con el número de filas y el número de columnas de la matriz `x`.
+
+Usando esta última función se pueden modificar las dimensiones de una matriz asignando un vector de dos enteros con las nuevas dimensiones.
+Esto también permite crear una matriz a partir de un vector.
+
+## Acceso a los elementos de una matriz
+
+Para acceder a los elementos de una matriz se utilizan dos índices (uno para las filas y otro para las columnas), separados por comas y entre corchetes `[]` a continuación de la matriz.
+Al igual que para los vectores, los índices pueden ser enteros, lógicos o de cadenas de caracteres.
+
+Para acceder a los elementos de una matriz mediante índices enteros se indica el número de fila y el número de columna del elemento entre corchetes:
+
+`x[i,j]`: Devuelve el elemento de la matriz `x` que está en la fila `i` y la columna `j`.
+Se puede acceder a más de un elemento indicando un vector de enteros para las filas y otro para las columnas.
+De esta manera se obtiene una submatriz.
+Si no se indica la fila o la columna se obtienen todos los elementos de todas las filas o columnas.
+Al igual que para vectores, se pueden utilizar enteros negativos para descartar filas o columnas.
+
+Cuando se utilizan índices lógicos, se obtienen los elementos correspondientes a las filas y columnas donde está el valor booleano `TRUE`.
+
+Si las filas y las columnas de una matriz tienen nombre, es posible acceder a sus elementos usando los nombres de las filas y columnas como índices.
+
+Finalmente, es posible combinar distintos tipos de índices (enteros, lógicos o de cadena) para indicar las filas y las columnas a las que acceder.
+
+## Pertenencia a una matriz
+
+Para comprobar si un valor en particular es un elemento de una matriz se puede utilizar el operador `%in%`:
+
+`x %in% y`: Devuelve el booleano `TRUE` si `x` es un elemento de la matriz `y`, y `FALSE` en caso contrario.
+
+## Modificación de los elementos de una matriz
+
+Para modificar uno o varios elementos de una matriz basta con acceder a esos elementos y usar el operador de asignación para asignar nuevos valores.
+
+## Añadir elementos a una matriz
+
+Para añadir nuevas filas o columnas a una matriz se utilizan las siguientes funciones:
+
+`rbind(x, y)`: Devuelve la matriz que resulta de añadir nuevas filas a la matriz `x` con los elementos del vector `y`.
+`cbind(x, y)`: Devuelve la matriz que resulta de añadir nuevas columnas a la matriz `x` con los elementos del vector `y`.
+
+Para trasponer una matriz se utiliza la función siguiente:
+
+-   `t(x)`: Devuelve la matriz traspuesta de la matriz `x`.
+
+## Operaciones aritméticas con matrices
+
+Para matrices numéricas las operaciones aritméticas habituales se aplican elemento a elemento.
+Si las dimensiones de las matrices son distintas se produce un error.
+
+### Multiplicación de matrices
+
+Para multiplicar dos matrices numéricas se utiliza el operador `%*%`.
+
+### Determinante de una matriz
+
+Para calcular el determinante de una matriz numérica cuadrada se utiliza la siguiente función:
+
+`det(x)`: Devuelve el determinante de la matriz `x`.
+Si `x` no es una matriz numérica cuadrada produce un error.
+
+### Inversa de una matriz
+
+Para calcular la matriz inversa de una matriz numérica cuadrada se utiliza la siguiente función:
+
+`solve(x)`: Devuelve la matriz inversa de la matriz `x`.
+Si `x` no es una matriz numérica cuadrada produce un error.
+Si la matriz no es invertible por tener determinante nulo también se obtiene un error.
+
+### Autovalores y autovectores de una matriz
+
+Para calcular los autovalores y los autovectores de una matriz numérica cuadrada se utiliza la siguiente función:
+
+`eigen(x)`: Devuelve una lista con los autovalores y los autovectores de la matriz `x`.
+Para acceder a los autovalores se utiliza el nombre `values` y para acceder a los autovectores se utiliza el nombre `vectors.` Si `x` no es una matriz numérica cuadrada produce un error.
+
+## Data frames
+
+Un data frame es una estructura bidimensional cuyos elementos se organizan por filas y columnas de manera similar a una matriz.
+La principal diferencia con las matrices es que sus columnas están formadas por vectores, pero pueden tener tipos de datos distintos.
+Un data frame es un caso particular de lista formada por vectores del mismo tamaño con nombre.
+
+Los data frames son las estructuras de datos más utilizadas en R para almacenar los datos en los análisis estadísticos.
+
+Para crear un data frame se utiliza la siguiente función:
+
+`data.frame(nombrex = x, nombrey = y, ...)`: Devuelve el data frame con columnas los vectores `x`, `y`, etc. y nombres de columna `nombrex`, `nombrey`, etc.
+
+Para grandes conjuntos de datos es más común crear un data frame a partir de un fichero en formato csv mediante la siguiente función:
+
+-   `read.csv(f)`: Devuelve el data frame que se genera a partir de los datos del fichero csv `f`.
+    Cada fila del fichero csv se corresponde con una fila del data frame y por defecto utiliza la coma `,` parara separar los datos de las columnas y punto `.` como separador de decimales de los datos numéricos.
+    Los nombres de las columnas se obtienen automáticamente a partir de la primera fila del fichero.\
+
+-   `read.csv2(f)`: Funciona igual que la función anterior pero utiliza como separador de columnas el punto y coma `;` y como separador de decimales la coma `,`.
+
+## Coerción de otras estructuras de datos a data frames
+
+Para convertir otras estructuras de datos en data frames, se utiliza la siguiente función:
+
+`as.data.frame(x)`: Devuelve el data frame que se obtiene a partir la estructura de datos `x` a plicanco las siguientes reglas de coerción: \* Si `x` es un vector se obtiene un data frame con una sola columna.\
+\* Si `x` es una lista se obtiene un data frame con tantas columnas como elementos tenga la lista.
+Si los elementos de la lista tienen tamaños distintos se obtiene un error.\
+\* Si `x` es una matriz se obtiene un data frame con el mismo número de columnas y filas que la matriz.
+
+## Acceso a los elementos de un data frame
+
+Puesto que un data frame es una lista, se puede acceder a sus elementos como se accede a los elementos de una lista utilizando índices.
+Con corchetes simples `[ ]` se obtiene siempre un data frame, mientras que con corchetes dobles `[[ ]]` o `$` se obtiene un vector.
+Pero también se puede acceder a los elementos de un data frame como si fuese una matriz, indicando un par de índices para las filas y las columnas respectivamente.
+
+Para acceder a las primeras o últimas filas de un data frame se pueden utilizar las siguientes funciones:
+
+-   `head(df, n)`: Devuelve un data frame con las `n` primeras filas del data frame `df`.\
+-   `tail(df, n)`: Devuelve un data frame con las `n` últimas filas del data frame `df`.
+
+Estas funciones son útiles para darse una idea del contenido de un data frame con muchas filas.
+
+Para modificar uno o varios elementos de un data frame basta con acceder a esos elementos y usar el operador de asignación para asignar nuevos valores.
+
+## Añadir elementos a un data frame
+
+Para añadir nuevas filas o columnas a una data frame se utilizan las mismas funciones que para matrices:
+
+-   `rbind(df, x)`: Devuelve el data frame que resulta de añadir nuevas filas al data frame `df` con los elementos de la lista `x`.\
+
+-   `cbind(df, nombrex = x)`: Devuelve el data frame que resulta de añadir nuevas columnas al data frame `df` con los elementos del vector `x` con nombre `nombrex`.
+
+Para eliminar una columna de un data frame basta con acceder a la columna y asignarle el valor `NULL`, mientras que para eliminar una fila basta con acceder a la fila con índice negativo.
+
+# Funciones personalizadas
+
+Una función es un bloque de código que tiene asociado un nombre, de manera que cada vez que se quiera ejecutar el bloque de código basta con invocar el nombre de la función.
+Las funciones permite dividir el código en unidades lógicas que resultan más fáciles de manejar y mantener.
+
+En R las funciones son objetos en sí mimas y pueden usarse como cualquier otro dato.
+El tipo de dato de las funciones es `function`.
+
+```{r, echo=TRUE, results='hide'}
+# Definición de la función
+saludo <- function() {
+  print("¡Hola!")
+}
+class(saludo)
+```
+
+## Parámetros y argumentos de una función
+
+Una función puede recibir valores cuando se invoca a través de unas variables conocidas como *parámetros* que se definen entre paréntesis en la declaración de la función.
+En el cuerpo de la función se pueden usar estos parámetros como si fuesen variables.
+
+Los valores que se pasan a la función en una llamada o invocación concreta de ella se conocen como *argumentos* y se asocian a los parámetros de la declaración de la función.
+
+```{r}
+# Función con un parámetro
+saludo <- function(nombre) {
+  print(paste("¡Hola ", nombre, "!", sep = ""))
+}
+# Llamada a la función con un argumento
+saludo("Alf")
+```
+
+En este ejemplo la función `saludo` tiene un parámetro `nombre`.
+En la llamada a la función se pasa la cadena `Alf` como argumento que se asocia al parámetro `nombre` en el cuerpo de la función.
+
+Los argumentos de una función pueden pasarse de dos formas:
+
+**Argumentos posicionales**: Se asocian a los parámetros de la función en el mismo orden que aparecen en la definición de la función.
+**Argumentos nominales** : Se indica explícitamente el nombre del parámetro al que se asocia un argumento de la forma `parametro = argumento`.
+En este caso el orden de los argumentos no importa.
+
+## Argumentos por defecto
+
+En la definición de una función se puede asignar a cada parámetro un argumento por defecto, de manera que si se invoca la función sin proporcionar ningún argumento para ese parámetro, se utiliza el argumento por defecto.
+
+## Retorno de una función
+
+Una función puede devolver un objeto de cualquier tipo tras su invocación.
+Para ello se utiliza la función `return()`, indicando entre paréntesis el valor que devuelve la función.
+El retorno suele realizarse al final del cuerpo de la función, porque con él finaliza la ejecución de la función y se devuelve el control de la ejecución al punto desde donde se llamó a la función, de manera que cualquier instrucción de cuerpo que vaya después no se ejecutará.
+Si no se indica ningún objeto, la función devolverá el valor de la última expresión calculada en el cuerpo de la función.
+
+## Entorno y ámbito de las variables
+
+El entorno de un programa en R es el conjunto de todos los objetos (funciones, variables, etc.) creados durante la ejecución del programa.
+Cuando se ejecuta el interprete de R siempre se crea un primer entorno `R_GlobalEnv` conocido como entorno global.
+Es posible referirse a él en cualquier momento con la constante `.GlobalEnv`.
+
+Para ver el entorno activo en cada momento de la ejecución y el contenido del mismo se utiliza la siguiente función:
+
+`environment()`: Devuelve el nombre del entorno actual.
+`ls()`: Devuelve un vector con los nombres de las objetos (variables, funciones, etc.) que contiene el entorno global.
+
+Los parámetros y los objetos (funciones, variables, etc.) definidos dentro de una función son de ámbito local, mientras que los objetos definidos fuera de ella en alguno de los entornos ancestros son de ámbito global.
+
+Tanto los parámetros como las variables del ámbito local de una función sólo están accesibles durante la ejecución de la función, es decir, cuando termina la ejecución de la función estas variables desaparecen y no son accesibles desde fuera de la función.
+
+Cuando una función declara un objeto (función, variable, etc.) que ya existe en alguno de los entornos ancestros con ámbito global, durante la ejecución de la función el objeto global queda eclipsado por el local y no es accesible hasta que finaliza la ejecución de la función.
+
+Las variables globales están accesibles siempre que no sean eclipsadas por otras con el mismo nombre de ámbito local.
+Si embargo, cuando se intenta asignar un valor a una variable global en el ámbito local, se crea una nueva variable local.
+Para asignar valores a variables globales en el ámbito local se tiene que utilizar el operador de superasignación `<<-`.
+Cuando se utiliza este operador para asignar un valor a una variable, R busca la variable entorno padre, y si no existe continua con la búsqueda en los entornos ancestros hasta llegar a entorno global.
+Si la búsqueda tiene éxito, asigna el nuevo valor a la variable global, mientras que si no tiene éxito se crea una nueva variable de ámbito local y se le asigna el valor.
+
+## Componentes de una función
+
+Los tres componentes de una función son:
+
+-   `Cuerpo`: Es el código dentro de la función.
+-   `Parámetros`: Es la lista de parámetros que requiere la función.
+-   `Entorno`: Es donde se ubican las variables de la función.
+
+Para acceder a estos componentes se pueden utilizar las siguientes funciones:
+
+-   `body(f)`: Devuelve el cuerpo de la función `f`.
+-   `formals(f)`: Devuelve la lista de parámetros de la función `f`.
+-   `environment(f)`: Devuelve el entorno de la función `f`.
+
+## Funciones recursivas
+
+Una función recursiva es una función que en su cuerpo contiene una llama a sí misma.
+
+La recursión es una práctica común en la mayoría de los lenguajes de programación ya que permite resolver las tareas recursivas de manera más natural.
+
+Para garantizar el final de una función recursiva, las sucesivas llamadas tienen que reducir el grado de complejidad del problema, hasta que este pueda resolverse directamente sin necesidad de volver a llamar a la función.
+De lo contrario la recursión no tendría fin y nunca terminaría la ejecución de la función.
+
+# Paquetes (librerías)
+
+Para facilitar la reutilización código y datos R permite la creación de paquetes que pueden importarse desde otros programas.
+Un paquete es una colección de código, funciones y datos que se almacenan en un fichero dentro de un directorio llamado `library` en el entorno de R.
+Para ver la ubicación de este directorio dentro del sistema de archivos local se puede utilizar la función `.libPaths()`.
+
+Durante la instalación de R también se instalan varios paquetes básicos que están disponibles en cualquier sesión de trabajo con R.
+Pero añadir nuevas funciones o procedimientos es necesario instalar el paquete que los contiene y después cargarlo en la sesión de trabajo.
+
+Para ver los paquetes instalados en un ordenador se utiliza la función `library()`.
+
+La mayor parte de los paquetes para R están disponibles en el repositorio oficial CRAN (Comprehensive R Archive Network), aunque cualquier persona puede desarrollar un paquete y ponerlo a disposición de la comunidad en cualquier otro repositorio.
+
+
+Existen distintas formas de instalar un paquete en R:
+
+-   Directamente desde el repositorio oficial CRAN
+-   Desde otros repositorios no oficiales (por ejemplo Github)
+-   Descargando el paquete e instalándolo manualmente.
+
+Para instalar un paquete desde el repositorio oficial CRAN se utiliza la siguiente función:
+
+`install.packages(x)`: Obtiene el paquete con el nombre `x` desde un servidor con el repositorio CRAN y lo instala localmente en el directorio `library` del entorno de R.
+Se puede instalar más de un paquete a la vez pasando un vector con los nombres de los paquetes.
+
+```{r}
+#install.packages("remotes")
+```
+
+El paquete `remotes` incorpora funciones para instalar paquetes alojados en otros repositorios habituales para el desarrollo de software como GitHub, GitLab, etc.
+
+Finalmente es posible instalar un paquete manualmente a partir de su código fuente.
+Para ello hay previamente hay que descargar el código fuente del paquete en un fichero comprimido en formato zip y después utilizar la siguiente función:
+
+`install.packages(x, repos = NULL, type = "source")`: Instala el paquete ubicado en la ruta `x` del sistema de archivos local en la librería library.
+Una vez instalado un paquete ya está disponible para cargarlo en cualquier sesión de trabajo de R y no es necesario volver a instalarlo.
+
+### Carga de un paquete
+
+Una vez instalado un paquete, para poder ejecutar su contenido es necesario cargarlo en el entorno de trabajo de R.
+Para ello se utiliza la siguiente función:
+
+`library(x)`: Ejecuta el código del paquete `x` en la sesión de trabajo activa.
+
+### Paquetes habituales
+
+A continuación se presenta una lista ordenada alfabéticamente (no por importancia) de los paquetes más populares para el análisis de datos:
+
+-   `caret` es un paquete para la creación de modelos de clasificación y regresión mediante aprendizaje automático.
+-   `data.table` es un paquete para la manipulación de grandes conjuntos de datos (de hasta 100GB) de manera rápida y eficiente.
+-   `devtools` es un paquete con herramientas para el desarrollo de paquetes en R.
+-   `knitr` es un paquete que proporciona un motor para la generación de informes dinámicos que permite la integración de código en R con los lenguajes de procesamiento de textos LaTeX, HTML, Markdown, AsciiDoc o reStructuredText.
+-   `mlr3` es un paquete que proporciona funciones para las principales técnicas de aprendizaje automático.
+-   `plotly` es un paquete para la creación de gráficos interactivos.
+-   `rmarkdown` es un paquete que facilita el uso del paquete `knitr` para la elaboración de documentos en múltiples formatos (HTML, pdf, Word y otros) permitiendo la integración de código R en el lenguaje Markdown.
+-   `shiny` es un paquete para la construcción de aplicaciones web interactivas.
+-   `tidymodels` es una colección de paquetes para la construcción y evalucación de modelos con técnicas de aprendizaje automático.
+-   `tidyverse` es una colección de paquetes para la Ciencia de Datos que incluye paquetes para la carga, limpieza, manipulación y representación gráfica de datos.
+
+### Análisis de Datos Biomédicos
+
+-   `ggplot2`: Para crear gráficos avanzados y personalizables en bioestadística.
+-   `epiR`: Paquete para realizar análisis epidemiológicos como tasas, razones de riesgo, odds ratios, etc.
+-   `pROC`: Útil para trabajar con curvas ROC y evaluar modelos predictivos.
+-   `Meta` y `metafor`: Para realizar metaanálisis.
+-   `gtsummary`: Genera tablas resumen para análisis descriptivos y modelos estadísticos.
+
+### Bioinformática y Genómica (relacionado con bioestadística)
+
+-   `DESeq2`: Análisis de datos de expresión génica (RNA-seq).
+-   `edgeR`: Para datos de conteo de secuenciación y análisis diferencial.
+-   `GenABEL`: Análisis estadístico genético.
+-   `Bioconductor`: Repositorio con cientos de paquetes útiles para análisis bioinformáticos.
+
+# Preprocesamiento de datos
+
+
+Cualquier análisis de datos comienza con la carga de datos en un data frame.
+Normalmente los datos brutos deben limpiarse y prepararse para su análisis.
+Este proceso se conoce como preprocesamiento de datos y suele incluir las siguientes tareas:
+
+-   Reestructuración del data frame.
+-   Selección de las variables (columnas) de interés.
+-   Filtrado de los casos (filas) de interés.
+-   Cálculo de nuevas variables a partir de las existentes.
+-   Ordenación de datos.
+-   Agrupación de datos.
+-   Tratamiento de datos no disponibles (`NA`, `NaN`).
+
+Estas tareas pueden realizarse con las funciones básicas de R pero actualmente existen paquetes que facilitan mucho su realización como por ejemplo la colección de paquetes `tidyverse`.
+
+## Tibbles
+
+El paquete `tibble` define la estructura de datos tibble que es similiar a los data frames, pero optimizada, ya que realiza una carga en memoria y evaluación perezosa, lo que hace más eficiente el manejo de grandes volúmenes de datos estructurados en forma de tabla.
+Los tibbles, además, suelen dar más información sobre el contenido y la estructura de los datos, así como de incoherencias en los datos.
+
+Los tibbles nunca cambian el tipo de los datos (por ejemplo de cadenas a factores), nunca cambian los nombres de las variables, ni crean nombres de filas, como suelen hacer los data frames.
+
+Aunque los paquetes de `tidyverse` trabajan perfectamente con data frames, están optimizados para trabajar con tibbles.
+
+Para convertir un data frame en un tibble se utiliza la función
+
+-   `as_tibble(df)`: Convierte el data frame `df` en un tibble.
+
+```{r}
+library(tibble)
+df <- data.frame(asignatura = c("Matemáticas", "Física", "Economía"), nota = c(8.5, 7, 4.5))
+
+as_tibble(df)
+```
+
+Al igual que los data frames, las columnas de los tibbles son vectores cuyos elementos son del mismo tipo, de manera que suelen representar variables en los estudios estadísticos, mientras que las filas representan individuos, aunque no siempre es así.
+
+
+
+## El paquete `dplyr`
+
+El paquete `dplyr` proporciona una gramática para el preprocesamiento de data frames o tibbles, de manera que cada acción sobre data frame se corresponde con un verbo y las funciones que realizan esa acción tienen como nombre el verbo correspondiente.
+Las funciones de preprocesamiento más habituales incluidas en el paquete `dplyr` son:
+
+-   `count`: Cuenta el número de observaciones de un data frame.
+-   `select`: Selecciona un subconjunto de columnas de un data frame.
+-   `filter`: Selecciona un subconjunto de filas de un data frame.
+-   `arrange`: Reordena las filas de un data frame.
+-   `rename`: Renombra las columnas de un data frame.
+-   `mutate`: Añade nuevas columnas a un data frame o transforma las existentes.
+-   `summarise`: Genera resúmenes estadísticos de las columnas de un data frame.
+-   `group_by`: Divide las filas de un data frame en grupos de acuerdo a una columna categórica.
+
+
+
+
+
+
