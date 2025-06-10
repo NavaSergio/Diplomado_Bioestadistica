@@ -9,7 +9,7 @@
 <meta name="author" content="Sergio Nava">
 <meta name="dcterms.date" content="2025-06-16">
 
-<title>Análisis de Datos de Tiempos de Vida</title>
+<title>Análisis de Datos de Tiempos de Fallo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -125,7 +125,7 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Análisis de Datos de Tiempos de Vida</h1>
+<h1 class="title">Análisis de Datos de Tiempos de Fallo</h1>
 </div>
 
 
@@ -158,7 +158,7 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
 <p>En esta página se presentan las principales herramientas computacionales para llevar a cabo un análisis de tiempos de vida utilizando el lenguaje de programación R, en particular mediante el paquete <code>survival</code>. Estas funciones son fundamentales para el estudio de datos censurados y/o truncados, como suele encontrarse en bioestadística, análisis de fiabilidad, y otras áreas donde interesa modelar el tiempo hasta un evento (por ejemplo, muerte, recaída o falla mecánica).</p>
 <p>Aquí nos enfocamos en herramientas prácticas para aplicar modelos de supervivencia en datos reales con R. Para un tratamiento teórico más profundo, se recomienda consultar los textos clásicos de <span class="citation" data-cites="klein2003">Klein &amp; Moeschberger (<a href="#ref-klein2003" role="doc-biblioref">2003</a>)</span>, así como <span class="citation" data-cites="therneau2000">Therneau &amp; Grambsch (<a href="#ref-therneau2000" role="doc-biblioref">2000</a>)</span>.</p>
-<p>Para comenzar, es necesario cargar la biblioteca <code>survival</code>, que contiene las funciones centrales para el análisis de supervivencia en R.</p>
+<p>Para comenzar, es necesario cargar la biblioteca <code>survival</code>, que contiene las funciones centrales para el análisis de supervivencia en R. Una exposición clara y aplicada puede encontrarse en <span class="citation" data-cites="moore2016">Moore (<a href="#ref-moore2016" role="doc-biblioref">2016</a>)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -877,7 +877,7 @@ fit_ln   4 2325.500</code></pre>
 </section>
 <section id="la-función-coxph" class="level2">
 <h2 class="anchored" data-anchor-id="la-función-coxph">6. La función <code>coxph()</code></h2>
-<p>La función <code>coxph()</code> ajusta el modelo de regresión de Cox (modelo de riesgos proporcionales), ampliamente utilizado en análisis de supervivencia. Es un modelo <strong>semiparamétrico</strong>, ya que no especifica la forma funcional de la línea base de la función de riesgo, pero estima los efectos relativos de las covariables.</p>
+<p>La función <code>coxph()</code> ajusta el modelo de regresión de Cox (modelo de riesgos proporcionales), ampliamente utilizado en análisis de supervivencia. Para una explicación computacional detallada, véase <span class="citation" data-cites="moore2016">Moore (<a href="#ref-moore2016" role="doc-biblioref">2016</a>)</span>, capítulo 4. Es un modelo <strong>semiparamétrico</strong>, ya que no especifica la forma funcional de la línea base de la función de riesgo, pero estima los efectos relativos de las covariables.</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coxph</span>(formula, data, weights, subset, na.action, <span class="at">ties =</span> <span class="st">"efron"</span>, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>formula</code>: especifica la relación entre <code>Surv(tiempo, evento)</code> y las covariables.</li>
@@ -1346,6 +1346,9 @@ Harrington, D. P., &amp; Fleming, T. R. (1982). A class of rank test procedures 
 </div>
 <div id="ref-klein2003" class="csl-entry" role="listitem">
 Klein, J. P., &amp; Moeschberger, M. L. (2003). <em>Survival analysis: Techniques for censored and truncated data</em> (2nd ed.). Springer.
+</div>
+<div id="ref-moore2016" class="csl-entry" role="listitem">
+Moore, D. F. (2016). <em>Applied survival analysis using r</em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-3-319-31245-3">https://doi.org/10.1007/978-3-319-31245-3</a>
 </div>
 <div id="ref-therneau2000" class="csl-entry" role="listitem">
 Therneau, T. M., &amp; Grambsch, P. M. (2000). <em>Modeling survival data: Extending the cox model</em>. Springer.

@@ -1,5 +1,5 @@
 ---
-title: "Análisis de Datos de Tiempos de Vida"
+title: "Análisis de Datos de Tiempos de Fallo"
 author: "Sergio Nava"
 date: "2025-06-16"
 format:
@@ -24,7 +24,7 @@ En esta página se presentan las principales herramientas computacionales para l
 
 Aquí nos enfocamos en herramientas prácticas para aplicar modelos de supervivencia en datos reales con R. Para un tratamiento teórico más profundo, se recomienda consultar los textos clásicos de @klein2003, así como @therneau2000.
 
-Para comenzar, es necesario cargar la biblioteca `survival`, que contiene las funciones centrales para el análisis de supervivencia en R.
+Para comenzar, es necesario cargar la biblioteca `survival`, que contiene las funciones centrales para el análisis de supervivencia en R. Una exposición clara y aplicada puede encontrarse en @moore2016.
 
 ```{r}
 
@@ -446,7 +446,7 @@ Para una discusión detallada sobre modelos paramétricos de supervivencia, cons
 
 ## 6. La función `coxph()`
 
-La función `coxph()` ajusta el modelo de regresión de Cox (modelo de riesgos proporcionales), ampliamente utilizado en análisis de supervivencia. Es un modelo **semiparamétrico**, ya que no especifica la forma funcional de la línea base de la función de riesgo, pero estima los efectos relativos de las covariables.
+La función `coxph()` ajusta el modelo de regresión de Cox (modelo de riesgos proporcionales), ampliamente utilizado en análisis de supervivencia. Para una explicación computacional detallada, véase @moore2016, capítulo 4. Es un modelo **semiparamétrico**, ya que no especifica la forma funcional de la línea base de la función de riesgo, pero estima los efectos relativos de las covariables.
 
 ```r
 coxph(formula, data, weights, subset, na.action, ties = "efron", ...)
