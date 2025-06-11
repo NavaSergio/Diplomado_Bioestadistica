@@ -94,7 +94,27 @@
     code span.va { color: #111111; } /* Variable */
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
-  </style>
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
   <link rel="stylesheet" href="principios_basicos_v1_files/libs/revealjs/dist/theme/quarto-93e7050e729d0d602019ff332ff51b93.css">
   <link rel="stylesheet" href="style.css">
   <link href="principios_basicos_v1_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
@@ -424,11 +444,12 @@ Sergio M. Nava Muñoz
 <section id="función-de-supervivencia-st" class="slide level2">
 <h2>1. Función de Supervivencia <span class="math inline">\(S(t)\)</span></h2>
 <ul>
-<li>Define la probabilidad de sobrevivir más allá del tiempo <span class="math inline">\(t\)</span>:<br>
-<span class="math display">\[ S(t) = P(T &gt; t) \]</span></li>
-<li>Es monótona decreciente</li>
-<li>Se relaciona con la función de distribución:<br>
-<span class="math display">\[ F(t) = 1 - S(t) \]</span></li>
+<li><p>Define la probabilidad de sobrevivir más allá del tiempo <span class="math inline">\(t\)</span>:<br>
+<span class="math display">\[ S(t) = P(T &gt; t) \]</span></p></li>
+<li><p>Es monótona decreciente</p></li>
+<li><p>Se relaciona con la función de distribución:<br>
+<span class="math display">\[ F(t) = 1 - S(t) \]</span></p>
+<p>Estas funciones se discuten con detalle en <span class="citation" data-cites="moore2016">Moore (<a href="#/lecturas-recomendadas" role="doc-biblioref" onclick="">2016</a>)</span>.</p></li>
 </ul>
 </section>
 <section id="función-de-riesgo-ht" class="slide level2">
@@ -468,11 +489,7 @@ Sergio M. Nava Muñoz
 </section>
 <section id="ejemplo-en-r-weibull" class="slide level2">
 <h2>5. Ejemplo en R: Weibull</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">curve</span>(<span class="fu">dweibull</span>(x, <span class="at">shape=</span><span class="fl">1.5</span>, <span class="at">scale=</span><span class="dv">1</span><span class="sc">/</span><span class="fl">0.03</span>), <span class="at">from=</span><span class="dv">0</span>, <span class="at">to=</span><span class="dv">80</span>,</span>
-<span id="cb1-2"><a href=""></a>      <span class="at">ylab=</span><span class="st">"Densidad"</span>, <span class="at">xlab=</span><span class="st">"Tiempo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
 <img data-src="principios_basicos_v1_files/figure-revealjs/unnamed-chunk-1-1.png" width="960" class="r-stretch"></section>
 <section id="hazard-and-survival-functions-for-us-males-and-females-in-2004" class="slide level2 smaller scrollable">
 <h2>Hazard and survival functions for US males and females in 2004</h2>
@@ -488,12 +505,12 @@ Sergio M. Nava Muñoz
 <li>65 años calendario: de 1940 a 2004</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">library</span>(survival)</span>
-<span id="cb2-2"><a href=""></a>tabla<span class="ot">=</span><span class="fu">as.table</span>(survexp.us[,,<span class="st">"2004"</span>])</span>
-<span id="cb2-3"><a href=""></a></span>
-<span id="cb2-4"><a href=""></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tabla, <span class="at">booktabs =</span> <span class="cn">TRUE</span>, <span class="at">digits =</span> <span class="dv">5</span>,<span class="at">format.args =</span> <span class="fu">list</span>(<span class="at">scientific =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb2-5"><a href=""></a>             <span class="at">format =</span> <span class="st">"simple"</span>,</span>
-<span id="cb2-6"><a href=""></a>             <span class="at">caption=</span><span class="st">"Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año 2004"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb1-2"><a href=""></a>tabla<span class="ot">=</span><span class="fu">as.table</span>(survexp.us[,,<span class="st">"2004"</span>])</span>
+<span id="cb1-3"><a href=""></a></span>
+<span id="cb1-4"><a href=""></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tabla, <span class="at">booktabs =</span> <span class="cn">TRUE</span>, <span class="at">digits =</span> <span class="dv">5</span>,<span class="at">format.args =</span> <span class="fu">list</span>(<span class="at">scientific =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb1-5"><a href=""></a>             <span class="at">format =</span> <span class="st">"simple"</span>,</span>
+<span id="cb1-6"><a href=""></a>             <span class="at">caption=</span><span class="st">"Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año 2004"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top">
 <caption>Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año 2004</caption>
@@ -1067,12 +1084,12 @@ Sergio M. Nava Muñoz
 <section id="cálculo-de-la-función-de-supervivencia-st-a-partir-de-la-función-de-riesgo-ht" class="slide level2">
 <h2>6. Cálculo de la función de supervivencia <span class="math inline">\(S(t)\)</span> a partir de la función de riesgo <span class="math inline">\(h(t)\)</span></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(survival)</span>
-<span id="cb3-2"><a href=""></a>tm <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="co"># birth</span></span>
-<span id="cb3-3"><a href=""></a>        <span class="dv">1</span><span class="sc">:</span><span class="dv">110</span>) <span class="co"># subsequent years</span></span>
-<span id="cb3-4"><a href=""></a>hazMale <span class="ot">&lt;-</span> survexp.us[,<span class="st">"male"</span>,<span class="st">"2004"</span>]</span>
-<span id="cb3-5"><a href=""></a>tm.diff <span class="ot">&lt;-</span> <span class="fu">diff</span>(tm)</span>
-<span id="cb3-6"><a href=""></a>survMale <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">cumsum</span>(hazMale <span class="sc">*</span> tm.diff) <span class="sc">*</span> <span class="fl">365.24</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb2-2"><a href=""></a>tm <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="co"># birth</span></span>
+<span id="cb2-3"><a href=""></a>        <span class="dv">1</span><span class="sc">:</span><span class="dv">110</span>) <span class="co"># subsequent years</span></span>
+<span id="cb2-4"><a href=""></a>hazMale <span class="ot">&lt;-</span> survexp.us[,<span class="st">"male"</span>,<span class="st">"2004"</span>]</span>
+<span id="cb2-5"><a href=""></a>tm.diff <span class="ot">&lt;-</span> <span class="fu">diff</span>(tm)</span>
+<span id="cb2-6"><a href=""></a>survMale <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">cumsum</span>(hazMale <span class="sc">*</span> tm.diff) <span class="sc">*</span> <span class="fl">365.24</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="tiempo-medio-y-mediano-de-supervivencia" class="slide level2">
@@ -1082,8 +1099,8 @@ Sergio M. Nava Muñoz
 Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede ser infinita.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="co"># Estimación numérica en R</span></span>
-<span id="cb4-2"><a href=""></a><span class="fu">sum</span>(survMale <span class="sc">*</span> tm.diff)  <span class="co"># área bajo la curva de supervivencia</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co"># Estimación numérica en R</span></span>
+<span id="cb3-2"><a href=""></a><span class="fu">sum</span>(survMale <span class="sc">*</span> tm.diff)  <span class="co"># área bajo la curva de supervivencia</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 74.38014</code></pre>
 </div>
@@ -1092,11 +1109,11 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 <li><strong>Tiempo mediano de supervivencia</strong>: <span class="math display">\[ \, \text{Mediana} = \min\{t : S(t) \leq 0.5\} \]</span></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">library</span>(survival)</span>
-<span id="cb6-2"><a href=""></a>tt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">4</span>)</span>
-<span id="cb6-3"><a href=""></a>status <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
-<span id="cb6-4"><a href=""></a>fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(tt, status) <span class="sc">~</span> <span class="dv">1</span>)</span>
-<span id="cb6-5"><a href=""></a><span class="fu">summary</span>(fit)<span class="sc">$</span>table[<span class="st">"median"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb5-2"><a href=""></a>tt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">4</span>)</span>
+<span id="cb5-3"><a href=""></a>status <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb5-4"><a href=""></a>fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(tt, status) <span class="sc">~</span> <span class="dv">1</span>)</span>
+<span id="cb5-5"><a href=""></a><span class="fu">summary</span>(fit)<span class="sc">$</span>table[<span class="st">"median"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>median 
      6 </code></pre>
@@ -1108,6 +1125,8 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 </section>
 <section id="media-y-mediana-en-modelos-paramétricos" class="slide level2">
 <h2>Media y mediana en modelos paramétricos</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
 <h3 id="modelo-exponencial">Modelo Exponencial</h3>
 <ul>
 <li><p>Si <span class="math inline">\(T \sim \text{Exp}(\lambda)\)</span>:</p>
@@ -1119,21 +1138,39 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a>lambda <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
-<span id="cb8-2"><a href=""></a>media_exp <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> lambda</span>
-<span id="cb8-3"><a href=""></a>mediana_exp <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">2</span>) <span class="sc">/</span> lambda</span>
-<span id="cb8-4"><a href=""></a>media_exp; mediana_exp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>lambda <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb7-2"><a href=""></a>media_exp <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> lambda</span>
+<span id="cb7-3"><a href=""></a>mediana_exp <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">2</span>) <span class="sc">/</span> lambda</span>
+<span id="cb7-4"><a href=""></a>media_exp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>mediana_exp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6.931472</code></pre>
 </div>
 </div>
+</div><div class="column" style="width:45%;">
+<p>Podemos generar variables aleatorias de la distribución Weibull</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">137</span>)</span>
+<span id="cb11-2"><a href=""></a>tt.exp <span class="ot">&lt;-</span> <span class="fu">rexp</span>(<span class="dv">1000</span>, <span class="at">rate=</span>lambda)</span>
+<span id="cb11-3"><a href=""></a><span class="fu">mean</span>(tt.exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9.778199</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">median</span>(tt.exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6.907413</code></pre>
+</div>
+</div>
+</div></div>
 </section>
 <section class="slide level2">
 
 <h3 class="scrollable" id="modelo-weibull">Modelo Weibull</h3>
+<div class="columns">
+<div class="column" style="width:55%;">
 <ul>
 <li><p>Si <span class="math inline">\(T \sim \text{Weibull}(\alpha, \lambda)\)</span>:</p>
 <ul>
@@ -1144,43 +1181,44 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>alpha <span class="ot">&lt;-</span> <span class="fl">1.5</span>; lambda <span class="ot">&lt;-</span> <span class="fl">0.03</span></span>
-<span id="cb11-2"><a href=""></a>media_weibull <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">/</span>lambda) <span class="sc">*</span> <span class="fu">gamma</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span>alpha)</span>
-<span id="cb11-3"><a href=""></a>mediana_weibull <span class="ot">&lt;-</span> (<span class="fu">log</span>(<span class="dv">2</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span>alpha))<span class="sc">/</span>lambda</span>
-<span id="cb11-4"><a href=""></a>media_weibull; mediana_weibull</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>alpha <span class="ot">&lt;-</span> <span class="fl">1.5</span>; lambda <span class="ot">&lt;-</span> <span class="fl">0.03</span></span>
+<span id="cb15-2"><a href=""></a>media_weibull <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">/</span>lambda) <span class="sc">*</span> <span class="fu">gamma</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span>alpha)</span>
+<span id="cb15-3"><a href=""></a>mediana_weibull <span class="ot">&lt;-</span> (<span class="fu">log</span>(<span class="dv">2</span>)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span>alpha))<span class="sc">/</span>lambda</span>
+<span id="cb15-4"><a href=""></a>media_weibull</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 30.09151</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>mediana_weibull</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 26.10733</code></pre>
 </div>
 </div>
+</div><div class="column" style="width:45%;">
 <p>Podemos generar variables aleatorias de la distribución Weibull</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>tt.weib <span class="ot">&lt;-</span> <span class="fu">rweibull</span>(<span class="dv">1000</span>, <span class="at">shape=</span><span class="fl">1.5</span>, <span class="at">scale=</span><span class="dv">1</span><span class="sc">/</span><span class="fl">0.03</span>)</span>
-<span id="cb14-2"><a href=""></a><span class="fu">mean</span>(tt.weib); <span class="fu">median</span>(tt.weib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">137</span>)</span>
+<span id="cb19-2"><a href=""></a>tt.weib <span class="ot">&lt;-</span> <span class="fu">rweibull</span>(<span class="dv">1000</span>, </span>
+<span id="cb19-3"><a href=""></a>                    <span class="at">shape=</span>alpha, </span>
+<span id="cb19-4"><a href=""></a>                    <span class="at">scale=</span><span class="dv">1</span><span class="sc">/</span>lambda)</span>
+<span id="cb19-5"><a href=""></a><span class="fu">mean</span>(tt.weib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 29.72127</code></pre>
+<pre><code>[1] 29.90632</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a><span class="fu">median</span>(tt.weib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 25.66519</code></pre>
+<pre><code>[1] 26.26265</code></pre>
 </div>
 </div>
+</div></div>
 </section>
 <section class="slide level2">
 
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>weibSurv <span class="ot">&lt;-</span> <span class="cf">function</span>(t, shape, scale) <span class="fu">pweibull</span>(t, <span class="at">shape=</span>shape,</span>
-<span id="cb17-2"><a href=""></a><span class="at">scale=</span>scale, <span class="at">lower.tail=</span>F)</span>
-<span id="cb17-3"><a href=""></a><span class="fu">curve</span>(<span class="fu">weibSurv</span>(x, <span class="at">shape=</span><span class="fl">1.5</span>, <span class="at">scale=</span><span class="dv">1</span><span class="sc">/</span><span class="fl">0.03</span>), <span class="at">from=</span><span class="dv">0</span>, <span class="at">to=</span><span class="dv">80</span>,</span>
-<span id="cb17-4"><a href=""></a><span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylab=</span><span class="st">'Survival probability'</span>, <span class="at">xlab=</span><span class="st">'Time'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-</div>
-<img data-src="principios_basicos_v1_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
+<img data-src="principios_basicos_v1_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
 
-<img data-src="principios_basicos_v1_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Weibull hazard functions</p></section>
+<img data-src="principios_basicos_v1_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Weibull hazard functions</p></section>
 <section id="máxima-verosimilitud-exponencial" class="slide level2">
 <h2>8. Máxima Verosimilitud: Exponencial</h2>
 <ul>
@@ -1194,10 +1232,10 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 <section id="código-r-estimación-con-censura" class="slide level2">
 <h2>9. Código R: Estimación con censura</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>tt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">4</span>)</span>
-<span id="cb18-2"><a href=""></a>status <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
-<span id="cb18-3"><a href=""></a><span class="fu">library</span>(survival)</span>
-<span id="cb18-4"><a href=""></a><span class="fu">survfit</span>(<span class="fu">Surv</span>(tt, status) <span class="sc">~</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href=""></a>tt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">4</span>)</span>
+<span id="cb23-2"><a href=""></a>status <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb23-3"><a href=""></a><span class="fu">library</span>(survival)</span>
+<span id="cb23-4"><a href=""></a><span class="fu">survfit</span>(<span class="fu">Surv</span>(tt, status) <span class="sc">~</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call: survfit(formula = Surv(tt, status) ~ 1)
 
@@ -1214,12 +1252,17 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 <li>Comparar con estimación empírica (Kaplan-Meier)</li>
 </ul>
 </section>
-<section id="lecturas-recomendadas" class="slide level2">
+<section id="lecturas-recomendadas" class="slide level2 smaller scrollable">
 <h2>11. Lecturas recomendadas</h2>
 <ul>
 <li>Moore, D. F. (2016). <em>Applied Survival Analysis Using R</em></li>
 <li>Klein &amp; Moeschberger (2003). <em>Survival Analysis</em></li>
 </ul>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-moore2016" class="csl-entry" role="listitem">
+Moore, D. F. (2016). <em>Applied survival analysis using r</em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-3-319-31245-3">https://doi.org/10.1007/978-3-319-31245-3</a>
+</div>
+</div>
 </section>
 <section id="preguntas-y-discusión" class="slide level2">
 <h2>Preguntas y discusión</h2>

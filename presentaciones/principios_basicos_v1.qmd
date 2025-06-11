@@ -30,12 +30,13 @@ execute:
   echo: true
   warning: false
   message: false
+bibliography: bibliografia.bib
+csl: apa.csl
 ---
-
 
 ## Objetivo
 
--   Comprender los fundamentos del análisis de supervivencia
+-   Comprender los fundamentos del análisis de supervivencia 
 -   Distinguir entre las funciones de riesgo, supervivencia, densidad y distribución
 -   Introducir modelos paramétricos y el enfoque de máxima verosimilitud
 -   Aplicar estas ideas en R usando funciones del paquete `survival`
@@ -49,6 +50,8 @@ execute:
 -   Es monótona decreciente
 -   Se relaciona con la función de distribución:\
     $$ F(t) = 1 - S(t) $$
+    
+    Estas funciones se discuten con detalle en @moore2016.
 
 ------------------------------------------------------------------------
 
@@ -83,27 +86,40 @@ execute:
 ## 5. Ejemplo en R: Weibull
 
 ```{r}
-curve(dweibull(x, shape=1.5, scale=1/0.03), from=0, to=80,
-      ylab="Densidad", xlab="Tiempo")
+#| echo: false
+curve(dweibull(x, shape=0.75, scale=1/0.03), from=0, to=80, 
+     ylab='Densidad', xlab='Time',  col="red")
+curve(dweibull(x, shape=1.5, scale=1/0.03), from=0, to=80, 
+     ylab='Densidad', xlab='Time', add=T, col="blue")
+curve(dweibull(x, shape=1.0, scale=1/0.03), from=0, to=80, 
+     ylab='Densidad', xlab='Time', add=T, col="black")
+text(45, 0.015, expression(alpha == 0.75), col="red", cex=1.3)
+text(58, 0.015, expression(lambda==0.03), col="red", cex=1.3)
+text(45, 0.035, expression(alpha == 1.5), col="blue", cex=1.3)
+text(58, 0.035, expression(lambda==0.03), col="blue", cex=1.3)
+text(45, 0.025, expression(alpha == 1.00), col="black", cex=1.3)
+text(58, 0.025, expression(lambda==0.03), col="black", cex=1.3)
 ```
 
-----
+------------------------------------------------------------------------
 
 ## Hazard and survival functions for US males and females in 2004 {.smaller .scrollable}
 
 ### 📦 Nombre del dataset:
+
 `survexp.us` del paquete `survival` en R
 
 ### 📚 Descripción:
-Contiene tasas de riesgo (hazard rates) diarias por edad, sexo y año calendario en EE. UU.,
-derivadas de las tablas de vida oficiales.
+
+Contiene tasas de riesgo (hazard rates) diarias por edad, sexo y año calendario en EE. UU., derivadas de las tablas de vida oficiales.
 
 ### 🔢 Dimensiones:
+
 dim(survexp.us) = 111 x 2 x 65
 
-- 110 edades: de 0 a 109 años
-- 2 sexos: `"male"`, `"female"`
-- 65 años calendario: de 1940 a 2004
+-   110 edades: de 0 a 109 años
+-   2 sexos: `"male"`, `"female"`
+-   65 años calendario: de 1940 a 2004
 
 ```{r}
 library(survival)
@@ -114,7 +130,7 @@ knitr::kable(tabla, booktabs = TRUE, digits = 5,format.args = list(scientific = 
              caption="Tasas de riesgo (hazard rates) de hombres y mujeres por edad para el año 2004")
 ```
 
------
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: false
@@ -188,7 +204,7 @@ survMale <- exp(-cumsum(hazMale * tm.diff) * 365.24)
 
 ------------------------------------------------------------------------
 
-##  7 Tiempo Medio y Mediano de Supervivencia
+## 7 Tiempo Medio y Mediano de Supervivencia
 
 -   **Tiempo medio de supervivencia**: $$ E(T) = \int_0^\infty S(t) dt $$\
     Si $S(t)$ no tiende a 0, esta integral puede ser infinita.
@@ -212,65 +228,110 @@ summary(fit)$table["median"]
 
 ------------------------------------------------------------------------
 
-
 ## Media y mediana en modelos paramétricos
+
+
+::::: columns
+::: {.column width="55%"}
 
 ### Modelo Exponencial
 
-- Si $T \sim \text{Exp}(\lambda)$:
+-   Si $T \sim \text{Exp}(\lambda)$:
 
-  - Media:  
-    $$ E(T) = \frac{1}{\lambda} $$
+    -   Media:\
+        $$ E(T) = \frac{1}{\lambda} $$
 
-  - Mediana:  
-    $$ \text{Mediana} = \frac{\ln(2)}{\lambda} $$
+    -   Mediana:\
+        $$ \text{Mediana} = \frac{\ln(2)}{\lambda} $$
 
 ```{r}
 lambda <- 0.1
 media_exp <- 1 / lambda
 mediana_exp <- log(2) / lambda
-media_exp; mediana_exp
+media_exp
+mediana_exp
 ```
 
----
+:::
+
+::: {.column width="45%"}
+
+Podemos generar variables aleatorias de la distribución Weibull
+
+```{r}
+set.seed(137)
+tt.exp <- rexp(1000, rate=lambda)
+mean(tt.exp)
+median(tt.exp)
+```
+
+:::
+:::::
+
+------------------------------------------------------------------------
 
 ### Modelo Weibull {.scrollable}
 
-- Si $T \sim \text{Weibull}(\alpha, \lambda)$:
 
-  - Media:  
-    $$ E(T) = \lambda^{-1} \cdot \Gamma\left(1 + \frac{1}{\alpha} \right) $$
+::::: columns
+::: {.column width="55%"}
 
-  - Mediana:  
-    $$\text{Mediana} = \left( \frac{\ln(2)^{1/\alpha}}{\lambda} \right)$$
+
+-   Si $T \sim \text{Weibull}(\alpha, \lambda)$:
+
+    -   Media:\
+        $$ E(T) = \lambda^{-1} \cdot \Gamma\left(1 + \frac{1}{\alpha} \right) $$
+
+    -   Mediana:\
+        $$\text{Mediana} = \left( \frac{\ln(2)^{1/\alpha}}{\lambda} \right)$$
 
 ```{r}
 alpha <- 1.5; lambda <- 0.03
 media_weibull <- (1/lambda) * gamma(1 + 1/alpha)
 mediana_weibull <- (log(2)^(1/alpha))/lambda
-media_weibull; mediana_weibull
+media_weibull
+mediana_weibull
 ```
+
+:::
+
+::: {.column width="45%"}
 
 Podemos generar variables aleatorias de la distribución Weibull
 
 ```{r}
-tt.weib <- rweibull(1000, shape=1.5, scale=1/0.03)
-mean(tt.weib); median(tt.weib)
+set.seed(137)
+tt.weib <- rweibull(1000, 
+                    shape=alpha, 
+                    scale=1/lambda)
+mean(tt.weib)
+median(tt.weib)
 ```
 
------
+:::
+:::::
 
+------------------------------------------------------------------------
 
 ```{r}
+#| echo: false
 weibSurv <- function(t, shape, scale) pweibull(t, shape=shape,
 scale=scale, lower.tail=F)
-curve(weibSurv(x, shape=1.5, scale=1/0.03), from=0, to=80,
-ylim=c(0,1), ylab='Survival probability', xlab='Time')
+curve(weibSurv(x, shape=1.5, scale=1/0.03), from=0, to=80, 
+     ylim=c(0,1), ylab='Survival probability', xlab='Time', col="blue")
+curve(weibSurv(x, shape=1.0, scale=1/0.03), from=0, to=80, 
+     ylim=c(0,1), ylab='Survival probability', xlab='Time', add=T, col="black")
+curve(weibSurv(x, shape=0.75, scale=1/0.03), from=0, to=80, 
+     ylim=c(0,1), ylab='Survival probability', xlab='Time', add=T, col="red")
+text(45, 0.55, expression(alpha == 0.75), col="red", cex=1.3)
+text(58, 0.55, expression(lambda==0.03), col="red", cex=1.3)
+text(45, 0.35, expression(alpha == 1.5), col="blue", cex=1.3)
+text(58, 0.35, expression(lambda==0.03), col="blue", cex=1.3)
+text(45, 0.45, expression(alpha == 1.00), col="black", cex=1.3)
+text(58, 0.45, expression(lambda==0.03), col="black", cex=1.3)
 ```
 
-
----
-
+------------------------------------------------------------------------
 
 ```{r}
 #| fig-cap: "Weibull hazard functions"
@@ -283,15 +344,15 @@ curve(weibHaz(x, shape=1.0, scale=1/0.03), from=0, to=80,
      ylab='Hazard', xlab='Time', add=T, col="black")
 curve(weibHaz(x, shape=0.75, scale=1/0.03), from=0, to=80, 
      ylab='Hazard', xlab='Time', add=T, col="red")
-text(45, 0.065, expression(alpha == 1.50), col="red", cex=1.3)
-text(58, 0.065, expression(lambda==0.03), col="red", cex=1.3)
-text(45, 0.015, expression(alpha == 0.75), col="blue", cex=1.3)
-text(58, 0.015, expression(lambda==0.03), col="blue", cex=1.3)
+text(45, 0.015, expression(alpha == 0.75), col="red", cex=1.3)
+text(58, 0.015, expression(lambda==0.03), col="red", cex=1.3)
+text(45, 0.065, expression(alpha == 1.5), col="blue", cex=1.3)
+text(58, 0.065, expression(lambda==0.03), col="blue", cex=1.3)
 text(45, 0.034, expression(alpha == 1.00), col="black", cex=1.3)
 text(58, 0.034, expression(lambda==0.03), col="black", cex=1.3)
 ```
 
-----
+------------------------------------------------------------------------
 
 ## 8. Máxima Verosimilitud: Exponencial
 
@@ -325,6 +386,9 @@ survfit(Surv(tt, status) ~ 1)
 -   Moore, D. F. (2016). *Applied Survival Analysis Using R*
 -   Klein & Moeschberger (2003). *Survival Analysis*
 
+::: {#refs}
+:::
+
 ------------------------------------------------------------------------
 
 ## Preguntas y discusión
@@ -333,4 +397,3 @@ survfit(Surv(tt, status) ~ 1)
 -   ¿Cuáles son los riesgos de usar modelos paramétricos sin validarlos?
 
 ------------------------------------------------------------------------
-

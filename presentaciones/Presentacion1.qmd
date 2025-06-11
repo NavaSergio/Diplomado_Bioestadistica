@@ -30,6 +30,8 @@ execute:
   echo: false
   warning: false
   message: false
+bibliography: bibliografia.bib
+csl: apa.csl
 ---
 
 ```{r}
