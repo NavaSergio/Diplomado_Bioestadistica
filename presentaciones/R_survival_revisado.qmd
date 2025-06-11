@@ -11,13 +11,26 @@ format:
     number-sections: false
     toc-collapsed: true
     smooth-scroll: true
+    logo: figs/CIMAT.png 
 execute:
   echo: true
   eval: true
 bibliography: bibliografia.bib
-csl: apa.csl  # opcional, usa otro estilo si prefieres
+csl: apa.csl
 ---
 
+<!-- banner.html -->
+<div id="custom-banner" style="background-color: white; color: white; padding: 20px; text-align: center;">
+  <img src="figs/Banner_diplomado.jpg" alt="Banner" style="height: 220px; vertical-align: middle; margin-right: 1px;">
+
+</div>
+
+<!-- custom-header.html -->
+<div id="custom-logo" style="position: absolute; top: 10px; left: 10px;">
+  <img src="figs/CIMAT.png" alt="Logo CIMAT" style="height: 120px;">
+</div>
+
+ 
 ## Introducción
 
 En esta página se presentan las principales herramientas computacionales para llevar a cabo un análisis de tiempos de vida utilizando el lenguaje de programación R, en particular mediante el paquete `survival`. Estas funciones son fundamentales para el estudio de datos censurados y/o truncados, como suele encontrarse en bioestadística, análisis de fiabilidad, y otras áreas donde interesa modelar el tiempo hasta un evento (por ejemplo, muerte, recaída o falla mecánica).

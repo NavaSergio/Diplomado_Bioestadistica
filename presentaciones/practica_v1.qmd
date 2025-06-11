@@ -1,0 +1,198 @@
+---
+title: "Análisis de Supervivencia con R"
+format: revealjs
+theme: simple
+editor: visual
+execute: 
+  echo: true
+  eval: true
+---
+
+## Objetivo de la sesión
+
+-   Introducir conceptos fundamentales del análisis de supervivencia.
+-   Aplicar técnicas básicas en R con datos reales.
+-   Interpretar curvas de supervivencia y modelos de regresión.
+
+Note: Esta sesión está diseñada para durar entre 90 y 120 minutos. Los estudiantes deben tener conocimientos básicos de R y de modelos estadísticos.
+
+------------------------------------------------------------------------
+
+## ¿Qué es el análisis de supervivencia?
+
+-   Estudia el **tiempo hasta que ocurre un evento** (muerte, falla, abandono, etc.).
+-   Permite considerar **censura** (cuando no se observa el evento).
+-   Usos: medicina, industria, ciencias sociales, marketing.
+
+Note: Enfatiza que "evento" no siempre es negativo: puede ser recuperación, éxito de una campaña, etc.
+
+------------------------------------------------------------------------
+
+## Motivación: caso clínico
+
+> Pacientes con cáncer de pulmón reciben tratamiento A o B. Queremos saber cuál tratamiento prolonga más la supervivencia.
+
+-   ¿Qué tan pronto mueren los pacientes?
+-   ¿Influye el sexo o edad?
+-   ¿El tratamiento A es mejor?
+
+------------------------------------------------------------------------
+
+## Tipos de datos
+
+-   **Tiempo de seguimiento** (`time`)
+-   **Evento observado** (`status`: 1 = evento, 0 = censurado)
+
+``` {r}
+datos <- data.frame(
+  tiempo = c(5, 8, 10, 12, 18, 22),
+  evento = c(1, 1, 0, 1, 0, 1)
+)
+```
+
+Note: Explica que los censurados son sujetos que no tuvieron el evento durante el estudio o fueron perdidos.
+
+------------------------------------------------------------------------
+
+## Cargar paquetes
+
+``` {r}
+library(survival)
+library(survminer)
+```
+
+Note: `survival` tiene funciones base; `survminer` ayuda a graficar resultados.
+
+------------------------------------------------------------------------
+
+## Crear objeto de supervivencia
+
+``` {r}
+Surv(datos$tiempo, datos$evento)
+```
+
+``` {r}
+surv_obj <- Surv(datos$tiempo, datos$evento)
+```
+
+Salida esperada:
+
+```         
+[1]  5  8 10+ 12 18+ 22
+```
+
+Note: El signo `+` indica observaciones censuradas.
+
+------------------------------------------------------------------------
+
+## Estimador de Kaplan-Meier
+
+``` {r}
+ajuste_km <- survfit(surv_obj ~ 1,data = datos)
+summary(ajuste_km)
+```
+
+``` {r}
+ggsurvplot(ajuste_km, conf.int = TRUE)
+```
+
+Interpretación: - La curva muestra la probabilidad de sobrevivir más allá de cierto tiempo. - Las bandas grises indican intervalo de confianza.
+
+------------------------------------------------------------------------
+
+## Comparación entre grupos
+
+``` {r}
+datos$grupo <- c("A", "A", "B", "B", "A", "B")
+ajuste_grupo <- survfit(Surv(tiempo, evento) ~ grupo, data = datos)
+ggsurvplot(ajuste_grupo, pval = TRUE)
+```
+
+Note: La `p-value` corresponde a la prueba log-rank para igualdad de curvas.
+
+------------------------------------------------------------------------
+
+## Prueba Log-Rank
+
+``` {r}
+survdiff(Surv(tiempo, evento) ~ grupo, data = datos)
+```
+
+Salida típica:
+
+```         
+     N Observed Expected (O-E)^2/E (O-E)^2/V
+grupo= A 3      2.0      1.2     0.533   0.60
+grupo= B 3      1.0      1.8     0.356   0.60
+```
+
+------------------------------------------------------------------------
+
+## Modelo de riesgos proporcionales de Cox
+
+``` {r}
+modelo_cox <- coxph(Surv(tiempo, evento) ~ grupo, data = datos)
+summary(modelo_cox)
+```
+
+Salida relevante:
+
+```         
+             coef exp(coef) se(coef) z     Pr(>|z|)
+grupoB     -0.847    0.429   1.155  -0.733   0.463
+```
+
+Interpretación: - HR = 0.429 indica que grupo B tiene menor riesgo relativo, pero no es significativo.
+
+------------------------------------------------------------------------
+
+## Supuestos del modelo de Cox
+
+``` {r}
+test_cox <- cox.zph(modelo_cox)
+ggcoxzph(test_cox)
+```
+
+Note: El test de `cox.zph()` evalúa el supuesto de proporcionalidad de riesgos.
+
+------------------------------------------------------------------------
+
+## Actividad práctica guiada
+
+**Datos**: `lung` del paquete `survival`.
+
+Pasos:
+
+1.  Cargar datos con `data(lung)`
+2.  Crear objeto `Surv(time, status)`
+3.  Estimar curvas por `sex`
+4.  Probar igualdad con log-rank
+5.  Ajustar modelo de Cox con covariables
+6.  Evaluar supuestos
+
+Note: Proporciónales la estructura base y pídeles completar la interpretación.
+
+------------------------------------------------------------------------
+
+## Preguntas orientadoras
+
+-   ¿Qué significa la mediana de supervivencia?
+-   ¿Qué representa un hazard ratio \> 1?
+-   ¿Cómo afecta la censura la estimación?
+
+------------------------------------------------------------------------
+
+## Recursos recomendados
+
+-   Libro: *Survival Analysis* de Klein y Moeschberger.
+-   Curso: [Coursera - Survival Analysis](https://www.coursera.org/learn/survival-analysis)
+-   Documentación en R: `vignette("survival", package = "survival")`
+
+------------------------------------------------------------------------
+
+## Cierre y reflexión
+
+-   ¿Qué aprendimos sobre el análisis de supervivencia?
+-   ¿Dónde podrías aplicar estos métodos en tu campo?
+
+Note: Pide ejemplos o ideas de aplicación en sus investigaciones.
