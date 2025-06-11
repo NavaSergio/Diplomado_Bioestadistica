@@ -502,7 +502,7 @@ datos <- data.frame(
   Constante     = rep(0.5, length(t)),
   Creciente     = 0.1 * t,
   Decreciente   = 1 / (1 + t),
-  Tina          = 0.2 + 1 / (t + 2) + 0.03 * t,  # Ajuste más razonable
+  Tina          = 0.05 + 2.5 / (t + 1.5) + 0.1 * t,  # Ajuste más razonable
   Montaña       = dnorm(t, mean = 6, sd = 1)
 )
 
