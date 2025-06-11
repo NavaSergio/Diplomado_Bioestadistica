@@ -1064,8 +1064,8 @@ Sergio M. Nava Muñoz
 
 
 <img data-src="principios_basicos_v1_files/figure-revealjs/unnamed-chunk-3-1.png" width="960" class="r-stretch"></section>
-<section id="estimación-de-supervivencia-desde-ht" class="slide level2">
-<h2>6. Estimación de Supervivencia desde <span class="math inline">\(h(t)\)</span></h2>
+<section id="cálculo-de-la-función-de-supervivencia-st-a-partir-de-la-función-de-riesgo-ht" class="slide level2">
+<h2>6. Cálculo de la función de supervivencia <span class="math inline">\(S(t)\)</span> a partir de la función de riesgo <span class="math inline">\(h(t)\)</span></h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">library</span>(survival)</span>
 <span id="cb3-2"><a href=""></a>tm <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="co"># birth</span></span>
@@ -1160,10 +1160,10 @@ Si <span class="math inline">\(S(t)\)</span> no tiende a 0, esta integral puede 
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>tt.weib <span class="ot">&lt;-</span> <span class="fu">rweibull</span>(<span class="dv">1000</span>, <span class="at">shape=</span><span class="fl">1.5</span>, <span class="at">scale=</span><span class="dv">1</span><span class="sc">/</span><span class="fl">0.03</span>)</span>
 <span id="cb14-2"><a href=""></a><span class="fu">mean</span>(tt.weib); <span class="fu">median</span>(tt.weib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 31.65669</code></pre>
+<pre><code>[1] 29.72127</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 27.09123</code></pre>
+<pre><code>[1] 25.66519</code></pre>
 </div>
 </div>
 </section>
