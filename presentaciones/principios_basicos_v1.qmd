@@ -24,7 +24,7 @@ format:
     background-transition: fade
     title-slide-attributes:
       data-background-image: figs/Banner_diplomado.jpg
-      data-background-size: 70%
+      data-background-size: 60%
       data-background-position: top center
 execute:
   echo: true
