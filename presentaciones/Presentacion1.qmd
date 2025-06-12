@@ -167,6 +167,7 @@ A continuación se presentan algunos ejemplos de datos de supervivencia. Estos e
 
 > Duración de remisión de un ensayo clínico para leucemia aguda. Resultados de un ensayo clínico en donde se quería compara la efectividad de la droga $6-MP$ versus placebo en 42 niños con leucemia aguda. El evento de inicio es remisión parcial de la enfermedad después de haber sido tratados con la droga prednisone. El evento de fin es recaída o muerte. La escala de medición es tiempo calendario en meses. Algunos individuos no presentaron el evento de fin al término del estudio. Estos casos son marcados con un + y son llamados censurados por la derecha. Más adelante los veremos con detalle.
 
+
 ![](figura/ejemp1.png){width="40%" fig-align="center"}
 
 ------------------------------------------------------------------------
