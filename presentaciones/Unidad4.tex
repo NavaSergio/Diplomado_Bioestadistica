@@ -1,0 +1,514 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Modelos Paramétricos},
+  pdfauthor={Sergio M. Nava Muñoz},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Modelos Paramétricos}
+\author{Sergio M. Nava Muñoz}
+\date{2025-06-01}
+\begin{document}
+\maketitle
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+
+\section{Objetivo}\label{objetivo}
+
+\begin{itemize}
+\tightlist
+\item
+  Introducir el concepto de máxima verosimilitud (MLE)
+\item
+  Aplicar MLE a modelos de tiempo de supervivencia
+\item
+  Usar R para estimar parámetros en presencia de censura
+\item
+  Interpretar estimaciones y su relación con funciones de supervivencia
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{¿Qué es la verosimilitud?}\label{quuxe9-es-la-verosimilitud}
+
+\begin{itemize}
+\item
+  Es una función que mide \textbf{cuán probable} es observar los datos
+  dados ciertos parámetros. Este enfoque es introducido en Moore (2016)
+  como base para la estimación paramétrica en supervivencia.
+\item
+  Dado un modelo con función de densidad \(f(t; \theta)\), la
+  \textbf{verosimilitud} para un conjunto de datos \(t_1, ..., t_n\) es:
+\end{itemize}
+
+\[
+L(\theta) = \prod_{i=1}^n f(t_i; \theta)
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  Se busca el valor \(\hat{\theta}\) que \textbf{maximiza} \(L(\theta)\)
+  o, más comúnmente, \(\log L(\theta)\)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Caso con censura}\label{caso-con-censura}
+
+\begin{itemize}
+\item
+  Si hay censura, se observa:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Tiempo \(t_i\)
+  \item
+    Indicador \(\delta_i = 1\) si ocurrió el evento, \(0\) si censurado
+  \end{itemize}
+\item
+  La función de verosimilitud se ajusta:
+\end{itemize}
+
+\[
+L(\theta) = \prod_{i=1}^n [f(t_i; \theta)]^{\delta_i} [S(t_i; \theta)]^{1 - \delta_i}
+\]
+
+Este desarrollo puede encontrarse también en Klein \& Moeschberger
+(2003) como parte de la teoría general de modelos paramétricos en
+supervivencia.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Ejemplo: distribución
+exponencial}\label{ejemplo-distribuciuxf3n-exponencial}
+
+\begin{itemize}
+\item
+  Supón \(T \sim \text{Exp}(\lambda)\), entonces:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(f(t) = \lambda e^{-\lambda t}\)
+  \item
+    \(S(t) = e^{-\lambda t}\)
+  \end{itemize}
+\item
+  Verosimilitud con censura:
+\end{itemize}
+
+\[
+L(\lambda) = \prod_{i=1}^n [\lambda e^{-\lambda t_i}]^{\delta_i} [e^{-\lambda t_i}]^{1 - \delta_i}
+= \lambda^d e^{-\lambda \sum t_i}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(d = \sum \delta_i\), número de eventos
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Derivación del estimador
+MLE}\label{derivaciuxf3n-del-estimador-mle}
+
+Para una discusión general sobre el principio de máxima verosimilitud,
+véase Casella \& Berger (2002)
+
+\begin{itemize}
+\tightlist
+\item
+  Log-verosimilitud:
+\end{itemize}
+
+\[
+\ell(\lambda) = d \log \lambda - \lambda \sum t_i
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  Derivando e igualando a 0:
+\end{itemize}
+
+\[
+\frac{d}{d\lambda} \ell(\lambda) = \frac{d}{\lambda} - \sum t_i = 0
+\Rightarrow \hat{\lambda} = \frac{d}{\sum t_i}
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Código R: estimación con
+censura}\label{cuxf3digo-r-estimaciuxf3n-con-censura}
+
+\begin{verbatim}
+[1] 0.1
+\end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{\texorpdfstring{Comparación con
+\texttt{survreg}}{Comparación con survreg}}\label{comparaciuxf3n-con-survreg}
+
+\begin{verbatim}
+
+Call:
+survreg(formula = Surv(tt, status) ~ 1, dist = "exponential")
+            Value Std. Error    z       p
+(Intercept) 2.303      0.577 3.99 6.7e-05
+
+Scale fixed at 1 
+
+Exponential distribution
+Loglik(model)= -9.9   Loglik(intercept only)= -9.9
+Number of Newton-Raphson Iterations: 4 
+n= 6 
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  La estimación \(\hat{\lambda}\) se relaciona con \(\text{scale}^{-1}\)
+\end{itemize}
+
+\section{\texorpdfstring{¿Dónde está \(\hat{\lambda}\) en
+\texttt{survreg()}?}{¿Dónde está \textbackslash hat\{\textbackslash lambda\} en survreg()?}}\label{duxf3nde-estuxe1-hatlambda-en-survreg}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit }\OtherTok{\textless{}{-}} \FunctionTok{survreg}\NormalTok{(}\FunctionTok{Surv}\NormalTok{(tt, status) }\SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{, }\AttributeTok{dist =} \StringTok{"exponential"}\NormalTok{)}
+\FunctionTok{summary}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\item
+  El modelo AFT estima: \[
+  \log(T) = \mu + \varepsilon, \quad \text{con } \mu = \text{Intercepto}
+  \]
+\item
+  Para la distribución exponencial: \[
+  \mu = \log\left(\frac{1}{\lambda}\right) \Rightarrow
+  \hat{\lambda} = e^{-\mu}
+  \]
+\end{itemize}
+
+\begin{verbatim}
+(Intercept) 
+        0.1 
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  En tu salida: \texttt{Intercept\ =\ 2.303}\\
+  Entonces: \(\hat{\lambda} = e^{-2.303} \approx 0.1\)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Interpretación de
+resultados}\label{interpretaciuxf3n-de-resultados}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\hat{\lambda}\) es la tasa de riesgo constante estimada
+\item
+  Su inverso es la \textbf{media de supervivencia}:
+\end{itemize}
+
+\[
+\hat{E}(T) = \frac{1}{\hat{\lambda}}
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Actividad práctica}\label{actividad-pruxe1ctica}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Simula un conjunto de datos de supervivencia con censura
+\item
+  Calcula el estimador de máxima verosimilitud para \(\lambda\)
+\item
+  Usa \texttt{survreg} para confirmar
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Conclusiones}\label{conclusiones}
+
+\begin{itemize}
+\tightlist
+\item
+  MLE permite incorporar eventos y censura de forma natural
+\item
+  Las expresiones son simples en modelos paramétricos como el
+  exponencial
+\item
+  Herramientas de R hacen este proceso accesible
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section*{Lecturas recomendadas}\label{lecturas-recomendadas}
+\addcontentsline{toc}{section}{Lecturas recomendadas}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-casella2002statistical}
+Casella, G., \& Berger, R. L. (2002). \emph{Statistical inference} (2nd
+ed.). Duxbury.
+
+\bibitem[\citeproctext]{ref-klein2003}
+Klein, J. P., \& Moeschberger, M. L. (2003). \emph{Survival analysis:
+Techniques for censored and truncated data} (2nd ed.). Springer.
+
+\bibitem[\citeproctext]{ref-moore2016}
+Moore, D. F. (2016). \emph{Applied survival analysis using r} (2nd ed.).
+Springer. \url{https://doi.org/10.1007/978-3-319-31245-3}
+
+\end{CSLReferences}
+
+
+
+
+\end{document}

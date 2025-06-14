@@ -24,7 +24,7 @@ format:
     background-transition: fade
     title-slide-attributes:
       data-background-image: figs/Banner_diplomado.jpg
-      data-background-size: 70%
+      data-background-size: 60%
       data-background-position: top center
 execute:
   echo: false
@@ -166,7 +166,6 @@ A continuación se presentan algunos ejemplos de datos de supervivencia. Estos e
 ### Ejemplo de Duración de la remisión en un ensayo clínico para leucemia aguda
 
 > Duración de remisión de un ensayo clínico para leucemia aguda. Resultados de un ensayo clínico en donde se quería compara la efectividad de la droga $6-MP$ versus placebo en 42 niños con leucemia aguda. El evento de inicio es remisión parcial de la enfermedad después de haber sido tratados con la droga prednisone. El evento de fin es recaída o muerte. La escala de medición es tiempo calendario en meses. Algunos individuos no presentaron el evento de fin al término del estudio. Estos casos son marcados con un + y son llamados censurados por la derecha. Más adelante los veremos con detalle.
-
 
 ![](figura/ejemp1.png){width="40%" fig-align="center"}
 
@@ -933,7 +932,7 @@ $$
 (Agregar una figura como la siguiente para reforzar visualmente)
 
 | Tipo de observación | Línea de tiempo |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Exacta** | Evento ocurre entre observación inicial y final |
 | **Censura por la derecha** | Línea que termina sin evento registrado |
 | **Censura por la izquierda** | Línea que empieza con evento ya ocurrido |
@@ -1103,7 +1102,7 @@ Esto puede ocurrir en **estudios retrospectivos con fecha de corte**.
 (Agregar figura con líneas de tiempo para comparar:)
 
 | Tipo de situación | Línea de tiempo |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Truncamiento por izquierda** | Evento ocurre antes de entrada: no se observa |
 | **Truncamiento por derecha** | Evento ocurre después de fecha límite: no se observa |
 | **Censura por derecha** | Evento ocurre después de seguimiento: sí se observa parcialmente |

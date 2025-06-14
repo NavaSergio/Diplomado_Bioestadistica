@@ -1,0 +1,650 @@
+---
+title: "Análisis de Supervivencia"
+subtitle: "Estimación no paramétrica"
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+toc: true
+toc-depth: 1
+
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    logo: figs/CIMAT.png
+    css: style.css
+    chalkboard: true
+    menu: true
+    transition: slide
+    background-transition: fade
+    title-slide-attributes:
+      data-background-image: figs/Banner_diplomado.jpg
+      data-background-size: 55%
+      data-background-position: top center
+
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-pos: "H"
+    keep-tex: true
+    documentclass: article
+
+profile-default: revealjs
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+bibliography: bibliografia.bib
+csl: apa.csl
+---
+
+```{r}
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+```
+
+
+# Estimación no paramétrica
+
+
+------------------------------------------------------------------------
+
+## La función de distribución acumulada empírica (FDAE)
+
+Dada una muestra de tiempos de falla sin censura:
+
+$$
+\hat{F}(t) = \frac{\#\{T_i \leq t\}}{n}
+$$
+
+Es un estimador escalonado, que da saltos en cada observación.\
+La función de supervivencia empírica se define como:
+
+$$
+\hat{S}(t) = 1 - \hat{F}(t)
+$$
+
+**Limitación**: no puede manejar adecuadamente datos censurados.
+
+------------------------------------------------------------------------
+
+## Ejemplo en R: FDAE
+
+
+::::: columns
+::: {.column .smaller width="25%"}
+
+```{r}
+library(ggplot2)
+
+# Datos simulados sin censura
+tiempos <- c(2, 3, 4, 4.5, 6, 7, 9)
+n <- length(tiempos)
+t_grid <- sort(unique(tiempos))
+
+# FDAE y supervivencia empírica
+F_emp <- ecdf(tiempos)
+S_emp <- function(t) 1 - F_emp(t)
+
+datos <- data.frame(
+  t = t_grid,
+  F_hat = F_emp(t_grid),
+  S_hat = S_emp(t_grid)
+)
+knitr::kable(datos)
+```
+
+:::
+
+::: {.column width="75%"}
+
+```{r}
+ggplot(datos, aes(x = t)) +
+  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv") +
+  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv") +
+  labs(
+    title = "FDAE y supervivencia empírica sin censura",
+    y = "Valor",
+    x = "t",
+    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
+  ) +
+  theme_minimal()
+```
+
+
+:::
+:::::
+
+
+
+------------------------------------------------------------------------
+
+## Estimador de Kaplan-Meier
+
+Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función de supervivencia como:
+
+$$
+\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
+$$
+
+donde:
+
+-   $d_i$: número de eventos en el tiempo $t_i$
+-   $n_i$: número de individuos en riesgo justo antes de $t_i$
+
+Es un estimador escalonado que **ajusta el denominador** cuando hay censura.
+
+
+-----
+
+```{r}
+
+# Instalar si es necesario
+# install.packages("survival")
+
+library(survival)
+
+# Datos simulados
+tiempos <- c(2, 3, 4, 4.5, 6, 7, 9, 10)
+status <- c(1, 1, 1, 0, 1, 1, 0, 1)
+
+
+# Crear data frame
+datos <- data.frame(tiempo = tiempos, status = status)
+datos <- datos[order(datos$tiempo), ]
+datos$FDAE <- cumsum(datos$status) / sum(datos$status)
+datos$S_empirica <- 1 - datos$FDAE
+
+# Kaplan-Meier
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
+# Extraer estimaciones de Kaplan-Meier en los tiempos observados
+S_KM <- summary(ajuste, times = datos$tiempo)$surv
+datos$Kaplan_Meier <- S_KM
+
+# Mostrar tabla
+knitr::kable(datos, digits = 4, caption = "Comparación entre FDAE, Supervivencia Empírica y Kaplan-Meier")
+
+```
+------------------------------------------------------------------------
+
+## Ejemplo en R: Kaplan-Meier
+
+::::: columns
+::: {.column .smaller width="25%"}
+```{r}
+library(survival)
+library(survminer)
+library(knitr)   # Para mostrar tabla bonita
+
+# Datos simulados con censura
+datos <- data.frame(
+  ID = paste("Ind", 1:8),
+  tiempo = c(2, 3, 4, 4.5, 6, 7, 9, 10),
+  evento = c(1, 1, 1, 0, 1, 1, 0, 1)  # 1 = evento, 0 = censura
+)
+
+# Mostrar tabla
+knitr::kable(datos, caption = "Tabla de tiempos y estatus de censura")
+```
+:::
+
+::: {.column width="75%"}
+```{r}
+# Crear objeto de supervivencia
+surv_obj <- Surv(time = datos$tiempo, event = datos$evento)
+
+# Estimar Kaplan-Meier
+km_fit <- survfit(surv_obj ~ 1, data = datos)
+
+# Graficar
+ggsurvplot(
+  fit = km_fit,
+  data = datos,
+  conf.int = TRUE,
+  title = "Estimación de Kaplan-Meier",
+  xlab = "Tiempo",
+  ylab = "Ŝ(t)",
+  palette = "blue",
+  risk.table = TRUE
+)
+
+```
+:::
+:::::
+
+```{r}
+summary(km_fit)
+```
+
+------------------------------------------------------------------------
+
+## Comparación conceptual
+
+| Característica            | FDAE | Kaplan-Meier              |
+|---------------------------|------|---------------------------|
+| Usa solo eventos          | ✔️   | ✔️                        |
+| Maneja censura            | ❌   | ✔️                        |
+| Escalonada                | ✔️   | ✔️                        |
+| Basada en conteos simples | ✔️   | ❌ (ajusta denominadores) |
+
+
+
+
+
+```{r}
+#| message: false
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+
+invisible(sapply(packages, require, character.only = TRUE))
+
+graficar_supervivencia_individual <- function(datos) {
+  if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
+    stop("El data.frame debe contener las columnas: paciente, tiempo, status")
+  }
+
+  # Asegurar orden por paciente descendente (opcional, para que se vea como ejemplo original)
+  datos <- datos[order(-datos$paciente), ]
+
+  # Graficar fondo vacío
+  plot(0, 0, type = "n",
+       xlim = c(0, max(datos$tiempo, na.rm = TRUE) + 1),
+       ylim = c(0.5, nrow(datos) + 0.5),
+       xlab = "Tiempo", ylab = "Paciente",
+       yaxt = "n")
+  
+  axis(2, at = 1:nrow(datos), labels = datos$paciente)
+
+  # Dibujar segmentos y símbolos
+  for (i in 1:nrow(datos)) {
+    points(0, i, pch = 16, cex = 1.2)  
+    lines(c(0, datos$tiempo[i]), c(i, i), lwd = 2)
+    points(datos$tiempo[i], i,
+           pch = ifelse(datos$status[i] == 1, 4, 1),
+           cex = 1.5)
+  }
+}
+```
+
+---
+
+## Ejemplo: Ensayo clínico con cáncer
+
+::: {.columns}
+
+::: {.column width="30%" .smaller}
+
+```{r}
+# Datos de entrada manualmente extraídos de la figura
+datos <- data.frame(
+  paciente = 6:1,
+  entrada = c(2002, 2002, 2002, 2001, 2000, 2000),
+  fin      = c(2006, 2004, 2007, 2007, 2006, 2007),
+  evento   = c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
+)
+datos2 <- datos[6:1,]
+datos2$evento <- as.numeric(datos2$evento)
+knitr::kable(datos2, label = "prueba", row.names = FALSE  )
+```
+
+
+:::
+
+::: {.column width="70%"}
+
+
+
+```{r fig.cap="Reclutamiento y seguimiento", fig.width=8, fig.height=4}
+# Crear la figura
+plot(0, 0, type = "n", xlim = c(2000, 2010), ylim = c(0.5, 6.5),
+     xlab = "Year of entry – calendar time",  ylab = "Paciente", yaxt = "n", xaxt = "n")
+
+# Ejes personalizados
+axis(1, at = seq(2000, 2010, by = 2))
+axis(2, at = 1:6, labels = 6:1, las = 1)
+
+# Líneas verticales punteadas
+abline(v = 2000, lty = 2, col = "red")
+abline(v = 2002, lty = 2, col = "red")
+abline(v = 2007, lty = 2, col = "red")
+
+# Dibujar trayectorias y puntos
+for (i in 1:nrow(datos)) {
+  y <- i
+  x0 <- datos$entrada[i]
+  x1 <- datos$fin[i]
+  segments(x0, y, x1, y, lwd = 2)
+  points(x0, y, pch = 16, cex = 1.2)  # Punto de entrada sólido
+  points(x1, y, pch = ifelse(datos$evento[i], 4, 1), cex = 1.5)  # X = evento, ◯ = censura
+}
+
+
+```
+
+
+:::
+
+:::
+
+
+
+-----
+
+
+## Representación gráfica del seguimiento
+
+::: {.columns}
+
+::: {.column width="30%" .smaller}
+
+
+```{r}
+paciente <- 1:6
+tiempo <- c(7, 6, 6, 5, 2, 4)
+status <- c(0, 1, 0, 0, 1, 1)
+datos_S1 <- data.frame(paciente, tiempo, status)
+knitr::kable(datos_S1, caption = "Ejemplo")
+```
+
+
+- Círculo abierto = censura
+- X = evento (muerte)
+
+
+:::
+
+::: {.column width="70%" .smaller}
+
+
+```{r}
+#| fig-width: 8
+#| fig-height: 7
+#| layout-ncol: 1
+
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
+
+graficar_supervivencia_individual(datos_S1)
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
+plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia", main= "Curva de Supervivencia de Kaplan-Meier")
+par(mfrow = c(1,1))
+```
+
+
+:::
+
+:::
+
+
+---
+
+
+
+## Programación en R
+
+- Librería `survival`:
+```r{}
+library(survival)
+Surv(tiempo, status)
+```
+
+- Este objeto puede usarse en:
+  - [Surv()](https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/Surv) codifica la información de tiempo y censura.
+  - [survfit()](https://www.rdocumentation.org/packages/survival/versions/3.8-3/topics/survfit.formula)  ajusta curvas de supervivencia (Kaplan-Meier).
+  - [coxph()](https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/coxph) para modelos de Cox
+
+---
+
+### La función `Surv()` de `survival`
+
+```{r}
+#| echo: true
+library(survival)
+
+# Censura derecha
+tiempos <- c(5, 8, 12, 3, 10)
+evento <- c(1, 0, 1, 1, 0)  # 1 = evento, 0 = censurado
+
+datos <- Surv(tiempos, evento)
+datos
+```
+
+- Crea un objeto de clase `Surv`.
+- Es la base para ajustar modelos de supervivencia.
+
+
+
+### Visualizando `Surv()` con tipos de censura
+
+```{r}
+#| echo: true
+# Censura izquierda
+tiempos <- c(5, 8, 12, 3, 10)
+evento <- c(1, 0, 1, 1, 0)
+Surv(tiempos, evento, type = "left")
+
+# Censura por intervalo
+inferior <- c(2, 6, 7, 5, 1)
+superior <- c(4, 6, 9, 6, 3)
+evento <- c(3, 0, 3, 0, 3)  # 3 = intervalo
+Surv(inferior, superior, type = "interval2")
+```
+
+---
+
+
+### Ajuste con `survfit()`
+
+```{r}
+#| echo: true
+library(survival)
+
+# Datos con censura derecha
+tiempos <- c(5, 8, 12, 3, 10)
+evento <- c(1, 0, 1, 1, 0)
+datos <- Surv(tiempos, evento)
+print(datos)
+modelo <- survfit(datos ~ 1)  # sin covariables
+summary(modelo)
+```
+
+- `survfit()` ajusta una curva de Kaplan-Meier.
+
+---
+
+### Graficando la curva de supervivencia
+
+```{r}
+#| echo: true
+plot(modelo, xlab = "Tiempo", ylab = "Supervivencia estimada",
+     main = "Curva de Kaplan-Meier")
+```
+
+> Puedes usar [ggsurvplot()](https://www.rdocumentation.org/packages/survminer/versions/0.4.9/topics/ggsurvplot) del paquete `survminer` para una mejor presentación visual.
+
+
+---
+
+```{r}
+#| echo: true
+survminer::ggsurvplot(modelo,data=datos, xlab = "Tiempo", ylab = "Supervivencia estimada",
+     title = "Curva de Kaplan-Meier")
+```
+
+---
+
+## Conjunto de datos `gastricXelox` de la biblioteca `asaur`
+::: {.columns}
+
+::: {.column width="40%" }
+```{r}
+#| echo: true
+library(asaur)
+data("gastricXelox")
+```
+
+
+```{r}
+set.seed(157)
+datos2 <- gastricXelox[sample(1:nrow(gastricXelox),replace = FALSE),]
+datos2 <- data.frame(
+  paciente=1:nrow(datos2),
+  tiempo=datos2$timeWeeks,
+  status=datos2$delta)
+knitr::kable(head(datos2), caption = "Ejemplo")
+```
+
+- Tiempo: semanas hasta progresión o muerte  
+- `delta = 1` si hubo evento, `0` si censurado
+- Los datos se desordenaron para este ejemplo
+:::
+
+::: {.column width="60%"}
+```{r}
+
+graficar_supervivencia_individual(datos2)
+```
+
+```{r}
+
+gastricXelox$timeMonths <- gastricXelox$timeWeeks * 7 / 30.25
+
+km <- survfit(Surv(timeMonths, delta) ~ 1,data = gastricXelox)
+
+plot(km, xlab="Meses", ylab="Supervivencia estimada")
+```
+:::
+
+:::
+
+---
+
+## Ejercicio 
+
+::: {.columns}
+
+::: {.column width="40%" .smaller }
+
+
+- Usar R para:
+  - Estimar la curva de supervivencia de `gastricXelox`
+  - Obtener la mediana de supervivencia
+  - Graficar con intervalo de confianza
+
+```{r}
+#| echo: false
+#| 
+ajuste <- survfit(Surv(timeMonths, delta) ~ 1, data = gastricXelox )
+summary(ajuste)
+```
+
+:::
+
+::: {.column width="60%"}
+
+
+
+```{r}
+plot(ajuste, conf.int=TRUE, xlab="Meses", ylab="Supervivencia")
+
+```
+
+:::
+
+:::
+
+
+
+------------------------------------------------------------------------
+
+## Comparación entre grupos
+
+``` {r}
+datos.df <- data.frame(
+  tiempo = c(5, 8, 10, 12, 18, 22),
+  evento = c(1, 1, 0, 1, 0, 1),
+  grupo  = c("A", "A", "B", "B", "A", "B")
+)
+ajuste_grupo <- survfit(Surv(tiempo, evento) ~ grupo, data = datos.df)
+ggsurvplot(ajuste_grupo, pval = TRUE)
+```
+
+Note: La `p-value` corresponde a la prueba log-rank para igualdad de curvas.
+
+------------------------------------------------------------------------
+
+## Prueba Log-Rank
+
+``` {r}
+survdiff(Surv(tiempo, evento) ~ grupo, data = datos.df)
+```
+
+Salida típica:
+
+```         
+     N Observed Expected (O-E)^2/E (O-E)^2/V
+grupo= A 3      2.0      1.2     0.533   0.60
+grupo= B 3      1.0      1.8     0.356   0.60
+```
+
+------------------------------------------------------------------------
+
+## Modelo de riesgos proporcionales de Cox
+
+``` {r}
+modelo_cox <- coxph(Surv(tiempo, evento) ~ grupo, data = datos.df)
+summary(modelo_cox)
+```
+
+Salida relevante:
+
+```         
+             coef exp(coef) se(coef) z     Pr(>|z|)
+grupoB     -0.847    0.429   1.155  -0.733   0.463
+```
+
+Interpretación: - HR = 0.429 indica que grupo B tiene menor riesgo relativo, pero no es significativo.
+
+------------------------------------------------------------------------
+
+## Supuestos del modelo de Cox
+
+``` {r}
+test_cox <- cox.zph(modelo_cox)
+ggcoxzph(test_cox)
+```
+
+Note: El test de `cox.zph()` evalúa el supuesto de proporcionalidad de riesgos.
+
+------------------------------------------------------------------------
+
+## Actividad práctica guiada
+
+**Datos**: `lung` del paquete `survival`.
+
+Pasos:
+
+1.  Cargar datos con `data(lung)`
+2.  Crear objeto `Surv(time, status)`
+3.  Estimar curvas por `sex`
+4.  Probar igualdad con log-rank
+5.  Ajustar modelo de Cox con covariables
+6.  Evaluar supuestos
+
+Note: Proporciónales la estructura base y pídeles completar la interpretación.
+
+

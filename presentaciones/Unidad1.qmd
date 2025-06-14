@@ -1,0 +1,987 @@
+---
+title: "Análisis de Supervivencia"
+subtitle: "Introducción"
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+toc: true
+toc-depth: 1
+
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    logo: figs/CIMAT.png
+    css: style.css
+    # chalkboard: true # ov a chalboard:  true o va self-contained: true
+    self-contained: true
+    menu: true
+    transition: slide
+    background-transition: fade
+    title-slide-attributes:
+      data-background-image: figs/Banner_diplomado.jpg
+      data-background-size: 55%
+      data-background-position: top center
+
+  pdf:
+    toc: false
+    number-sections: true
+    keep-tex: true
+    pdf-engine: pdflatex  # o xelatex o lualatex
+    slide-level: 2
+    beamer:
+      theme: Madrid
+      colortheme: seahorse
+      fonttheme: professionalfonts
+
+
+profile-default: revealjs
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+bibliography: bibliografia.bib
+csl: apa.csl
+---
+
+```{r}
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+```
+
+# Introducción al Análisis de Supervivencia
+
+
+## Introducción y Objetivos
+
+-   **Relevancia de la Supervivencia** en contextos biomédicos, industriales y económicos
+-   **Objetivos de la sesión**:
+    -   Comprender conceptos clave: tiempo de falla, funciones de supervivencia y riesgo
+    -   Mecanismos de censura y truncamiento
+    -   Modelos de supervivencia básicos y estimación en R
+    -   Aplicaciones prácticas con ejemplos de datos reales
+
+## ¿Qué es el análisis de supervivencia? {.scrollable transition="slide"}
+
+::::: columns
+::: {.column width="55%"}
+> **Análisis de Supervivencia**\
+
+> El análisis de supervivencia, también conocido como análisis de **tiempo hasta evento**, es un conjunto de técnicas estadísticas diseñadas para manejar datos censurados y modelar la distribución del tiempo hasta la ocurrencia de un evento de interés, ver @klein2003.
+
+Más precisamente, estudia el **tiempo transcurrido entre dos eventos**:
+
+-   Un evento de **inicio**\
+-   Un evento de **fin**
+:::
+
+::: {.column width="45%"}
+**Símbolo usual**: $T$\
+→ Variable aleatoria no negativa que representa el tiempo hasta el evento.
+
+**Términos comunes**:
+
+-   Tiempo de falla
+-   Tiempo de vida
+-   Tiempo de supervivencia
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## ¿Dónde se aplica el análisis de supervivencia? {transition="fade"}
+
+### Aplicaciones comunes
+
+-   **Biomédicas**
+    -   Tiempo hasta recaída, muerte, recuperación o aparición de una enfermedad.
+-   **Industriales**
+    -   Duración de dispositivos, tiempo hasta la primera falla.
+-   **Económicas / financieras**
+    -   Tiempo en desempleo, tiempo hasta bancarrota, duración de relaciones laborales.
+
+**Nota**: El "tiempo" puede medirse en días, semanas, kilómetros, horas de operación, etc.
+
+------------------------------------------------------------------------
+
+## Naturaleza de los datos de supervivencia {transition="slide"}
+
+-   Los datos de tiempo a evento son realizaciones de **variables aleatorias no negativas**.
+-   Pueden ser:
+    -   **Continuos**: como tiempo en días, semanas, horas.
+    -   **Discretos**: como número de visitas o ciclos.
+
+**Ejemplo de variable de interés**:\
+$$
+T = \text{Tiempo entre el ingreso al hospital y la recuperación}
+$$
+
+------------------------------------------------------------------------
+
+## ¿Qué se necesita definir para analizar tiempos de falla? {transition="slide"}
+
+Para interpretar adecuadamente los datos, es necesario:
+
+### 1. Evento de origen
+
+→ ¿Desde cuándo empieza a contarse el tiempo?
+
+### 2. Escala de medición
+
+→ ¿Cómo se mide el tiempo? (reloj, kilómetros, ciclos)
+
+### 3. Evento de fin
+
+→ ¿Qué se considera "fallo", "recuperación", o "evento"?
+
+
+# Ejemplos
+
+## Ejemplos varios {transition="fade"}
+
+**Ejemplo biomédico – Ensayo clínico**:
+
+-   Evento de origen: entrada del paciente al estudio
+-   Evento de fin: muerte o recuperación
+-   Escala: tiempo en semanas
+
+**Ejemplo industrial – Billetes**:
+
+-   Evento de origen: salida a circulación
+-   Evento de fin: destrucción por deterioro
+-   Escala: tiempo calendario o número de transacciones
+
+**Ejemplo financiero – Desempleo**:
+
+-   Evento de origen: pérdida de empleo
+-   Evento de fin: contratación nueva
+-   Escala: meses sin empleo
+
+------------------------------------------------------------------------
+
+## Ejemplos de datos de supervivencia en bioestadìstica {.smaller .scrollable transition="slide"}
+
+A continuación se presentan algunos ejemplos de datos de supervivencia. Estos ejemplos fueron obtenidos de @klein2003.
+
+### Ejemplo de Duración de la remisión en un ensayo clínico para leucemia aguda
+
+> Duración de remisión de un ensayo clínico para leucemia aguda. Resultados de un ensayo clínico en donde se quería compara la efectividad de la droga $6-MP$ versus placebo en 42 niños con leucemia aguda. El evento de inicio es remisión parcial de la enfermedad después de haber sido tratados con la droga prednisone. El evento de fin es recaída o muerte. La escala de medición es tiempo calendario en meses. Algunos individuos no presentaron el evento de fin al término del estudio. Estos casos son marcados con un + y son llamados censurados por la derecha. Más adelante los veremos con detalle.
+
+![](figura/ejemp1.png){width="40%" fig-align="center"}
+
+------------------------------------------------------------------------
+
+### Ejemplo de Transplante de médula ósea en pacientes con leucemia.
+
+::: {.smaller .scrollable transition="slide"}
+> Transplante de médula es un procedimiento estándar en pacientes con leucemia aguda. La recuperación después del transplante es un proceso complejo. La prognosis para la recuperación puede depender de factores que se conocen al momento del transplante, como edad y sexo del paciente y donador, etapa de la enfermedad inicial, tiempo entre el diagnóstico y el transplante, etc. La prognosis final depende de cómo evoluciona el paciente después del transplante. Puede generar aversión o rechazo de la medula transplantada (GVHD), que el conteo de plaquetas se vuelva normal o desarrollar infecciones, etc. El transplante se considera fracaso cuando el paciente recae o muere.
+
+![](figura/ejemp2.png){width="40%" fig-align="center"}
+:::
+
+------------------------------------------------------------------------
+
+### Ejemplo de Transplante de médula ósea en pacientes con leucemia. (cont.)
+
+::: {#ejemp-2 layout-ncol="2"}
+![](figura/ejemp2-3.jpg){width="100%" fig-align="center"}
+
+![](figura/ejemp2-2.jpg){width="100%" fig-align="center"}
+:::
+
+------------------------------------------------------------------------
+
+### Ejemplo Tiempos de muerte de adultos mayores residentes de un asilo.
+
+::: {.smaller .scrollable transition="slide"}
+> Channing House es una casa de retiro en California. Datos con las edades de muerte de 462 individuos (97 hombres y 365 mujeres) que estuvieron en la residencia durante el periodo de enero de 1964 y julio de 1975. Se reportó la edad a la muerte o al momento en que se salían del asilo (en meses) y la edad a la que los individuos entraron al asilo. Estos datos son un ejemplo de truncamiento por la izquierda que más adelante veremos con detalle. Un individuo tiene que sobrevivir lo suficiente para estar en edad de entrar al asilo. Individuos que mueren previamente a la edad de retiro son excluidos del estudio.
+
+![](figura/ejemp3.png){fig-align="center" width="40%"}
+:::
+
+------------------------------------------------------------------------
+
+### Ejemplo Tiempo al primer uso de marihuana.
+
+::: {.smaller .scrollable transition="slide"}
+> En este estudio a 191 estudiantes de preparatoria se les preguntó: ¿Cuál fue la primera vez que probaste la marihuana?. Las respuestas fueron, “la edad exacta a la que la probaron”, “nunca la he probado”, y “la probé pero no recuerdo cuando fue la primera vez”. En este último caso tenemos una censura por la izquierda. El evento de interés ha ocurrido en algún momento previo a la edad actual del estudiante!.
+
+![](figura/ejemp4.jpg){fig-align="center" width="5in"}
+:::
+
+------------------------------------------------------------------------
+
+### Tiempo a desarrollar sida.
+
+::: {.smaller .scrollable transition="slide"}
+> Se reportan datos con tiempos de infección y de inducción para 258 adultos y 37 niños que fueron infectados con el virus del VIH y desarrollaron sida antes del 30 de junio de 1986. Los datos consisten de los tiempos (en años) desde que adultos fueron infectados por el virus por transfusión de sangre contaminada, y el tiempo de espera hasta el desarrollo de sida. Para la población pediátrica, los niños fueron infectados en útero o al nacer. El tiempo base de medición es el 1 de abril de 1978. En este estudio, sólo los individuos que han desarrollado sida antes del término del estudio son considerados. Individuos que no han desarrollado sida no son incluidos en el estudio. Este tipo de datos es llamado truncados por la derecha y más adelante los veremos con detalle.
+
+### Tiempo de inducción de SIDA en adultos y niños
+
+| Infection Time | Adult Induction Time          | Child Induction Time |
+|----------------|-------------------------------|----------------------|
+| 0.00           | 5                             |                      |
+| 0.25           | 6.75                          |                      |
+| 0.75           | 5, 5, 7.25                    |                      |
+| 1.00           | 4.25, 5.75, 6.25, 6.5         | 5.5                  |
+| 1.25           | 4, 4.25, 4.75, 5.75           |                      |
+| 1.50           | 2.75, 3.75, 5, 5.5, 6.5       | 2.25                 |
+| 1.75           | 2.75, 3, 5.25, 5.25           |                      |
+| 2.00           | 2.25, 3, 4, 4.5, 4.75, 5, ... |                      |
+| 2.25           | 3, 5.5                        | 3                    |
+| 2.50           | 2.25, 2.25, ..., 4            |                      |
+| 2.75           | 1.25, 1.5, ..., 5.25          | 1                    |
+| 3.00           | 2, 3.25, ..., 5               | 1.75                 |
+| 3.25           | 1.25, 1.75, ..., 4.5          |                      |
+| 3.50           | 1.25, 2.25, ..., 4.5          | 0.75                 |
+| 3.75           | 1.25, 1.75, ..., 4.25         | 0.75, 1, ..., 4.25   |
+| 4.00           | 1, 1.5, ..., 4                | 1                    |
+| 4.25           | 1.25, 1.5, ..., 3.5           | 1.75                 |
+| 4.50           | 1, 1.5, ..., 3.25             | 3.25                 |
+| 4.75           | 1, 1.5, ..., 3.25             | 1, 2.25              |
+| 5.00           | 0.5, 1.5, ..., 3              | 0.5, 0.75, 1.5, 2.5  |
+| 5.25           | 0.25, 0.25, ..., 2.75         | 0.25, 1, 1.5         |
+| 5.50           | 1, 1, ..., 2.5                | 0.5, 1.5, 2.5        |
+| 5.75           | 0.25, 0.75, ..., 2.25         | 1.75                 |
+| 6.00           | 0.5, 0.75, ..., 2             | 0.5, 1.25            |
+| 6.25           | 0.75, 1, ..., 1.75            | 0.5, 1.25            |
+| 6.50           | 0.25, 0.25, ..., 1.5          | 0.75                 |
+| 6.75           | 0.75, 0.75, ..., 1.25         | 0.5, 0.75            |
+| 7.00           | 0.75                          | 0.75                 |
+| 7.25           | 0.25                          | 0.25                 |
+:::
+
+------------------------------------------------------------------------
+
+## Ejemplo de datos simulados
+
+```{r}
+#| echo: true
+# Ejemplo simulado de tiempos de supervivencia
+set.seed(123)
+tiempos <- rexp(8, rate = 0.05)
+status <- rbinom(8, 1, prob = 0.8)
+library(survival)
+data_sim <- data.frame(time = tiempos, event = status)
+```
+
+::: smaller
+```{r}
+# Mostrar los primeros 10 registros con fuente más pequeña
+knitr::kable(data_sim[1:8, ], caption = "Primeros 8 registros de data_sim")
+```
+:::
+
+# Tipos de datos: eventos, censura, truncamiento
+
+## Censura y truncamiento {#sec-censura-y-truncamiento .scrollable transition="slide"}
+
+::::: columns
+::: {.column width="50%"}
+### ¿Qué es la **censura**?
+
+-   La **censura** ocurre cuando **no se observa completamente** el tiempo de fallo.
+-   Es común en estudios longitudinales, donde algunos individuos:
+    -   **No han fallado** al final del estudio,
+    -   **Ingresan tarde** al seguimiento,
+    -   O **se pierde el seguimiento**.
+
+**Tipos de censura**:
+
+-   **Por la derecha**: solo sabemos que el evento ocurrió después de cierto tiempo.
+-   **Por la izquierda**: solo sabemos que ocurrió antes de cierto tiempo.
+-   **Por intervalo**: solo sabemos que ocurrió entre dos tiempos.
+:::
+
+::: {.column width="50%"}
+### ¿Qué es el **truncamiento**?
+
+-   El **truncamiento** ocurre cuando **ciertas observaciones nunca se registran** debido al diseño del estudio.
+
+**Ejemplos**:
+
+-   **Truncamiento por la izquierda**: sólo se incluyen individuos cuyo evento ocurre **después** de cierto punto.
+-   **Truncamiento por la derecha**: se excluyen individuos cuyo evento ocurre **después** de cierto punto.
+
+**Implicación**:
+
+-   Afecta **quién entra al estudio** (selección), no solo cómo se mide el tiempo.
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Tipos de censura por la derecha {.scrollable transition="slide"}
+
+### ¿Cómo se genera la censura?
+
+En estudios de supervivencia, es común que **no se observe completamente** el tiempo de falla. Esto ocurre mediante distintos mecanismos:
+
+-   **Censura tipo I**
+-   **Censura tipo II**
+-   **Censura aleatoria**
+
+------------------------------------------------------------------------
+
+## Censura tipo I {.smaller transition="slide"}
+
+::::: columns
+::: {.column width="55%"}
+**Definición**:\
+Se observa el tiempo de supervivencia $T_i$ **solo si ocurre antes de un tiempo de censura predeterminado** $C_i$.\
+Si $T_i > C_i$, entonces el dato está censurado.
+
+**Notación formal**:
+
+-   Observamos el par $(t_i, \delta_i)$, donde
+    -   $t_i = \min(T_i, C_i)$\
+    -   $\delta_i = I(T_i \le C_i)$\
+-   Si $\delta_i = 1$: observación completa\
+-   Si $\delta_i = 0$: censura por la derecha
+:::
+
+::: {.column width="45%"}
+![](figura/CensuraI.jpg){fig-align="center" width="90%"}
+:::
+:::::
+
+------------------------------------------------------------------------
+
+### Ejemplo de censura tipo I {.smaller}
+
+::::: columns
+::: {.column width="55%"}
+> En un estudio toxicológico, ratones reciben un carcinógeno.\
+> Se observa su supervivencia hasta cierto tiempo límite.\
+> Los ratones aún vivos en ese punto son sacrificados (censurados).
+
+**Importante**: Puede haber **múltiples tiempos de censura**, dependiendo del diseño experimental.
+:::
+
+::: {.column width="45%"}
+![](figura/CensuraI-3.jpg){fig-align="center" width="90%"}
+:::
+:::::
+
+------------------------------------------------------------------------
+
+### Censura tipo I generalizada {.smaller}
+
+::::: columns
+::: {.column width="55%"}
+> Cada individuo entra en un momento distinto al estudio, pero el final del estudio está predeterminado.
+
+-   Cada sujeto tiene su propio tiempo de censura fijo.
+-   Este diseño genera **censura tipo I generalizada**.
+:::
+
+::: {.column width="45%"}
+![](figura/CensuraI-2.jpg){fig-align="center" width="100%"}
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Censura tipo II {transition="slide"}
+
+::::: columns
+::: {.column width="55%"}
+**Definición**:\
+El estudio se **detiene al observar la falla de los primeros** $r < n$ sujetos.
+
+-   Se observan los tiempos $T_{(1)}, T_{(2)}, \dots, T_{(r)}$
+-   Los $n - r$ sujetos restantes están censurados.
+
+**Notación**:
+
+-   Tiempo de censura común: $C = T_{(r)}$
+-   Censura si $T_i > C$
+:::
+
+::: {.column width="45%"}
+*Aplicación típica*: pruebas de resistencia de equipos que se detienen al fallar cierto número de unidades.
+
+*Ejemplo*: Se prueban 10 motores, pero se termina el estudio tras la falla de los primeros 5.
+
+```{r}
+# Simulamos tiempos de falla para 20 motores
+set.seed(1237)
+tiempos_falla <- sort(rexp(10, rate = 0.1))  # tiempos simulados
+
+# Definimos status: 1 = evento (falla), 0 = censura
+status <- c(rep(1, 5), rep(0, 5))  # solo las primeras 10 son fallas observadas
+
+# Para los censurados, el tiempo de observación es el tiempo de la última falla observada
+tiempo_corte <- tiempos_falla[5]
+tiempos_obs <- pmin(tiempos_falla, tiempo_corte)
+
+# Creamos data.frame
+datos <- data.frame(
+  motor = 1:10,
+  tiempo = tiempos_obs,
+  status = status
+)
+
+# Cargar librería
+library(ggplot2)
+
+# Gráfica con líneas desde 0
+ggplot(datos, aes(y = reorder(factor(motor), -motor))) +
+  geom_segment(aes(x = 0, xend = tiempo, yend = reorder(factor(motor), -motor)), color = "grey",  size = 2) +
+  geom_point(aes(x = tiempo, color = factor(status), shape = factor(status)), size = 5) +
+  scale_color_manual(values = c("0" = "blue", "1" = "red"), labels = c("Censura", "Falla")) +
+  scale_shape_manual(values = c("0" = 1, "1" = 4), labels = c("Censura", "Falla")) +
+  labs(
+    x = "Tiempo de observación",
+    y = "Motor",
+    title = "Censura tipo II: Estudio detenido tras 5 fallas",
+    color = "Tipo de observación",
+    shape = "Tipo de observación"
+  ) +
+  theme_minimal()
+
+
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Censura aleatoria {transition="slide"}
+
+::::: columns
+::: {.column width="55%"}
+**Definición**:\
+El tiempo de censura $C_i$ es una **variable aleatoria**, diferente para cada individuo.
+
+**Ejemplos comunes**:
+
+-   Salida del estudio
+-   Muerte por otra causa
+-   Migración o pérdida de contacto
+-   Hospital deja de aceptar al paciente
+:::
+
+::: {.column width="45%"}
+*Ejemplo aplicado*:
+
+> En estudios con pacientes de diálisis, el evento de interés puede ser fallas por infección, pero se censura por muerte o salida del hospital.
+:::
+:::::
+
+### Tipos de censura aleatoria
+
+-   **No informativa**: $C_i \perp T_i$\
+    → tratable como censura tipo I
+-   **Informativa**: $C_i$ depende de $T_i$\
+    → requiere modelos avanzados
+
+------------------------------------------------------------------------
+
+## Censura por la izquierda e intervalo {.smaller .scrollable transition="slide"}
+
+### ¿Qué es la censura por la izquierda?
+
+::::: columns
+::: {.column width="55%"}
+-   Ocurre cuando **el evento de interés sucede antes de un tiempo de observación conocido**.
+-   Es decir, **sabemos que el evento ya ocurrió**, pero **no cuándo exactamente**.
+
+**Definición formal**:\
+Sea $C_l$ el tiempo de censura por la izquierda y $T_i$ el tiempo de falla.
+
+-   Si $T_i \ge C_l$: observación completa.\
+-   Si $T_i < C_l$: **censura por la izquierda**.
+
+**Notación**:\
+$$
+t_i = \max(T_i, C_l), \quad 
+\delta_i = I(T_i \ge C_l)
+$$
+:::
+
+::: {.column width="45%"}
+**Ejemplo 1**
+
+> Adolescente declara:\
+> *“Sí consumí marihuana, pero no recuerdo cuándo”.*\
+> → El evento ocurrió antes de su edad actual, pero se desconoce el momento exacto.
+
+**Ejemplo 2**
+
+> Un niño ya sabe realizar una tarea cuando entra al estudio.\
+> → El aprendizaje ocurrió antes de la observación inicial.
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Censura doble (izquierda y derecha) {.smaller transition="slide"}
+
+::::: columns
+::: {.column width="60%"}
+**Definición**:\
+Una observación está **doblemente censurada** si se desconoce si el evento ocurrió antes o después de un cierto rango.
+
+-   Combina censura por la izquierda y la derecha.
+-   Común en estudios transversales o con límites temporales de observación.
+
+**Notación generalizada**:
+
+$$
+t_i = \max\{ \min(T_i, C_r), C_l \}, \quad
+\delta_i =
+\begin{cases}
+1, & \text{tiempo exacto} \\
+0, & \text{censura por la derecha} \\
+-1, & \text{censura por la izquierda}
+\end{cases}
+$$
+:::
+
+::: {.column width="40%"}
+**Ejemplo 1 – Marihuana**
+
+> “Nunca la he usado” → censura por la derecha\
+> “Sí la usé pero no recuerdo cuándo” → izquierda\
+> “La usé a los 15” → observación completa
+
+**Ejemplo 2 – Aprendizaje infantil**
+
+> Algunos niños no aprenden durante el estudio → censura por la derecha\
+> Otros ya sabían antes de iniciar → censura por la izquierda
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Comparación {transition="none"}
+
+| Tipo de observación | Línea de tiempo |
+|------------------------------------|------------------------------------|
+| **Exacta** | Evento ocurre entre observación inicial y final |
+| **Censura por la derecha** | Línea que termina sin evento registrado |
+| **Censura por la izquierda** | Línea que empieza con evento ya ocurrido |
+| **Doble censura** | Solo se sabe que el evento ocurrió fuera del intervalo de observación |
+
+```{r}
+# Librerías
+library(ggplot2)
+library(dplyr)
+
+# Datos simulados para los cuatro tipos de observación
+datos <- data.frame(
+  tipo = factor(c("Exacta", "Censura derecha", "Censura izquierda", "Doble censura"),
+                levels = c("Exacta", "Censura derecha", "Censura izquierda", "Doble censura")),
+  inicio = c(2, 3, NA, 2),
+  fin    = c(6, 8, 4, 7),
+  evento = c(1, 0, 1, 0)
+)
+
+# Agregar fila para la observación izquierda, que tiene evento pero sin tiempo exacto
+datos <- datos %>%
+  mutate(
+    y = rev(1:n()),  # para graficar en el eje vertical
+    etiqueta = paste0("Obs. ", y)
+  )
+
+# Construir gráfico
+ggplot() +
+  # Líneas de tiempo
+  geom_segment(data = datos %>% filter(!is.na(inicio)),
+               aes(x = inicio, xend = fin, y = y, yend = y),
+               size = 1.5, color = "grey50") +
+  
+  # Línea especial para censura izquierda (empieza con evento)
+  geom_segment(data = datos %>% filter(is.na(inicio)),
+               aes(x = fin - 2, xend = fin, y = y, yend = y),
+               size = 1.5, color = "grey50", linetype = "dashed") +
+  
+  # Punto de evento (X roja)
+  geom_point(data = datos %>% filter(tipo == "Exacta"),
+             aes(x = fin, y = y), color = "red", shape = 4, size = 4) +
+  
+  # Punto de censura (círculo azul)
+  geom_point(data = datos %>% filter(tipo == "Censura derecha"),
+             aes(x = fin, y = y), color = "blue", shape = 1, size = 4) +
+  
+  # Evento sin inicio observado (izquierda)
+  geom_point(data = datos %>% filter(tipo == "Censura izquierda"),
+             aes(x = fin, y = y), color = "red", shape = 4, size = 4) +
+  
+  # Doble censura: sólo se sabe que ocurrió fuera del intervalo
+  geom_rect(data = datos %>% filter(tipo == "Doble censura"),
+            aes(xmin = inicio, xmax = fin, ymin = y - 0.2, ymax = y + 0.2),
+            fill = "orange", alpha = 0.3) +
+  
+  # Etiquetas
+  scale_y_continuous(breaks = datos$y, labels = datos$tipo) +
+  labs(title = "Tipos de observación en análisis de supervivencia",
+       x = "Tiempo",
+       y = "Tipo de observación") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+
+```
+
+------------------------------------------------------------------------
+
+## Recomendaciones
+
+-   Identificar con claridad el **momento de entrada** al estudio y el **horizonte de observación**.
+-   Siempre registrar **si se trata de censura por la izquierda, derecha o ambas**.
+-   Verificar si la censura es **informativa o no informativa**.
+
+## Censura por intervalo {.scrollable transition="slide"}
+
+### ¿Qué es la censura por intervalo?
+
+::::: columns
+::: {.column width="55%"}
+-   La **censura por intervalo** ocurre cuando **el evento sucede entre dos visitas clínicas**, pero **no se conoce el momento exacto**.
+
+**Interpretación**:\
+Se sabe que el sujeto **no había fallado antes del tiempo** $L_i$, pero sí **lo ha hecho antes o en el tiempo** $R_i$.
+
+**Notación formal**:
+
+$$
+L_i < T_i \le R_i
+$$
+
+Donde:
+
+-   $L_i$ = última vez que se observó sin evento\
+-   $R_i$ = primera vez que se detecta el evento
+:::
+
+::: {.column width="45%"}
+Puedes pensar esta censura como una observación **con ventana de tiempo**, en la que el evento ocurre **dentro de un intervalo** que puede variar por sujeto.
+
+Posibles causas:
+
+-   Visitas clínicas programadas
+-   Limitaciones de seguimiento continuo
+:::
+:::::
+
+------------------------------------------------------------------------
+
+### Ejemplo 1 – Estudio del Corazón de Framingham {.smaller}
+
+> En este estudio longitudinal, los eventos de enfermedad coronaria (CHD) pueden registrarse con precisión.
+
+Sin embargo:
+
+-   La aparición de **angina de pecho** se detecta solo **entre dos visitas clínicas**, con varios años de diferencia.
+
+→ El tiempo exacto es desconocido, pero **ocurrió dentro del intervalo** entre exámenes.
+
+------------------------------------------------------------------------
+
+### Ejemplo 2 – Estudio de radioterapia {.smaller}
+
+> Se estudió el efecto cosmético en mujeres con cáncer de mama tras radioterapia (con o sin quimioterapia).
+
+-   Se realizaron controles **cada 4 a 6 meses**, luego más espaciados.
+-   El evento de interés: **retracción severa del seno**.
+-   Solo se sabía si **ocurrió entre dos visitas**, o si **nunca se observó** (censura por la derecha).
+
+→ Algunas pacientes presentaron **censura por intervalo**, y otras, **por la derecha**.
+
+------------------------------------------------------------------------
+
+### Actividad: Identificación y análisis de datos de supervivencia {.smaller .scrollable}
+
+#### Objetivo
+
+Aplicar los conceptos fundamentales del análisis de supervivencia identificando un conjunto de datos relevante, describiendo su estructura temporal, y evaluando la presencia y tipo de censura.
+
+#### Instrucciones {.smaller}
+
+1.  **Buscar o seleccionar un conjunto de datos** que permita aplicar análisis de supervivencia. Puede ser:
+
+    -   Un conjunto de datos **propio** (proyecto, tesis, trabajo profesional).
+    -   Un conjunto de datos **público** (Kaggle, UCI, CRAN, etc.).
+
+2.  **Describir el contexto del estudio**, incluyendo:
+
+    -   La **unidad de análisis** (por ejemplo: paciente, máquina, usuario).
+    -   La **variable de tiempo** (por ejemplo: días hasta falla, semanas hasta abandono).
+    -   El **evento de interés** (por ejemplo: muerte, falla, compra, abandono).
+
+3.  **Explicar la estructura temporal del estudio**, atendiendo a las siguientes recomendaciones:
+
+    -   Identificar con claridad el **momento de entrada** al estudio y el **horizonte de observación**.
+    -   Registrar si se trata de **censura por la izquierda, derecha o ambas**.
+    -   Verificar si la censura es **informativa o no informativa**.
+
+4.  **Entregar un breve reporte (1-2 cuartillas)** que contenga:
+
+    -   Descripción del conjunto de datos.
+    -   Contexto del estudio y definición del evento.
+    -   Discusión sobre tipo(s) de censura y su naturaleza.
+    -   Una tabla ilustrativa con al menos 10 observaciones con las columnas: `ID`, `tiempo`, `status` (evento = 1, censura = 0).
+
+------------------------------------------------------------------------
+
+## Truncamiento {.scrollable transition="slide"}
+
+### ¿Qué es el truncamiento?
+
+::::: columns
+::: {.column width="55%"}
+-   El **truncamiento** ocurre cuando **ciertos individuos no aparecen en el estudio**, porque **su tiempo de falla está fuera de una ventana de observación**.
+
+**Diferencia clave con la censura**:
+
+-   **Censura** → se observa parcialmente
+-   **Truncamiento** → **no se observa en absoluto**
+
+**Definición formal**:\
+Se observa $T_i$ **solo si** $T_i \in (U_i, V_i)$
+:::
+
+::: {.column width="45%"}
+*Imaginemos una ventana de observación:*\
+Si el evento ocurre **antes** de entrar a la ventana o **después de que cierra**, el sujeto **no entra al estudio**.
+
+Esto es **truncamiento**, no censura.
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Truncamiento por la izquierda {transition="slide"}
+
+::::: columns
+::: {.column width="55%"}
+**Definición**:\
+Solo se observan individuos cuyo tiempo de evento **supera un umbral inferior**:\
+$$
+T_i > U_i
+$$
+
+También conocido como **entrada retardada**: el sujeto **debió sobrevivir** lo suficiente para entrar al estudio.
+:::
+
+::: {.column width="45%"}
+> **Ejemplo – Centro de retiro**\
+> En Channing House, solo se estudian residentes que **lograron ingresar**.\
+> Quienes murieron **antes** de tener edad para ingresar, **no aparecen** en el estudio.\
+> → **Truncamiento por la izquierda**
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Truncamiento por la derecha {transition="slide"}
+
+::::: columns
+::: {.column width="55%"}
+**Definición**:\
+Solo se incluyen sujetos cuyo evento ocurre **antes de un umbral superior**: $$
+T_i < V_i
+$$
+
+Esto puede ocurrir en **estudios retrospectivos con fecha de corte**.
+:::
+
+::: {.column width="45%"}
+> **Ejemplo – Estudio del SIDA**\
+> Solo se incluyen pacientes que desarrollaron SIDA **antes del 30 de junio de 1986**.\
+> Aquellos cuya enfermedad apareció después, **no fueron observados**.\
+> → **Truncamiento por la derecha**
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Truncamiento y censura combinados {transition="fade"}
+
+-   Es **común** que los estudios de supervivencia combinen:
+
+    -   **Truncamiento por la izquierda** (entrada tardía)
+    -   **Censura por la derecha** (seguimiento limitado)
+
+-   Ejemplo típico:
+
+    > Un paciente entra al estudio tras cumplir ciertos criterios (truncamiento),\
+    > pero el estudio termina antes de que fallezca (censura).
+
+# Visualización
+
+
+
+```{r}
+#| message: false
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+
+invisible(sapply(packages, require, character.only = TRUE))
+
+graficar_supervivencia_individual <- function(datos) {
+  if (!all(c("paciente", "tiempo", "status") %in% names(datos))) {
+    stop("El data.frame debe contener las columnas: paciente, tiempo, status")
+  }
+
+  # Asegurar orden por paciente descendente (opcional, para que se vea como ejemplo original)
+  datos <- datos[order(-datos$paciente), ]
+
+  # Graficar fondo vacío
+  plot(0, 0, type = "n",
+       xlim = c(0, max(datos$tiempo, na.rm = TRUE) + 1),
+       ylim = c(0.5, nrow(datos) + 0.5),
+       xlab = "Tiempo", ylab = "Paciente",
+       yaxt = "n")
+  
+  axis(2, at = 1:nrow(datos), labels = datos$paciente)
+
+  # Dibujar segmentos y símbolos
+  for (i in 1:nrow(datos)) {
+    points(0, i, pch = 16, cex = 1.2)  
+    lines(c(0, datos$tiempo[i]), c(i, i), lwd = 2)
+    points(datos$tiempo[i], i,
+           pch = ifelse(datos$status[i] == 1, 4, 1),
+           cex = 1.5)
+  }
+}
+```
+
+
+## Ejemplo: Ensayo clínico con cáncer
+
+::: {.columns}
+
+::: {.column width="30%" .smaller}
+
+```{r}
+# Datos de entrada manualmente extraídos de la figura
+datos <- data.frame(
+  paciente = 6:1,
+  entrada = c(2002, 2002, 2002, 2001, 2000, 2000),
+  fin      = c(2006, 2004, 2007, 2007, 2006, 2007),
+  evento   = c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
+)
+datos2 <- datos[6:1,]
+datos2$evento <- as.numeric(datos2$evento)
+knitr::kable(datos2, label = "prueba", row.names = FALSE  )
+```
+
+
+:::
+
+::: {.column width="70%"}
+
+
+
+```{r fig.cap="Reclutamiento y seguimiento", fig.width=8, fig.height=4}
+# Crear la figura
+plot(0, 0, type = "n", xlim = c(2000, 2010), ylim = c(0.5, 6.5),
+     xlab = "Year of entry – calendar time",  ylab = "Paciente", yaxt = "n", xaxt = "n")
+
+# Ejes personalizados
+axis(1, at = seq(2000, 2010, by = 2))
+axis(2, at = 1:6, labels = 6:1, las = 1)
+
+# Líneas verticales punteadas
+abline(v = 2000, lty = 2, col = "red")
+abline(v = 2002, lty = 2, col = "red")
+abline(v = 2007, lty = 2, col = "red")
+
+# Dibujar trayectorias y puntos
+for (i in 1:nrow(datos)) {
+  y <- i
+  x0 <- datos$entrada[i]
+  x1 <- datos$fin[i]
+  segments(x0, y, x1, y, lwd = 2)
+  points(x0, y, pch = 16, cex = 1.2)  # Punto de entrada sólido
+  points(x1, y, pch = ifelse(datos$evento[i], 4, 1), cex = 1.5)  # X = evento, ◯ = censura
+}
+
+
+```
+
+
+:::
+
+:::
+
+
+
+
+-----
+
+## Representación gráfica del seguimiento
+
+::: {.columns}
+
+::: {.column width="30%" .smaller}
+
+
+```{r}
+paciente <- 1:6
+tiempo <- c(7, 6, 6, 5, 2, 4)
+status <- c(0, 1, 0, 0, 1, 1)
+datos_S1 <- data.frame(paciente, tiempo, status)
+knitr::kable(datos_S1, caption = "Ejemplo")
+```
+
+
+- Círculo abierto = censura
+- X = evento (muerte)
+
+
+:::
+
+::: {.column width="70%" .smaller}
+
+
+```{r}
+#| fig-width: 8
+#| fig-height: 7
+#| layout-ncol: 1
+
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
+
+graficar_supervivencia_individual(datos_S1)
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
+plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia", main= "Curva de Supervivencia de Kaplan-Meier")
+par(mfrow = c(1,1))
+```
+
+
+:::
+
+:::
+
+
+-----
+
+## Visualización  de data_sim
+
+```{r}
+# Estimación Kaplan-Meier
+km_fit <- survfit(Surv(time, event) ~ 1, data = data_sim)
+plot(km_fit, xlab = "Tiempo", ylab = "Supervivencia", main = "Curva Kaplan-Meier")
+```
+
+
+# Referencias
+
+::: references
+:::

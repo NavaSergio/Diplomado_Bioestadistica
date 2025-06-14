@@ -1,0 +1,513 @@
+---
+title: "Análisis de Supervivencia"
+subtitle: "Funciones fundamentales de Análisis de Supervivencia"
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+toc: true
+toc-depth: 1
+
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    logo: figs/CIMAT.png
+    css: style.css
+    # chalkboard: true # ov a chalboard:  true o va self-contained: true
+    self-contained: true
+    menu: true
+    transition: slide
+    background-transition: fade
+    title-slide-attributes:
+      data-background-image: figs/Banner_diplomado.jpg
+      data-background-size: 55%
+      data-background-position: top center
+
+  pdf:
+    toc: false
+    number-sections: true
+    keep-tex: true
+    pdf-engine: pdflatex  # o xelatex o lualatex
+    slide-level: 2
+    beamer:
+      theme: Madrid
+      colortheme: seahorse
+      fonttheme: professionalfonts
+
+
+profile-default: revealjs
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+bibliography: bibliografia.bib
+csl: apa.csl
+---
+
+
+```{r}
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+```
+
+# Funciones fundamentales de Análisis de Supervivencia
+
+## Introducción
+
+En esta sección abordaremos los conceptos fundamentales para el análisis de datos de supervivencia, comenzando con funciones de probabilidad clásicas y avanzando hacia funciones específicas como la función de supervivencia y la función de riesgo.
+
+### Objetivos
+
+-   Recordar las funciones de densidad y distribución acumulada.
+-   Introducir la función de supervivencia $S(t)$ y la función de riesgo $h(t)$.
+-   Interpretar estas funciones desde una perspectiva probabilística.
+-   Visualizar ejemplos aplicados y comparativos con distintas distribuciones.
+
+## Funciones fundamentales
+
+Antes de introducir las funciones de supervivencia y riesgo, recordemos dos funciones clave en probabilidad y estadística:
+
+-   **Función de densidad**: $f(t)$
+-   **Función de distribución acumulada**: $F(t) = P(T \leq t)$
+
+------------------------------------------------------------------------
+
+### Función de densidad $f(t)$
+
+-   Describe la distribución de probabilidad de una variable continua $T$
+
+-   No es una probabilidad en sí, pero su integral sí lo es:
+
+    $$
+    P(a < T \leq b) = \int_a^b f(t) \, dt
+    $$
+
+-   Debe cumplir:
+
+    $$
+    f(t) \geq 0 \quad \text{y} \quad \int_{-\infty}^{\infty} f(t) \, dt = 1
+    $$
+
+------------------------------------------------------------------------
+
+### Función de distribución acumulada $F(t)$
+
+-   Es la probabilidad de que la variable aleatoria tome un valor menor o igual que $t$:
+
+    $$
+    F(t) = \int_{-\infty}^t f(u) \, du = P(T \leq t)
+    $$
+
+-   Propiedades:
+
+    -   $F(t)$ es monótona creciente
+    -   $\lim_{t \to -\infty} F(t) = 0$
+    -   $\lim_{t \to \infty} F(t) = 1$
+
+------------------------------------------------------------------------
+
+::::: columns
+::: {.column width="50%"}
+### Relación entre $f(t)$ y $F(t)$
+
+-   Si $f$ es continua:
+
+    $$
+    f(t) = \frac{d}{dt} F(t)
+    $$
+
+-   Y también:
+
+    $$
+    F(t) = \int_{-\infty}^t f(u) \, du
+    $$
+
+Estas relaciones son clave para definir funciones como la de supervivencia y la de riesgo, que veremos a continuación.
+:::
+
+::: {.column width="50%"}
+### Ejemplo en R: distribución distribución exponencial con parámetro $\lambda = 0.5$
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Secuencia de valores
+t <- seq(0, 10, length.out = 400)
+lambda <- 0.5
+
+# Cálculo de funciones
+datos <- data.frame(
+  t = t,
+  densidad = dexp(t, rate = lambda),
+  acumulada = pexp(t, rate = lambda)
+)
+
+# Gráfica
+ggplot(datos, aes(x = t)) +
+  geom_line(aes(y = densidad), color = "blue", size = 1) +
+  geom_line(aes(y = acumulada), color = "darkgreen", size = 1, linetype = "dashed") +
+  labs(
+    title = "Densidad y función de distribución acumulada (Exponencial)",
+    y = "Valor",
+    x = "t"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = "bold")) +
+  scale_y_continuous(sec.axis = sec_axis(~., name = "F(t)", breaks = c(0, 0.5, 1)))
+
+```
+:::
+:::::
+
+## Funciones fundamentales en análisis de supervivencia {.scrollable transition="slide"}
+
+> En análisis de supervivencia, las variables aleatorias de interés $T$ son no negativas, y se caracterizan no solo por $f(t)$ o $F(t)$, sino también por funciones **más interpretables**:
+
+-   $S(t)$: función de supervivencia
+-   $h(t)$: función de riesgo o tasa de falla
+-   $H(t)$: riesgo acumulado
+
+# Función de supervivencia $S(t)$
+
+## Función de Supervivencia {.scrollable transition="slide"}
+
+La función de supervivencia $S(t)$ y la función de riesgo instantáneo $h(t)$ son fundamentales para modelar procesos de falla en este tipo de análisis, ver @klein2003.
+
+
+> $S(t) = P(T > t) = 1 - F(t)$
+
+
+Representa la probabilidad de **sobrevivir más allá del tiempo** $t$.
+
+::::: columns
+::: {.column width="50%"}
+**Propiedades clave**:
+
+-   Monótona no creciente\
+-   $S(0) = 1$, $\lim_{t \to \infty} S(t) = 0$
+:::
+
+::: {.column width="50%"}
+![](figura/Ss.jpg){fig-align="center" width="70%"}
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Ejemplo: función de supervivencia para distribución exponencial
+
+Sea $T \sim \text{Exp}(\lambda = 0.5)$, es decir:
+
+$$
+f(t) = \lambda e^{-\lambda t}, \quad F(t)=1-e^{-\lambda t}, \quad S(t) = e^{-\lambda t}
+$$
+
+```{r}
+library(ggplot2)
+library(tidyr)
+
+t <- seq(0, 10, length.out = 200)
+lambda <- 0.5
+
+datos <- data.frame(
+  t = t,
+  `f(t)` = dexp(t, rate = lambda),
+  `F(t)` = pexp(t, rate = lambda),
+  `S(t)` = 1 - pexp(t, rate = lambda)
+)
+
+datos_long <- pivot_longer(datos, cols = -t, names_to = "funcion", values_to = "valor")
+
+ggplot(datos_long, aes(x = t, y = valor, color = funcion, linetype = funcion)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Funciones f(t), F(t) y S(t) para la distribución Exponencial(λ = 0.5)",
+    x = "t",
+    y = "Valor",
+    color = "Función",
+    linetype = "Función"
+  ) +
+  theme_minimal()
+
+```
+
+# Función de riesgo $h(t)$
+
+## Función de Riesgo {.scrollable transition="slide"}
+
+> $h(t) = \frac{f(t)}{S(t)}$
+
+-   También conocida como:
+    -   Tasa de falla condicional (confiabilidad)
+    -   Tasa de mortalidad (demografía)
+    -   Función de intensidad (procesos estocásticos)
+
+**Interpretación**:\
+Tasa instantánea de ocurrencia del evento, dado que se ha sobrevivido hasta $t$.
+
+------------------------------------------------------------------------
+
+## Ejemplos de formas de riesgo {transition="slide"}
+
+::::: columns
+::: {.column .smaller width="40%"}
+| Forma del riesgo           | Interpretación              |
+|----------------------------|-----------------------------|
+| Riesgo creciente           | Envejecimiento              |
+| Riesgo decreciente         | Rejuvenecimiento            |
+| Riesgo tipo “tina de baño” | Mortalidad neonatal y senil |
+| Riesgo tipo “montaña”      | Recaída tras tratamiento    |
+:::
+
+::: {.column width="60%"}
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Dominio de tiempo desde 0.5 para evitar explosión de 1/t
+t <- seq(0.5, 10, length.out = 500)
+
+# Definimos formas típicas de funciones de riesgo
+datos <- data.frame(
+  t = t,
+  Constante     = rep(0.5, length(t)),
+  Creciente     = 0.1 * t,
+  Decreciente   = 1 / (1 + t),
+  Tina          = 0.05 + 2.5 / (t + 1.5) + 0.1 * t,  # Ajuste más razonable
+  Montaña       = dnorm(t, mean = 6, sd = 1)
+)
+
+# Convertir a formato largo
+datos_long <- pivot_longer(datos, cols = -t, names_to = "Forma", values_to = "h")
+
+# Graficar
+ggplot(datos_long, aes(x = t, y = h, color = Forma)) +
+  geom_line(size = 1.2) +
+  labs(
+    title = "Formas típicas de funciones de riesgo",
+    x = "Tiempo",
+    y = "h(t) - Función de riesgo",
+    color = "Forma"
+  ) +
+  theme_minimal(base_size = 14)
+
+
+```
+:::
+:::::
+
+## Ejemplo: función de riesgo para distribuciones comunes
+
+$$
+h(t) = \frac{f(t)}{S(t)}
+$$
+
+Para la distribución exponencial con $\lambda = 0.5$, $h(t) = \lambda$, constante.
+
+Comparémosla con la distribución Weibull, donde el riesgo puede aumentar o disminuir con el tiempo.
+
+```{r}
+library(survival)
+
+t <- seq(0.1, 10, length.out = 200)
+lambda <- 1
+k1 <- 0.5  # riesgo decreciente
+k2 <- 1.2    # riesgo creciente
+
+hazard_weibull <- function(t, lambda, k) {
+  (k / lambda) * (t / lambda)^(k - 1)
+}
+
+datos_hazard <- data.frame(
+  t = t,
+  Exp = rep(lambda, length(t)),
+  Weibull_decr = hazard_weibull(t, lambda, k1),
+  Weibull_incr = hazard_weibull(t, lambda, k2)
+)
+
+library(tidyr)
+datos_long <- pivot_longer(datos_hazard, -t, names_to = "Distribucion", values_to = "h")
+
+ggplot(datos_long, aes(x = t, y = h, color = Distribucion)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Funciones de riesgo para distintas distribuciones",
+    x = "t",
+    y = "h(t)",
+    color = "Distribución"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## Otra forma de visualización {transition="fade"}
+
+![](figura/ejempRiesgoContinuo2.jpg){fig-align="center" width="4in"}
+
+
+# Tiempo discreto
+
+## Riesgo en tiempo discreto {.scrollable transition="slide"}
+
+Para $T$ discreta con soporte $\{u_1, u_2, \dots\}$:
+
+$$
+h(t) = P(T = t \mid T \ge t)
+$$
+
+$$
+h_k = \frac{P(T = u_k)}{P(T \ge u_k)} = \frac{f(u_k)}{S(u_{k-1})}
+$$
+
+Usando $f(u_k) = S(u_{k-1}) - S(u_k)$, se obtiene:
+
+$$
+h_k = 1 - \frac{S(u_k)}{S(u_{k-1})}
+$$
+
+------------------------------------------------------------------------
+
+## Relaciones discretas clave {.scrollable transition="slide"}
+
+Función de supervivencia:
+
+$$
+S(t) = \prod_{u_k \le t} (1 - h_k)
+$$
+
+Función de densidad:
+
+$$
+f(u_j) = h_j \prod_{k<j} (1 - h_k)
+$$
+
+> En demografía, $h(t)$ representa la probabilidad de morir en el momento $t$ dado que se ha sobrevivido hasta $t$.
+
+------------------------------------------------------------------------
+
+## Ejemplos de riesgo discreto {transition="fade"}
+
+![](figura/ejempRiesgoDiscreto.jpg){fig-align="center" width="4in"}
+
+------------------------------------------------------------------------
+
+## Riesgo acumulado discreto {.scrollable transition="slide"}
+
+Dos definiciones equivalentes:
+
+1.  Suma directa: $$
+    H(t) = \sum_{u_k \le t} h_k
+    $$
+
+2.  Log-transformación: $$
+    H(t) = - \sum_{u_k \le t} \log(1 - h_k)
+    $$
+
+Ambas son **monótonas no decrecientes**.
+
+
+# Tiempo contínuo
+
+## Riesgo en tiempo continuo {.scrollable transition="slide"}
+
+$$
+h(t) = \lim_{\varepsilon \to 0} \frac{1}{\varepsilon} P(t < T \le t + \varepsilon \mid T \ge t)
+= \frac{f(t)}{S(t)}
+$$
+
+Como $F(t) = 1 - S(t)$, entonces:
+
+$$
+h(t) = -\frac{d}{dt} \log S(t)
+$$
+
+Al integrar:
+
+$$
+\log S(t) = -\int_0^t h(u) \, du
+$$
+
+$$
+S(t) = \exp\left(-\int_0^t h(u) \, du\right)
+$$
+
+> $h(t)\varepsilon$ es la probabilidad **aproximada** de que un evento ocurra en el siguiente instante dado que el individuo ha sobrevivido hasta $t$.
+
+------------------------------------------------------------------------
+
+## Riesgo acumulado continuo {transition="slide"}
+
+$$
+H(t) = \int_0^t h(u)\, du
+\qquad\Rightarrow\qquad
+S(t) = \exp\{-H(t)\}
+$$
+
+Si $S(\infty) = 0$, entonces $H(\infty) = \infty$.
+
+------------------------------------------------------------------------
+
+## Visualización de funciones {.scrollable transition="fade"}
+
+![](figura/Funciones1.png){fig-align="center"} 
+
+---
+
+## Visualización de funciones (cont.) {.scrollable transition="fade"}
+
+![](figura/Funciones2.png){fig-align="center"}
+
+## Visualización de Funciones en R
+
+Las funciones `Surv()` y `survfit()` del paquete `survival` permiten ajustar y visualizar curvas de Kaplan-Meier de manera eficiente en R, ver @moore2016 y @therneau2000.
+
+```{r}
+#| echo: true
+# Ejemplo simulado de tiempos de supervivencia
+set.seed(123)
+tiempos <- rexp(10, rate = 0.05)
+status <- rbinom(10, 1, prob = 0.8)
+data_sim <- data.frame(time = tiempos, event = status)
+# Estimación Kaplan-Meier
+km_fit <- survfit(Surv(time, event) ~ 1, data = data_sim)
+```
+
+
+::::: columns
+::: {.column width="30%" .smaller}
+```{r}
+knitr::kable(data_sim, caption = "data_sim")
+```
+:::
+
+::: {.column width="70%"}
+```{r}
+#| echo: true
+plot(km_fit, 
+     xlab = "Tiempo", 
+     ylab = "Supervivencia", 
+     main = "Curva Kaplan-Meier")
+```
+
+:::
+:::::
+
+
+# Referencias
+:::{.references}
+:::
