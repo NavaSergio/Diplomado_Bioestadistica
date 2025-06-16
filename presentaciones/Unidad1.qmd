@@ -21,7 +21,7 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    # chalkboard: true # ov a chalboard:  true o va self-contained: true
+    #chalkboard: true # ov a chalboard:  true o va self-contained: true
     self-contained: true
     menu: true
     transition: slide
@@ -289,14 +289,17 @@ knitr::kable(data_sim[1:8, ], caption = "Primeros 8 registros de data_sim")
 ## Actividad en clase: Diseño rápido de un ejemplo de datos de supervivencia
 
 ### Objetivo de la actividad
+
 Durante esta actividad breve, los estudiantes identificarán los elementos esenciales de un conjunto de datos que pueda ser analizado mediante técnicas de análisis de supervivencia.
 
 
 ### Duración sugerida
+
 **15 minutos**
 
 
-### 👥 Modalidad
+### Modalidad
+
 - Individual
 - [Hoja de Trabajo](https://tinyurl.com/mrkww672)
 

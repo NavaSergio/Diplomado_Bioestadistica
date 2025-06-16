@@ -602,8 +602,8 @@ Child Induction Time
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Ejemplo de datos
-simulados}\label{ejemplo-de-datos-simulados}
+\subsection{\texorpdfstring{Ejemplo de datos simulados
+\((t_i,\delta_i)\)}{Ejemplo de datos simulados (t\_i,\textbackslash delta\_i)}}\label{ejemplo-de-datos-simulados-t_idelta_i}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -637,6 +637,87 @@ time & event \\
 6.2845458 & 0 \\
 2.9053361 & 1 \\
 \end{longtable}
+
+\subsection{Actividad en clase: Diseño rápido de un ejemplo de datos de
+supervivencia}\label{actividad-en-clase-diseuxf1o-ruxe1pido-de-un-ejemplo-de-datos-de-supervivencia}
+
+\subsubsection{Objetivo de la actividad}\label{objetivo-de-la-actividad}
+
+Durante esta actividad breve, los estudiantes identificarán los
+elementos esenciales de un conjunto de datos que pueda ser analizado
+mediante técnicas de análisis de supervivencia.
+
+\subsubsection{Duración sugerida}\label{duraciuxf3n-sugerida}
+
+\textbf{15 minutos}
+
+\subsubsection{Modalidad}\label{modalidad}
+
+\begin{itemize}
+\tightlist
+\item
+  Individual
+\item
+  \href{https://tinyurl.com/mrkww672}{Hoja de Trabajo}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{Instrucciones}\label{instrucciones}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Piensa en una situación real o simulada} donde se puedan
+  observar tiempos hasta que ocurra un evento específico (por ejemplo:
+  tiempo hasta el abandono escolar, tiempo hasta la reincidencia en
+  consumo, duración de un aparato, etc.).
+\item
+  \textbf{Completa los siguientes elementos clave de tu ejemplo}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Contexto}: ¿en qué situación o ámbito ocurre?
+  \item
+    \textbf{Evento de origen (inicio del seguimiento)}: ¿cuándo empieza
+    a contar el tiempo?
+  \item
+    \textbf{Escala de tiempo}: ¿en qué unidades se mide el tiempo (días,
+    semanas, meses\ldots)?
+  \item
+    \textbf{Evento de fin (evento de interés)}: ¿qué suceso representa
+    el ``evento''?
+  \item
+    \textbf{¿Hay censura posible?} ¿cuándo podría ocurrir?
+  \item
+    \emph{(Opcional)} \textbf{Covariables}: ¿qué otras características
+    podrían influir en el tiempo al evento?
+  \end{itemize}
+\item
+  Escribir en el espacio compartido
+  \href{https://tinyurl.com/mrkww672}{Hoja de Trabajo}.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{Ejemplo rápido}\label{ejemplo-ruxe1pido}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Contexto}: Estudio sobre empleados de una empresa.\\
+\item
+  \textbf{Evento de origen}: Fecha de contratación.\\
+\item
+  \textbf{Escala de tiempo}: Meses desde el ingreso.\\
+\item
+  \textbf{Evento de fin}: Renuncia o despido.\\
+\item
+  \textbf{Censura}: Si el empleado sigue activo al final del estudio.\\
+\item
+  \textbf{Covariables}: Edad, departamento, tipo de contrato.
+\end{itemize}
 
 \section{Tipos de datos: eventos, censura,
 truncamiento}\label{tipos-de-datos-eventos-censura-truncamiento}
@@ -1118,7 +1199,7 @@ radioterapia (con o sin quimioterapia).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsubsection{Actividad: Identificación y análisis de datos de
+\subsection{Actividad: Identificación y análisis de datos de
 supervivencia}\label{actividad-identificaciuxf3n-y-anuxe1lisis-de-datos-de-supervivencia}
 
 \paragraph{Objetivo}\label{objetivo}
@@ -1127,7 +1208,7 @@ Aplicar los conceptos fundamentales del análisis de supervivencia
 identificando un conjunto de datos relevante, describiendo su estructura
 temporal, y evaluando la presencia y tipo de censura.
 
-\paragraph{Instrucciones}\label{instrucciones}
+\paragraph{Instrucciones}\label{instrucciones-1}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
