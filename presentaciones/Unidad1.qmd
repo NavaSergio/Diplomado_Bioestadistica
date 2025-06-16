@@ -265,7 +265,7 @@ A continuación se presentan algunos ejemplos de datos de supervivencia. Estos e
 
 ------------------------------------------------------------------------
 
-## Ejemplo de datos simulados
+## Ejemplo de datos simulados $(t_i,\delta_i)$
 
 ```{r}
 #| echo: true
@@ -282,7 +282,54 @@ data_sim <- data.frame(time = tiempos, event = status)
 # Mostrar los primeros 10 registros con fuente más pequeña
 knitr::kable(data_sim[1:8, ], caption = "Primeros 8 registros de data_sim")
 ```
+
 :::
+
+
+## Actividad en clase: Diseño rápido de un ejemplo de datos de supervivencia
+
+### Objetivo de la actividad
+Durante esta actividad breve, los estudiantes identificarán los elementos esenciales de un conjunto de datos que pueda ser analizado mediante técnicas de análisis de supervivencia.
+
+
+### Duración sugerida
+**15 minutos**
+
+
+### 👥 Modalidad
+- Individual
+- [Hoja de Trabajo](https://tinyurl.com/mrkww672)
+
+
+---
+
+### Instrucciones
+
+
+1. **Piensa en una situación real o simulada** donde se puedan observar tiempos hasta que ocurra un evento específico (por ejemplo: tiempo hasta el abandono escolar, tiempo hasta la reincidencia en consumo, duración de un aparato, etc.).
+
+2. **Completa los siguientes elementos clave de tu ejemplo**:
+
+   - **Contexto**: ¿en qué situación o ámbito ocurre?
+   - **Evento de origen (inicio del seguimiento)**: ¿cuándo empieza a contar el tiempo?
+   - **Escala de tiempo**: ¿en qué unidades se mide el tiempo (días, semanas, meses...)?
+   - **Evento de fin (evento de interés)**: ¿qué suceso representa el “evento”?
+   - **¿Hay censura posible?** ¿cuándo podría ocurrir?
+   - *(Opcional)* **Covariables**: ¿qué otras características podrían influir en el tiempo al evento?
+
+3. Escribir en el espacio compartido [Hoja de Trabajo](https://tinyurl.com/mrkww672).
+
+---
+
+### Ejemplo rápido
+
+- **Contexto**: Estudio sobre empleados de una empresa.  
+- **Evento de origen**: Fecha de contratación.  
+- **Escala de tiempo**: Meses desde el ingreso.  
+- **Evento de fin**: Renuncia o despido.  
+- **Censura**: Si el empleado sigue activo al final del estudio.  
+- **Covariables**: Edad, departamento, tipo de contrato.
+
 
 # Tipos de datos: eventos, censura, truncamiento
 
@@ -703,13 +750,13 @@ Sin embargo:
 
 ------------------------------------------------------------------------
 
-### Actividad: Identificación y análisis de datos de supervivencia {.smaller .scrollable}
+## Actividad: Identificación y análisis de datos de supervivencia {.smaller .scrollable}
 
 #### Objetivo
 
 Aplicar los conceptos fundamentales del análisis de supervivencia identificando un conjunto de datos relevante, describiendo su estructura temporal, y evaluando la presencia y tipo de censura.
 
-#### Instrucciones {.smaller}
+#### Instrucciones
 
 1.  **Buscar o seleccionar un conjunto de datos** que permita aplicar análisis de supervivencia. Puede ser:
 
