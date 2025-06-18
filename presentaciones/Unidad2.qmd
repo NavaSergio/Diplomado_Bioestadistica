@@ -140,7 +140,7 @@ Estas relaciones son clave para definir funciones como la de supervivencia y la 
 ::: {.column width="55%" .smaller}
 
 
-### Ejemplo en R: distribución distribución exponencial con parámetro $\lambda = 0.5$
+### Ejemplo en R: distribución exponencial con parámetro $\lambda=0.5$
 
 ```{r}
 #| echo: true
@@ -233,7 +233,7 @@ datos_long <- pivot_longer(datos, cols = -t, names_to = "funcion", values_to = "
 ggplot(datos_long, aes(x = t, y = valor, color = funcion, linetype = funcion)) +
   geom_line(size = 1) +
   labs(
-    title = "Funciones f(t), F(t) y S(t) para la distribución Exponencial(λ = 0.5)",
+    title = expression(paste("Funciones f(t), F(t) y S(t) para la distribución Exponencial (",lambda," = 0.5)")),
     x = "t",
     y = "Valor",
     color = "Función",
@@ -261,7 +261,7 @@ datos_long <- pivot_longer(datos, cols = -t, names_to = "funcion", values_to = "
 ggplot(datos_long, aes(x = t, y = valor, color = funcion, linetype = funcion)) +
   geom_line(size = 1) +
   labs(
-    title = "Funciones f(t), F(t) y S(t) para la distribución Exponencial(λ = 0.5)",
+    title = expression(paste("Funciones f(t), F(t) y S(t) para la distribución Exponencial (",lambda," = 0.5)")),
     x = "t",
     y = "Valor",
     color = "Función",
@@ -658,7 +658,7 @@ $$
 
 ### **R (base)**:
 ```r
-dlnorm(x, meanlog = μ, sdlog = σ)
+dlnorm(x, meanlog  sdlog)
 ```
 
 - `meanlog` y `sdlog` son la media y desviación estandar es escala logarítmica.

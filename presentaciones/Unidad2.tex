@@ -1,66 +1,29 @@
 % Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
   letterpaper,
-  ignorenonframetext,
   DIV=11,
   numbers=noendperiod]{scrartcl}
-\usepackage{pgfpages}
-\setbeamertemplate{caption}[numbered]
-\setbeamertemplate{caption label separator}{: }
-\setbeamercolor{caption name}{fg=normal text.fg}
-\beamertemplatenavigationsymbolsempty
-% Prevent slide breaks in the middle of a paragraph
-\widowpenalties 1 10000
-\raggedbottom
-\setbeamertemplate{part page}{
-  \centering
-  \begin{beamercolorbox}[sep=16pt,center]{part title}
-    \usebeamerfont{part title}\insertpart\par
-  \end{beamercolorbox}
-}
-\setbeamertemplate{section page}{
-  \centering
-  \begin{beamercolorbox}[sep=12pt,center]{section title}
-    \usebeamerfont{section title}\insertsection\par
-  \end{beamercolorbox}
-}
-\setbeamertemplate{subsection page}{
-  \centering
-  \begin{beamercolorbox}[sep=8pt,center]{subsection title}
-    \usebeamerfont{subsection title}\insertsubsection\par
-  \end{beamercolorbox}
-}
-\AtBeginPart{
-  \frame{\partpage}
-}
-\AtBeginSection{
-  \ifbibliography
-  \else
-    \frame{\sectionpage}
-  \fi
-}
-\AtBeginSubsection{
-  \frame{\subsectionpage}
-}
-
+\usepackage{xcolor}
 \usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math}
+  \usepackage{unicode-math} % this also loads fontspec
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
 \usepackage{lmodern}
-\ifPDFTeX\else  
-    % xetex/luatex font selection
+\ifPDFTeX\else
+  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -78,10 +41,6 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
-\usepackage{xcolor}
-\newif\ifbibliography
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\setcounter{secnumdepth}{5}
 
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -124,8 +83,7 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 \usepackage{caption}
 % Make caption package work with longtable
@@ -147,6 +105,8 @@
 % Set default figure placement to htbp
 \def\fps@figure{htbp}
 \makeatother
+
+
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -180,6 +140,18 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
 
 \KOMAoption{captions}{tableheading}
 \makeatletter
@@ -223,11 +195,9 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
-
 \usepackage{bookmark}
-
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same} % disable monospaced font for URLs
+\urlstyle{same}
 \hypersetup{
   pdftitle={Análisis de Supervivencia},
   pdfauthor={Sergio M. Nava Muñoz},
@@ -240,12 +210,17 @@
 
 
 \title{Análisis de Supervivencia}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
 \subtitle{Funciones fundamentales de Análisis de Supervivencia}
 \author{Sergio M. Nava Muñoz}
 \date{2025-06-01}
-
 \begin{document}
-\frame{\titlepage}
+\maketitle
 
 
 \section{Funciones fundamentales de Análisis de
@@ -360,9 +335,9 @@ dos funciones clave en probabilidad y estadística:
 Estas relaciones son clave para definir funciones como la de
 supervivencia y la de riesgo, que veremos a continuación.
 
-\subsubsection{\texorpdfstring{Ejemplo en R: distribución distribución
-exponencial con parámetro
-\(\lambda = 0.5\)}{Ejemplo en R: distribución distribución exponencial con parámetro \textbackslash lambda = 0.5}}\label{ejemplo-en-r-distribuciuxf3n-distribuciuxf3n-exponencial-con-paruxe1metro-lambda-0.5}
+\subsubsection{\texorpdfstring{Ejemplo en R: distribución exponencial
+con parámetro
+\(\lambda=0.5\)}{Ejemplo en R: distribución exponencial con parámetro \textbackslash lambda=0.5}}\label{ejemplo-en-r-distribuciuxf3n-exponencial-con-paruxe1metro-lambda0.5}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -467,7 +442,7 @@ f(t) = \lambda e^{-\lambda t}, \quad F(t)=1-e^{-\lambda t}, \quad S(t) = e^{-\la
 \FunctionTok{ggplot}\NormalTok{(datos\_long, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ valor, }\AttributeTok{color =}\NormalTok{ funcion, }\AttributeTok{linetype =}\NormalTok{ funcion)) }\SpecialCharTok{+}
   \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{size =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}
-    \AttributeTok{title =} \StringTok{"Funciones f(t), F(t) y S(t) para la distribución Exponencial(λ = 0.5)"}\NormalTok{,}
+    \AttributeTok{title =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Funciones f(t), F(t) y S(t) para la distribución Exponencial ("}\NormalTok{,lambda,}\StringTok{" = 0.5)"}\NormalTok{)),}
     \AttributeTok{x =} \StringTok{"t"}\NormalTok{,}
     \AttributeTok{y =} \StringTok{"Valor"}\NormalTok{,}
     \AttributeTok{color =} \StringTok{"Función"}\NormalTok{,}
@@ -718,6 +693,156 @@ funciones}\label{visualizaciuxf3n-de-funciones}
 \begin{center}
 \pandocbounded{\includegraphics[keepaspectratio]{figura/Funciones2.png}}
 \end{center}
+
+\subsection{Cuidado con la
+parametrización}\label{cuidado-con-la-parametrizaciuxf3n}
+
+\begin{itemize}
+\tightlist
+\item
+  Las distribuciones \textbf{Weibull}, \textbf{Gamma},
+  \textbf{Log-normal}, etc., se usan comúnmente para modelar tiempos de
+  vida.
+\item
+  Cada una tiene formas \textbf{teóricas} bien definidas.
+\item
+  Sin embargo, en R y otros lenguajes de programación:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    La \textbf{parametrización puede cambiar}.
+  \item
+    Es crucial revisar la \textbf{documentación oficial}
+    (\texttt{?dweibull}, \texttt{?dgamma}, etc.)
+  \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{figura/Funciones1.png}}
+
+}
+
+\caption{Funciones}
+
+\end{figure}%
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Weibull: teoría vs.~R}\label{weibull-teoruxeda-vs.-r}
+
+\subsubsection{\texorpdfstring{\textbf{Teoría}:}{Teoría:}}\label{teoruxeda}
+
+\[
+f(x) = \alpha \lambda x^{\alpha - 1} \exp(-\lambda x^\alpha)
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(\lambda\): parámetro de escala
+\item
+  \(\alpha\): parámetro de forma
+\end{itemize}
+
+\subsubsection{\texorpdfstring{\textbf{R
+(base)}:}{R (base):}}\label{r-base}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dweibull}\NormalTok{(x, shape, }\AttributeTok{scale =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+usa \[
+f(x) = (\alpha /\sigma)  (x/\sigma)^{\alpha - 1} \exp(- (x/\sigma)^\alpha)
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  El parámetro de forma \(\alpha\) y el parámetro de escala
+  \[\sigma=\lambda^{-1/\alpha}\]
+\item
+  La forma teórica \(\lambda\) no es directa en R
+\end{itemize}
+
+\subsection{Gamma: teoría vs.~R}\label{gamma-teoruxeda-vs.-r}
+
+\subsubsection{\texorpdfstring{\textbf{Teoría}:}{Teoría:}}\label{teoruxeda-1}
+
+\[
+f(x) = \frac{\lambda^\beta x^{\beta - 1} \exp(-\lambda x)}{\Gamma(\beta)}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(\beta\): forma (shape)
+\item
+  \(\lambda\): tasa (rate)
+\end{itemize}
+
+\subsubsection{\texorpdfstring{\textbf{R
+(base)}:}{R (base):}}\label{r-base-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dgamma}\NormalTok{(x, shape, }\AttributeTok{rate =} \DecValTok{1}\NormalTok{, }\AttributeTok{scale =} \DecValTok{1}\SpecialCharTok{/}\NormalTok{rate)}
+\end{Highlighting}
+\end{Shaded}
+
+Usa
+\[f(x)=\frac{1}{\sigma^{\alpha}\Gamma(\alpha)}x^{\alpha-1}e^{-x/\sigma}.\]
+Con parámetro de forma \(shape=\alpha\) y \(scale=\sigma\)
+
+Entonces
+
+\begin{itemize}
+\tightlist
+\item
+  El parámetro de forma coincide, \(\beta =\alpha\)
+\item
+  Pero \(\sigma = scale = 1 / rate = 1/\lambda\)
+\end{itemize}
+
+\subsection{Log-Normal: teoría vs.~R}\label{log-normal-teoruxeda-vs.-r}
+
+\subsubsection{\texorpdfstring{\textbf{Teoría}:}{Teoría:}}\label{teoruxeda-2}
+
+\[
+f(x) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left( -\frac{1}{2} \left( \frac{\ln x - \mu}{\sigma} \right)^2 \right)
+\]
+
+\subsubsection{\texorpdfstring{\textbf{R
+(base)}:}{R (base):}}\label{r-base-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dlnorm}\NormalTok{(x, meanlog  sdlog)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{meanlog} y \texttt{sdlog} son la media y desviación estandar
+  es escala logarítmica.
+\end{itemize}
+
+\subsection{Recomendación}\label{recomendaciuxf3n}
+
+\begin{itemize}
+\tightlist
+\item
+  Revisa siempre la documentación: \texttt{?dweibull}, \texttt{?dgamma},
+  \texttt{?survreg}, etc.
+\item
+  Haz pruebas con valores conocidos para validar interpretación.
+\item
+  Utiliza visualización para entender las funciones.
+\end{itemize}
 
 \subsection{Visualización de Funciones en
 R}\label{visualizaciuxf3n-de-funciones-en-r}

@@ -12,7 +12,7 @@ author:
           state: Ags
 date: 2025-06-01
 toc: true
-toc-depth: 1
+toc-depth: 2
 
 format: 
   revealjs:
@@ -61,7 +61,188 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 # Estimación no paramétrica
 
 
-## General Data Layout
+## Temario de la Sesión
+
+- **Fundamentos:** ¿Qué es el análisis de supervivencia y cómo se estructuran los datos (tiempo, evento y censura)?
+
+- **El Estimador Kaplan-Meier:** Introducción al método no paramétrico fundamental para estimar la función de supervivencia cuando hay datos censurados.
+
+- **Cálculo e Interpretación:** Un ejemplo paso a paso para calcular e interpretar una curva de Kaplan-Meier.
+
+- **Comparación entre Grupos:** Uso de la prueba Log-Rank para determinar si existen diferencias significativas entre las curvas de supervivencia.
+
+- **Aplicación Práctica en R:** Implementación de estas técnicas utilizando paquetes como `survival` y `survminer`.
+
+
+                                               
+## La función de distribución acumulada empírica (FDAE)
+
+
+::::: columns
+::: {.column  width="50%"}
+
+
+Dada una muestra de tiempos de falla sin censura:
+
+$$
+\hat{F}(t) = \frac{\#\{T_i \leq t\}}{n}
+$$
+
+Es un estimador escalonado, que da saltos en cada observación.\
+La función de supervivencia empírica se define como:
+
+$$
+\hat{S}(t) = 1 - \hat{F}(t)
+$$
+
+**Limitación**: no puede manejar adecuadamente datos censurados.
+
+
+:::
+
+::: {.column width="50%"}
+
+
+```{r}
+library(ggplot2)
+
+# Datos simulados sin censura
+tiempos <- c(2, 3, 4, 4.5, 6, 7, 9)
+n <- length(tiempos)
+t_grid <- sort(unique(tiempos))
+
+# FDAE y supervivencia empírica
+F_emp <- ecdf(tiempos)
+S_emp <- function(t) 1 - F_emp(t)
+
+datos <- data.frame(
+  t = t_grid,
+  F_hat = F_emp(t_grid),
+  S_hat = S_emp(t_grid)
+)
+# Aumentar puntos para que la FDAE inicie en 0 y termine en 1
+datos_ext <- rbind(
+  data.frame(t = 0, F_hat = 0, S_hat = 1),
+  datos,
+  data.frame(t = max(tiempos) + 1, F_hat = 1, S_hat = 0)
+)
+ggplot(datos_ext, aes(x = t)) +
+  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv", size = 1) +
+  labs(
+    title = "FDAE y supervivencia empírica sin censura",
+    y = "Valor",
+    x = "t",
+    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
+  ) +
+  theme_minimal()
+ggplot(datos_ext, aes(x = t)) +
+  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv", size = 1) +
+  labs(
+    title = "FDAE y supervivencia empírica sin censura",
+    y = "Valor",
+    x = "t",
+    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
+  ) +
+  theme_minimal()
+```
+
+
+:::
+:::::
+
+
+------------------------------------------------------------------------
+
+## Ejemplo en R: FDAE
+
+
+::::: columns
+::: {.column .smaller width="25%"}
+
+```{r}
+
+knitr::kable(datos_ext)
+```
+
+:::
+
+::: {.column width="75%"}
+
+```{r}
+ggplot(datos_ext, aes(x = t)) +
+  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv", size = 1) +
+  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv", size = 1) +
+  labs(
+    title = "FDAE y supervivencia empírica sin censura",
+    y = "Valor",
+    x = "t",
+    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
+  ) +
+  theme_minimal()
+```
+
+
+:::
+:::::
+
+
+
+------------------------------------------------------------------------
+
+## Estimador de Kaplan-Meier {.smaller}
+
+Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función de supervivencia como:
+
+$$
+\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
+$$
+
+donde:
+
+-   $d_i$: número de eventos en el tiempo $t_i$
+-   $n_i$: número de individuos en riesgo justo antes de $t_i$
+
+Es un estimador escalonado que **ajusta el denominador** cuando hay censura.
+
+
+
+::: {.callout-note title="Ejemplo"}
+
+
+
+```{r}
+
+# Instalar si es necesario
+# install.packages("survival")
+
+library(survival)
+
+# Datos simulados
+tiempos <- c(2, 3, 4, 4.5, 6, 7, 9, 10)
+status <- c(1, 1, 1, 0, 1, 1, 0, 1)
+
+
+# Crear data frame
+datos <- data.frame(tiempo = tiempos, status = status)
+datos <- datos[order(datos$tiempo), ]
+datos$FDAE <- cumsum(datos$status) / sum(datos$status)
+datos$S_empirica <- 1 - datos$FDAE
+
+# Kaplan-Meier
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
+# Extraer estimaciones de Kaplan-Meier en los tiempos observados
+S_KM <- summary(ajuste, times = datos$tiempo)$surv
+datos$Kaplan_Meier <- S_KM
+
+# Mostrar tabla
+knitr::kable(datos, digits = 4, caption = "Comparación entre FDAE, Supervivencia Empírica y Kaplan-Meier")
+
+```
+:::
+
+# Cálculo e interpretación de KM
+
+## Esquema General de Datos
 
 
 ::::: columns
@@ -390,27 +571,6 @@ $$
 $$
 donde $d_j$ es el número de eventos (fallos) en $t_{(j)}$ y $n_j$ el número en riesgo.
 
----
-
-### Tabla (Grupo 1 – Tratamiento)
-
-```{r}
-library(knitr)
-
-grupo1_km <- data.frame(
-  `t_{(f)}` = c("0", "6", ".", ".", ".", ".", ".", "."),
-  `n_f` = c(21, 21, "", "", "", "", "", ""),
-  `m_f` = c(0, 3, "", "", "", "", "", ""),
-  `q_f` = c(0, 1, "", "", "", "", "", ""),
-  `\\hat{S}(t_{(f)})` = c("1", "18/21", ".", ".", ".", ".", ".", ".")
-)
-
-kable(grupo1_km,
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
-      caption = "Grupo 1 (tratamiento): estimación inicial de la curva de supervivencia empírica",
-      escape = FALSE)
-
-```
 
 ---
 
@@ -589,167 +749,7 @@ $$
 \hat{S}(t_{(f)}) = \hat{S}(t_{(f-1)}) \cdot \Pr(T > t_{(f)} \mid T \ge t_{(f)})
 $$
 
-                                               
-## La función de distribución acumulada empírica (FDAE)
 
-
-::::: columns
-::: {.column  width="50%"}
-
-
-Dada una muestra de tiempos de falla sin censura:
-
-$$
-\hat{F}(t) = \frac{\#\{T_i \leq t\}}{n}
-$$
-
-Es un estimador escalonado, que da saltos en cada observación.\
-La función de supervivencia empírica se define como:
-
-$$
-\hat{S}(t) = 1 - \hat{F}(t)
-$$
-
-**Limitación**: no puede manejar adecuadamente datos censurados.
-
-
-:::
-
-::: {.column width="50%"}
-
-
-```{r}
-library(ggplot2)
-
-# Datos simulados sin censura
-tiempos <- c(2, 3, 4, 4.5, 6, 7, 9)
-n <- length(tiempos)
-t_grid <- sort(unique(tiempos))
-
-# FDAE y supervivencia empírica
-F_emp <- ecdf(tiempos)
-S_emp <- function(t) 1 - F_emp(t)
-
-datos <- data.frame(
-  t = t_grid,
-  F_hat = F_emp(t_grid),
-  S_hat = S_emp(t_grid)
-)
-# Aumentar puntos para que la FDAE inicie en 0 y termine en 1
-datos_ext <- rbind(
-  data.frame(t = 0, F_hat = 0, S_hat = 1),
-  datos,
-  data.frame(t = max(tiempos) + 1, F_hat = 1, S_hat = 0)
-)
-ggplot(datos_ext, aes(x = t)) +
-  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv", size = 1) +
-  labs(
-    title = "FDAE y supervivencia empírica sin censura",
-    y = "Valor",
-    x = "t",
-    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
-  ) +
-  theme_minimal()
-ggplot(datos_ext, aes(x = t)) +
-  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv", size = 1) +
-  labs(
-    title = "FDAE y supervivencia empírica sin censura",
-    y = "Valor",
-    x = "t",
-    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
-  ) +
-  theme_minimal()
-```
-
-
-:::
-:::::
-
-
-------------------------------------------------------------------------
-
-## Ejemplo en R: FDAE
-
-
-::::: columns
-::: {.column .smaller width="25%"}
-
-```{r}
-
-knitr::kable(datos_ext)
-```
-
-:::
-
-::: {.column width="75%"}
-
-```{r}
-ggplot(datos_ext, aes(x = t)) +
-  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv", size = 1) +
-  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv", size = 1) +
-  labs(
-    title = "FDAE y supervivencia empírica sin censura",
-    y = "Valor",
-    x = "t",
-    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
-  ) +
-  theme_minimal()
-```
-
-
-:::
-:::::
-
-
-
-------------------------------------------------------------------------
-
-## Estimador de Kaplan-Meier
-
-Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función de supervivencia como:
-
-$$
-\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
-$$
-
-donde:
-
--   $d_i$: número de eventos en el tiempo $t_i$
--   $n_i$: número de individuos en riesgo justo antes de $t_i$
-
-Es un estimador escalonado que **ajusta el denominador** cuando hay censura.
-
-
------
-
-```{r}
-
-# Instalar si es necesario
-# install.packages("survival")
-
-library(survival)
-
-# Datos simulados
-tiempos <- c(2, 3, 4, 4.5, 6, 7, 9, 10)
-status <- c(1, 1, 1, 0, 1, 1, 0, 1)
-
-
-# Crear data frame
-datos <- data.frame(tiempo = tiempos, status = status)
-datos <- datos[order(datos$tiempo), ]
-datos$FDAE <- cumsum(datos$status) / sum(datos$status)
-datos$S_empirica <- 1 - datos$FDAE
-
-# Kaplan-Meier
-ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
-# Extraer estimaciones de Kaplan-Meier en los tiempos observados
-S_KM <- summary(ajuste, times = datos$tiempo)$surv
-datos$Kaplan_Meier <- S_KM
-
-# Mostrar tabla
-knitr::kable(datos, digits = 4, caption = "Comparación entre FDAE, Supervivencia Empírica y Kaplan-Meier")
-
-```
 ------------------------------------------------------------------------
 
 ## Ejemplo en R: Kaplan-Meier
@@ -801,19 +801,6 @@ ggsurvplot(
 summary(km_fit)
 ```
 
-------------------------------------------------------------------------
-
-## Comparación conceptual
-
-| Característica            | FDAE | Kaplan-Meier              |
-|---------------------------|------|---------------------------|
-| Usa solo eventos          | ✔️   | ✔️                        |
-| Maneja censura            | ❌   | ✔️                        |
-| Escalonada                | ✔️   | ✔️                        |
-| Basada en conteos simples | ✔️   | ❌ (ajusta denominadores) |
-
-
-
 
 
 ```{r}
@@ -853,120 +840,12 @@ graficar_supervivencia_individual <- function(datos) {
 }
 ```
 
----
-
-## Ejemplo: Ensayo clínico con cáncer
-
-::: {.columns}
-
-::: {.column width="30%" .smaller}
-
-```{r}
-# Datos de entrada manualmente extraídos de la figura
-datos <- data.frame(
-  paciente = 6:1,
-  entrada = c(2002, 2002, 2002, 2001, 2000, 2000),
-  fin      = c(2006, 2004, 2007, 2007, 2006, 2007),
-  evento   = c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
-)
-datos2 <- datos[6:1,]
-datos2$evento <- as.numeric(datos2$evento)
-knitr::kable(datos2, label = "prueba", row.names = FALSE  )
-```
-
-
-:::
-
-::: {.column width="70%"}
-
-
-
-```{r fig.cap="Reclutamiento y seguimiento", fig.width=8, fig.height=4}
-# Crear la figura
-plot(0, 0, type = "n", xlim = c(2000, 2010), ylim = c(0.5, 6.5),
-     xlab = "Year of entry – calendar time",  ylab = "Paciente", yaxt = "n", xaxt = "n")
-
-# Ejes personalizados
-axis(1, at = seq(2000, 2010, by = 2))
-axis(2, at = 1:6, labels = 6:1, las = 1)
-
-# Líneas verticales punteadas
-abline(v = 2000, lty = 2, col = "red")
-abline(v = 2002, lty = 2, col = "red")
-abline(v = 2007, lty = 2, col = "red")
-
-# Dibujar trayectorias y puntos
-for (i in 1:nrow(datos)) {
-  y <- i
-  x0 <- datos$entrada[i]
-  x1 <- datos$fin[i]
-  segments(x0, y, x1, y, lwd = 2)
-  points(x0, y, pch = 16, cex = 1.2)  # Punto de entrada sólido
-  points(x1, y, pch = ifelse(datos$evento[i], 4, 1), cex = 1.5)  # X = evento, ◯ = censura
-}
-
-
-```
-
-
-:::
-
-:::
-
-
-
------
-
-
-## Representación gráfica del seguimiento
-
-::: {.columns}
-
-::: {.column width="30%" .smaller}
-
-
-```{r}
-paciente <- 1:6
-tiempo <- c(7, 6, 6, 5, 2, 4)
-status <- c(0, 1, 0, 0, 1, 1)
-datos_S1 <- data.frame(paciente, tiempo, status)
-knitr::kable(datos_S1, caption = "Ejemplo")
-```
-
-
-- Círculo abierto = censura
-- X = evento (muerte)
-
-
-:::
-
-::: {.column width="70%" .smaller}
-
-
-```{r}
-#| fig-width: 8
-#| fig-height: 7
-#| layout-ncol: 1
-
-par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
-
-graficar_supervivencia_individual(datos_S1)
-ajuste <- survfit(Surv(tiempo, status) ~ 1, data = datos)
-plot(ajuste, xlab="Tiempo", ylab="Probabilidad de supervivencia", main= "Curva de Supervivencia de Kaplan-Meier")
-par(mfrow = c(1,1))
-```
-
-
-:::
-
-:::
-
 
 ---
 
+# Aplicación
 
-
-## Programación en R
+## Uso en R
 
 - Librería `survival`:
 ```r{}
@@ -1141,7 +1020,7 @@ plot(ajuste, conf.int=TRUE, xlab="Meses", ylab="Supervivencia")
 
 
 
-------------------------------------------------------------------------
+# Comparación entre grupos
 
 ## Comparación entre grupos
 
@@ -1173,34 +1052,6 @@ grupo= A 3      2.0      1.2     0.533   0.60
 grupo= B 3      1.0      1.8     0.356   0.60
 ```
 
-------------------------------------------------------------------------
-
-## Modelo de riesgos proporcionales de Cox
-
-``` {r}
-modelo_cox <- coxph(Surv(tiempo, evento) ~ grupo, data = datos.df)
-summary(modelo_cox)
-```
-
-Salida relevante:
-
-```         
-             coef exp(coef) se(coef) z     Pr(>|z|)
-grupoB     -0.847    0.429   1.155  -0.733   0.463
-```
-
-Interpretación: - HR = 0.429 indica que grupo B tiene menor riesgo relativo, pero no es significativo.
-
-------------------------------------------------------------------------
-
-## Supuestos del modelo de Cox
-
-``` {r}
-test_cox <- cox.zph(modelo_cox)
-ggcoxzph(test_cox)
-```
-
-Note: El test de `cox.zph()` evalúa el supuesto de proporcionalidad de riesgos.
 
 ------------------------------------------------------------------------
 
@@ -1214,9 +1065,5 @@ Pasos:
 2.  Crear objeto `Surv(time, status)`
 3.  Estimar curvas por `sex`
 4.  Probar igualdad con log-rank
-5.  Ajustar modelo de Cox con covariables
-6.  Evaluar supuestos
-
-Note: Proporciónales la estructura base y pídeles completar la interpretación.
 
 

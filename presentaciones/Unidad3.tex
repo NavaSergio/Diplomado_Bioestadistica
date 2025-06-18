@@ -238,7 +238,129 @@
 \section{Estimación no
 paramétrica}\label{estimaciuxf3n-no-paramuxe9trica}
 
-\subsection{General Data Layout}\label{general-data-layout}
+\subsection{Temario de la Sesión}\label{temario-de-la-sesiuxf3n}
+
+\begin{itemize}
+\item
+  \textbf{Fundamentos:} ¿Qué es el análisis de supervivencia y cómo se
+  estructuran los datos (tiempo, evento y censura)?
+\item
+  \textbf{El Estimador Kaplan-Meier:} Introducción al método no
+  paramétrico fundamental para estimar la función de supervivencia
+  cuando hay datos censurados.
+\item
+  \textbf{Cálculo e Interpretación:} Un ejemplo paso a paso para
+  calcular e interpretar una curva de Kaplan-Meier.
+\item
+  \textbf{Comparación entre Grupos:} Uso de la prueba Log-Rank para
+  determinar si existen diferencias significativas entre las curvas de
+  supervivencia.
+\item
+  \textbf{Aplicación Práctica en R:} Implementación de estas técnicas
+  utilizando paquetes como \texttt{survival} y \texttt{survminer}.
+\end{itemize}
+
+\subsection{La función de distribución acumulada empírica
+(FDAE)}\label{la-funciuxf3n-de-distribuciuxf3n-acumulada-empuxedrica-fdae}
+
+Dada una muestra de tiempos de falla sin censura:
+
+\[
+\hat{F}(t) = \frac{\#\{T_i \leq t\}}{n}
+\]
+
+Es un estimador escalonado, que da saltos en cada observación.\\
+La función de supervivencia empírica se define como:
+
+\[
+\hat{S}(t) = 1 - \hat{F}(t)
+\]
+
+\textbf{Limitación}: no puede manejar adecuadamente datos censurados.
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-2-1.pdf}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-2-2.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Ejemplo en R: FDAE}\label{ejemplo-en-r-fdae}
+
+\begin{longtable}[]{@{}rrr@{}}
+\toprule\noalign{}
+t & F\_hat & S\_hat \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0.0 & 0.0000000 & 1.0000000 \\
+2.0 & 0.1428571 & 0.8571429 \\
+3.0 & 0.2857143 & 0.7142857 \\
+4.0 & 0.4285714 & 0.5714286 \\
+4.5 & 0.5714286 & 0.4285714 \\
+6.0 & 0.7142857 & 0.2857143 \\
+7.0 & 0.8571429 & 0.1428571 \\
+9.0 & 1.0000000 & 0.0000000 \\
+10.0 & 1.0000000 & 0.0000000 \\
+\end{longtable}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-4-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Estimador de Kaplan-Meier}\label{estimador-de-kaplan-meier}
+
+Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función
+de supervivencia como:
+
+\[
+\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
+\]
+
+donde:
+
+\begin{itemize}
+\tightlist
+\item
+  \(d_i\): número de eventos en el tiempo \(t_i\)
+\item
+  \(n_i\): número de individuos en riesgo justo antes de \(t_i\)
+\end{itemize}
+
+Es un estimador escalonado que \textbf{ajusta el denominador} cuando hay
+censura.
+
+\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+
+\begin{longtable}[]{@{}rrrrr@{}}
+\caption{Comparación entre FDAE, Supervivencia Empírica y
+Kaplan-Meier}\tabularnewline
+\toprule\noalign{}
+tiempo & status & FDAE & S\_empirica & Kaplan\_Meier \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+tiempo & status & FDAE & S\_empirica & Kaplan\_Meier \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+2.0 & 1 & 0.1667 & 0.8333 & 0.8750 \\
+3.0 & 1 & 0.3333 & 0.6667 & 0.7500 \\
+4.0 & 1 & 0.5000 & 0.5000 & 0.6250 \\
+4.5 & 0 & 0.5000 & 0.5000 & 0.6250 \\
+6.0 & 1 & 0.6667 & 0.3333 & 0.4688 \\
+7.0 & 1 & 0.8333 & 0.1667 & 0.3125 \\
+9.0 & 0 & 0.8333 & 0.1667 & 0.3125 \\
+10.0 & 1 & 1.0000 & 0.0000 & 0.0000 \\
+\end{longtable}
+
+\end{tcolorbox}
+
+\section{Cálculo e interpretación de
+KM}\label{cuxe1lculo-e-interpretaciuxf3n-de-km}
+
+\subsection{Esquema General de Datos}\label{esquema-general-de-datos}
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1692}}
@@ -336,7 +458,7 @@ Conjunto de riesgo \(R(t_{(f)})\)
 \(t_{(k)}\) & \(m_k\) & \(q_k\) & \(R(t_{(k)})\) \\
 \end{longtable}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 Una disposición alternativa de los datos se muestra a continuación.\\
 Esta organización es la base sobre la cual se derivan las curvas de
@@ -365,8 +487,8 @@ supervivencia de Kaplan-Meier.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
-leucemia}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
+leucemia}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 \textbf{Grupo 1} (\(n = 21\)) --- \emph{Tratamiento}\\
 6, 6, 6, 7, 10,\\
@@ -493,9 +615,9 @@ empírica (Kaplan-Meier)}\tabularnewline
 23 & 1 & 1 & 0 & 0.00 \\
 \end{longtable}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-7-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-11-1.pdf}}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 \begin{itemize}
 \tightlist
@@ -512,7 +634,7 @@ empírica (Kaplan-Meier)}\tabularnewline
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 \begin{longtable}[]{@{}rrrrl@{}}
 \caption{Grupo 2 (placebo): Estimación de la función de supervivencia
@@ -584,34 +706,6 @@ Para \(t = 8\):
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsubsection{Tabla (Grupo 1 --
-Tratamiento)}\label{tabla-grupo-1-tratamiento}
-
-\begin{longtable}[]{@{}lllll@{}}
-\caption{Grupo 1 (tratamiento): estimación inicial de la curva de
-supervivencia empírica}\tabularnewline
-\toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
-\midrule\noalign{}
-\endfirsthead
-\toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-0 & 21 & 0 & 0 & 1 \\
-6 & 21 & 3 & 1 & 18/21 \\
-. & & & & . \\
-. & & & & . \\
-. & & & & . \\
-. & & & & . \\
-. & & & & . \\
-. & & & & . \\
-\end{longtable}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
 \begin{longtable}[]{@{}lrrrl@{}}
 \caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
 supervivencia KM}\tabularnewline
@@ -635,7 +729,7 @@ supervivencia KM}\tabularnewline
 23 & 6 & 1 & 1 & 0.5378 × 5/6 = 0.4482 \\
 \end{longtable}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 Las demás estimaciones de supervivencia se calculan multiplicando la
 estimación en el tiempo de fallo inmediatamente anterior por una
@@ -661,7 +755,7 @@ Las demás fracciones se calculan de manera similar.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-11-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-14-1.pdf}}
 
 \subsection{III. Características Generales de las Curvas de
 Kaplan-Meier}\label{iii.-caracteruxedsticas-generales-de-las-curvas-de-kaplan-meier}
@@ -769,101 +863,6 @@ Por lo tanto, usando \(\Pr(A \cap B) = \Pr(A) \cdot \Pr(B \mid A)\):
 \hat{S}(t_{(f)}) = \hat{S}(t_{(f-1)}) \cdot \Pr(T > t_{(f)} \mid T \ge t_{(f)})
 \]
 
-\subsection{La función de distribución acumulada empírica
-(FDAE)}\label{la-funciuxf3n-de-distribuciuxf3n-acumulada-empuxedrica-fdae}
-
-Dada una muestra de tiempos de falla sin censura:
-
-\[
-\hat{F}(t) = \frac{\#\{T_i \leq t\}}{n}
-\]
-
-Es un estimador escalonado, que da saltos en cada observación.\\
-La función de supervivencia empírica se define como:
-
-\[
-\hat{S}(t) = 1 - \hat{F}(t)
-\]
-
-\textbf{Limitación}: no puede manejar adecuadamente datos censurados.
-
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-13-1.pdf}}
-
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-13-2.pdf}}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{Ejemplo en R: FDAE}\label{ejemplo-en-r-fdae}
-
-\begin{longtable}[]{@{}rrr@{}}
-\toprule\noalign{}
-t & F\_hat & S\_hat \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-0.0 & 0.0000000 & 1.0000000 \\
-2.0 & 0.1428571 & 0.8571429 \\
-3.0 & 0.2857143 & 0.7142857 \\
-4.0 & 0.4285714 & 0.5714286 \\
-4.5 & 0.5714286 & 0.4285714 \\
-6.0 & 0.7142857 & 0.2857143 \\
-7.0 & 0.8571429 & 0.1428571 \\
-9.0 & 1.0000000 & 0.0000000 \\
-10.0 & 1.0000000 & 0.0000000 \\
-\end{longtable}
-
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-15-1.pdf}}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{Estimador de Kaplan-Meier}\label{estimador-de-kaplan-meier}
-
-Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función
-de supervivencia como:
-
-\[
-\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
-\]
-
-donde:
-
-\begin{itemize}
-\tightlist
-\item
-  \(d_i\): número de eventos en el tiempo \(t_i\)
-\item
-  \(n_i\): número de individuos en riesgo justo antes de \(t_i\)
-\end{itemize}
-
-Es un estimador escalonado que \textbf{ajusta el denominador} cuando hay
-censura.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\begin{longtable}[]{@{}rrrrr@{}}
-\caption{Comparación entre FDAE, Supervivencia Empírica y
-Kaplan-Meier}\tabularnewline
-\toprule\noalign{}
-tiempo & status & FDAE & S\_empirica & Kaplan\_Meier \\
-\midrule\noalign{}
-\endfirsthead
-\toprule\noalign{}
-tiempo & status & FDAE & S\_empirica & Kaplan\_Meier \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-2.0 & 1 & 0.1667 & 0.8333 & 0.8750 \\
-3.0 & 1 & 0.3333 & 0.6667 & 0.7500 \\
-4.0 & 1 & 0.5000 & 0.5000 & 0.6250 \\
-4.5 & 0 & 0.5000 & 0.5000 & 0.6250 \\
-6.0 & 1 & 0.6667 & 0.3333 & 0.4688 \\
-7.0 & 1 & 0.8333 & 0.1667 & 0.3125 \\
-9.0 & 0 & 0.8333 & 0.1667 & 0.3125 \\
-10.0 & 1 & 1.0000 & 0.0000 & 0.0000 \\
-\end{longtable}
-
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{Ejemplo en R: Kaplan-Meier}\label{ejemplo-en-r-kaplan-meier}
@@ -890,7 +889,7 @@ Ind 7 & 9.0 & 0 \\
 Ind 8 & 10.0 & 1 \\
 \end{longtable}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-18-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-17-1.pdf}}
 
 \begin{verbatim}
 Call: survfit(formula = surv_obj ~ 1, data = datos)
@@ -906,94 +905,9 @@ Call: survfit(formula = surv_obj ~ 1, data = datos)
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Comparación conceptual}\label{comparaciuxf3n-conceptual}
+\section{Aplicación}\label{aplicaciuxf3n}
 
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Característica & FDAE & Kaplan-Meier \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Usa solo eventos & ✔️ & ✔️ \\
-Maneja censura & ❌ & ✔️ \\
-Escalonada & ✔️ & ✔️ \\
-Basada en conteos simples & ✔️ & ❌ (ajusta denominadores) \\
-\end{longtable}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{Ejemplo: Ensayo clínico con
-cáncer}\label{ejemplo-ensayo-cluxednico-con-cuxe1ncer}
-
-\begin{longtable}[]{@{}rrrr@{}}
-\toprule\noalign{}
-paciente & entrada & fin & evento \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-1 & 2000 & 2007 & 0 \\
-2 & 2000 & 2006 & 1 \\
-3 & 2001 & 2007 & 0 \\
-4 & 2002 & 2007 & 0 \\
-5 & 2002 & 2004 & 1 \\
-6 & 2002 & 2006 & 1 \\
-\end{longtable}
-
-\begin{figure}[H]
-
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-22-1.pdf}}
-
-}
-
-\caption{Reclutamiento y seguimiento}
-
-\end{figure}%
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{Representación gráfica del
-seguimiento}\label{representaciuxf3n-gruxe1fica-del-seguimiento}
-
-\begin{longtable}[]{@{}rrr@{}}
-\caption{Ejemplo}\tabularnewline
-\toprule\noalign{}
-paciente & tiempo & status \\
-\midrule\noalign{}
-\endfirsthead
-\toprule\noalign{}
-paciente & tiempo & status \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-1 & 7 & 0 \\
-2 & 6 & 1 \\
-3 & 6 & 0 \\
-4 & 5 & 0 \\
-5 & 2 & 1 \\
-6 & 4 & 1 \\
-\end{longtable}
-
-\begin{itemize}
-\tightlist
-\item
-  Círculo abierto = censura
-\item
-  X = evento (muerte)
-\end{itemize}
-
-\begin{figure}
-
-\begin{minipage}{\linewidth}
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-24-1.pdf}}\end{minipage}%
-
-\end{figure}%
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{Programación en R}\label{programaciuxf3n-en-r}
+\subsection{Uso en R}\label{uso-en-r}
 
 \begin{itemize}
 \tightlist
@@ -1142,7 +1056,7 @@ supervivencia}\label{graficando-la-curva-de-supervivencia}
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-28-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-23-1.pdf}}
 
 \begin{quote}
 Puedes usar
@@ -1159,7 +1073,7 @@ del paquete \texttt{survminer} para una mejor presentación visual.
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-29-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-24-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1204,9 +1118,9 @@ paciente & tiempo & status \\
   Los datos se desordenaron para este ejemplo
 \end{itemize}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-32-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-27-1.pdf}}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-33-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-28-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1259,13 +1173,14 @@ Call: survfit(formula = Surv(timeMonths, delta) ~ 1, data = gastricXelox)
  18.050     10       1    0.273  0.0720        0.163        0.458
 \end{verbatim}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-35-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-30-1.pdf}}
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\section{Comparación entre grupos}\label{comparaciuxf3n-entre-grupos}
 
-\subsection{Comparación entre grupos}\label{comparaciuxf3n-entre-grupos}
+\subsection{Comparación entre
+grupos}\label{comparaciuxf3n-entre-grupos-1}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-36-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-31-1.pdf}}
 
 Note: La \texttt{p-value} corresponde a la prueba log-rank para igualdad
 de curvas.
@@ -1295,49 +1210,6 @@ grupo= B 3      1.0      1.8     0.356   0.60
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Modelo de riesgos proporcionales de
-Cox}\label{modelo-de-riesgos-proporcionales-de-cox}
-
-\begin{verbatim}
-Call:
-coxph(formula = Surv(tiempo, evento) ~ grupo, data = datos.df)
-
-  n= 6, number of events= 4 
-
-         coef exp(coef) se(coef)      z Pr(>|z|)
-grupoB -1.073     0.342    1.235 -0.869    0.385
-
-       exp(coef) exp(-coef) lower .95 upper .95
-grupoB     0.342      2.924   0.03036     3.851
-
-Concordance= 0.727  (se = 0.136 )
-Likelihood ratio test= 0.81  on 1 df,   p=0.4
-Wald test            = 0.75  on 1 df,   p=0.4
-Score (logrank) test = 0.83  on 1 df,   p=0.4
-\end{verbatim}
-
-Salida relevante:
-
-\begin{verbatim}
-             coef exp(coef) se(coef) z     Pr(>|z|)
-grupoB     -0.847    0.429   1.155  -0.733   0.463
-\end{verbatim}
-
-Interpretación: - HR = 0.429 indica que grupo B tiene menor riesgo
-relativo, pero no es significativo.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{Supuestos del modelo de
-Cox}\label{supuestos-del-modelo-de-cox}
-
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-39-1.pdf}}
-
-Note: El test de \texttt{cox.zph()} evalúa el supuesto de
-proporcionalidad de riesgos.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
 \subsection{Actividad práctica
 guiada}\label{actividad-pruxe1ctica-guiada}
 
@@ -1356,14 +1228,7 @@ Pasos:
   Estimar curvas por \texttt{sex}
 \item
   Probar igualdad con log-rank
-\item
-  Ajustar modelo de Cox con covariables
-\item
-  Evaluar supuestos
 \end{enumerate}
-
-Note: Proporciónales la estructura base y pídeles completar la
-interpretación.
 
 
 
