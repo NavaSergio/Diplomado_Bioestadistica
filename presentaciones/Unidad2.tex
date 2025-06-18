@@ -1,29 +1,66 @@
 % Options for packages loaded elsewhere
-% Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
   letterpaper,
+  ignorenonframetext,
   DIV=11,
   numbers=noendperiod]{scrartcl}
-\usepackage{xcolor}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{section title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{subsection title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+
 \usepackage{amsmath,amssymb}
-\setcounter{secnumdepth}{5}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math} % this also loads fontspec
+  \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
 \usepackage{lmodern}
-\ifPDFTeX\else
-  % xetex/luatex font selection
+\ifPDFTeX\else  
+    % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -41,6 +78,10 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
+\usepackage{xcolor}
+\newif\ifbibliography
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
 
 \usepackage{color}
 \usepackage{fancyvrb}
@@ -83,7 +124,8 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
-\usepackage{longtable,booktabs,array}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 \usepackage{caption}
 % Make caption package work with longtable
@@ -105,8 +147,6 @@
 % Set default figure placement to htbp
 \def\fps@figure{htbp}
 \makeatother
-
-
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -140,18 +180,6 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
-
-
-
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
-
-
- 
-
 
 \KOMAoption{captions}{tableheading}
 \makeatletter
@@ -195,9 +223,11 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \usepackage{bookmark}
+
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same}
+\urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
   pdftitle={Análisis de Supervivencia},
   pdfauthor={Sergio M. Nava Muñoz},
@@ -210,17 +240,12 @@
 
 
 \title{Análisis de Supervivencia}
-\usepackage{etoolbox}
-\makeatletter
-\providecommand{\subtitle}[1]{% add subtitle to \maketitle
-  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
-}
-\makeatother
 \subtitle{Funciones fundamentales de Análisis de Supervivencia}
 \author{Sergio M. Nava Muñoz}
 \date{2025-06-01}
+
 \begin{document}
-\maketitle
+\frame{\titlepage}
 
 
 \section{Funciones fundamentales de Análisis de
@@ -339,6 +364,31 @@ supervivencia y la de riesgo, que veremos a continuación.
 exponencial con parámetro
 \(\lambda = 0.5\)}{Ejemplo en R: distribución distribución exponencial con parámetro \textbackslash lambda = 0.5}}\label{ejemplo-en-r-distribuciuxf3n-distribuciuxf3n-exponencial-con-paruxe1metro-lambda-0.5}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(dplyr)}
+\NormalTok{t }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{400}\NormalTok{)}
+\NormalTok{lambda }\OtherTok{\textless{}{-}} \FloatTok{0.5}
+\NormalTok{datos }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{t =}\NormalTok{ t,}
+  \AttributeTok{densidad =} \FunctionTok{dexp}\NormalTok{(t, }\AttributeTok{rate =}\NormalTok{ lambda),}
+  \AttributeTok{acumulada =} \FunctionTok{pexp}\NormalTok{(t, }\AttributeTok{rate =}\NormalTok{ lambda)}
+\NormalTok{)}
+\FunctionTok{ggplot}\NormalTok{(datos, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ densidad), }\AttributeTok{color =} \StringTok{"blue"}\NormalTok{, }\AttributeTok{size =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ acumulada), }\AttributeTok{color =} \StringTok{"darkgreen"}\NormalTok{, }\AttributeTok{size =} \DecValTok{1}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Densidad y función de distribución acumulada (Exponencial)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Valor"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"t"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{14}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{sec.axis =} \FunctionTok{sec\_axis}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{., }\AttributeTok{name =} \StringTok{"F(t)"}\NormalTok{, }\AttributeTok{breaks =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\DecValTok{1}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
 \pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-2-1.pdf}}
 
 \subsection{Funciones fundamentales en análisis de
@@ -401,7 +451,33 @@ Sea \(T \sim \text{Exp}(\lambda = 0.5)\), es decir:
 f(t) = \lambda e^{-\lambda t}, \quad F(t)=1-e^{-\lambda t}, \quad S(t) = e^{-\lambda t}
 \]
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-3-1.pdf}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(tidyr)}
+\NormalTok{t }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{200}\NormalTok{)}
+\NormalTok{lambda }\OtherTok{\textless{}{-}} \FloatTok{0.5}
+\NormalTok{datos }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{t =}\NormalTok{ t,}
+  \StringTok{\textasciigrave{}}\AttributeTok{f(t)}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{dexp}\NormalTok{(t, }\AttributeTok{rate =}\NormalTok{ lambda),}
+  \StringTok{\textasciigrave{}}\AttributeTok{F(t)}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{pexp}\NormalTok{(t, }\AttributeTok{rate =}\NormalTok{ lambda),}
+  \StringTok{\textasciigrave{}}\AttributeTok{S(t)}\StringTok{\textasciigrave{}} \OtherTok{=} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{pexp}\NormalTok{(t, }\AttributeTok{rate =}\NormalTok{ lambda)}
+\NormalTok{)}
+\NormalTok{datos\_long }\OtherTok{\textless{}{-}} \FunctionTok{pivot\_longer}\NormalTok{(datos, }\AttributeTok{cols =} \SpecialCharTok{{-}}\NormalTok{t, }\AttributeTok{names\_to =} \StringTok{"funcion"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"valor"}\NormalTok{)}
+\FunctionTok{ggplot}\NormalTok{(datos\_long, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ valor, }\AttributeTok{color =}\NormalTok{ funcion, }\AttributeTok{linetype =}\NormalTok{ funcion)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{size =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Funciones f(t), F(t) y S(t) para la distribución Exponencial(λ = 0.5)"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"t"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Valor"}\NormalTok{,}
+    \AttributeTok{color =} \StringTok{"Función"}\NormalTok{,}
+    \AttributeTok{linetype =} \StringTok{"Función"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-4-1.pdf}}
 
 \section{\texorpdfstring{Función de riesgo
 \(h(t)\)}{Función de riesgo h(t)}}\label{funciuxf3n-de-riesgo-ht}
@@ -450,7 +526,7 @@ Riesgo tipo ``tina de baño'' & Mortalidad neonatal y senil \\
 Riesgo tipo ``montaña'' & Recaída tras tratamiento \\
 \end{longtable}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-4-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-5-1.pdf}}
 
 \subsection{Ejemplo: función de riesgo para distribuciones
 comunes}\label{ejemplo-funciuxf3n-de-riesgo-para-distribuciones-comunes}
@@ -459,13 +535,48 @@ comunes}\label{ejemplo-funciuxf3n-de-riesgo-para-distribuciones-comunes}
 h(t) = \frac{f(t)}{S(t)}
 \]
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(survival)}
+
+\NormalTok{t }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{200}\NormalTok{)}
+\NormalTok{lambda }\OtherTok{\textless{}{-}} \DecValTok{1}
+\NormalTok{k1 }\OtherTok{\textless{}{-}} \FloatTok{0.5}  \CommentTok{\# riesgo decreciente}
+\NormalTok{k2 }\OtherTok{\textless{}{-}} \FloatTok{1.2}    \CommentTok{\# riesgo creciente}
+
+\NormalTok{hazard\_weibull }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(t, lambda, k) \{}
+\NormalTok{  (k }\SpecialCharTok{/}\NormalTok{ lambda) }\SpecialCharTok{*}\NormalTok{ (t }\SpecialCharTok{/}\NormalTok{ lambda)}\SpecialCharTok{\^{}}\NormalTok{(k }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{\}}
+
+\NormalTok{datos\_hazard }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{t =}\NormalTok{ t,}
+  \AttributeTok{Exp =} \FunctionTok{rep}\NormalTok{(lambda, }\FunctionTok{length}\NormalTok{(t)),}
+  \AttributeTok{Weibull\_decr =} \FunctionTok{hazard\_weibull}\NormalTok{(t, lambda, k1),}
+  \AttributeTok{Weibull\_incr =} \FunctionTok{hazard\_weibull}\NormalTok{(t, lambda, k2)}
+\NormalTok{)}
+
+\FunctionTok{library}\NormalTok{(tidyr)}
+\NormalTok{datos\_long }\OtherTok{\textless{}{-}} \FunctionTok{pivot\_longer}\NormalTok{(datos\_hazard, }\SpecialCharTok{{-}}\NormalTok{t, }\AttributeTok{names\_to =} \StringTok{"Distribucion"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"h"}\NormalTok{)}
+
+\FunctionTok{ggplot}\NormalTok{(datos\_long, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ h, }\AttributeTok{color =}\NormalTok{ Distribucion)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{size =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Funciones de riesgo para distintas distribuciones"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"t"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"h(t)"}\NormalTok{,}
+    \AttributeTok{color =} \StringTok{"Distribución"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
 Para la distribución exponencial con \(\lambda = 0.5\),
 \(h(t) = \lambda\), constante.
 
 Comparémosla con la distribución Weibull, donde el riesgo puede aumentar
 o disminuir con el tiempo.
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-5-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-7-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -661,7 +772,7 @@ time & event \\
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-8-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad2_files/figure-pdf/unnamed-chunk-10-1.pdf}}
 
 \section{Referencias}\label{referencias}
 

@@ -119,7 +119,7 @@ Antes de introducir las funciones de supervivencia y riesgo, recordemos dos func
 ------------------------------------------------------------------------
 
 ::::: columns
-::: {.column width="50%"}
+::: {.column width="45%" .smaller}
 ### Relación entre $f(t)$ y $F(t)$
 
 -   Si $f$ es continua:
@@ -137,25 +137,22 @@ Antes de introducir las funciones de supervivencia y riesgo, recordemos dos func
 Estas relaciones son clave para definir funciones como la de supervivencia y la de riesgo, que veremos a continuación.
 :::
 
-::: {.column width="50%"}
+::: {.column width="55%" .smaller}
+
+
 ### Ejemplo en R: distribución distribución exponencial con parámetro $\lambda = 0.5$
 
 ```{r}
+#| echo: true
 library(ggplot2)
 library(dplyr)
-
-# Secuencia de valores
 t <- seq(0, 10, length.out = 400)
 lambda <- 0.5
-
-# Cálculo de funciones
 datos <- data.frame(
   t = t,
   densidad = dexp(t, rate = lambda),
   acumulada = pexp(t, rate = lambda)
 )
-
-# Gráfica
 ggplot(datos, aes(x = t)) +
   geom_line(aes(y = densidad), color = "blue", size = 1) +
   geom_line(aes(y = acumulada), color = "darkgreen", size = 1, linetype = "dashed") +
@@ -215,22 +212,24 @@ $$
 f(t) = \lambda e^{-\lambda t}, \quad F(t)=1-e^{-\lambda t}, \quad S(t) = e^{-\lambda t}
 $$
 
+:::: {.columns}
+
+::: {.column width="40%" .smaller}
+
 ```{r}
+#| echo: true
+#| eval: false
 library(ggplot2)
 library(tidyr)
-
 t <- seq(0, 10, length.out = 200)
 lambda <- 0.5
-
 datos <- data.frame(
   t = t,
   `f(t)` = dexp(t, rate = lambda),
   `F(t)` = pexp(t, rate = lambda),
   `S(t)` = 1 - pexp(t, rate = lambda)
 )
-
 datos_long <- pivot_longer(datos, cols = -t, names_to = "funcion", values_to = "valor")
-
 ggplot(datos_long, aes(x = t, y = valor, color = funcion, linetype = funcion)) +
   geom_line(size = 1) +
   labs(
@@ -241,8 +240,41 @@ ggplot(datos_long, aes(x = t, y = valor, color = funcion, linetype = funcion)) +
     linetype = "Función"
   ) +
   theme_minimal()
-
 ```
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+library(ggplot2)
+library(tidyr)
+t <- seq(0, 10, length.out = 200)
+lambda <- 0.5
+datos <- data.frame(
+  t = t,
+  `f(t)` = dexp(t, rate = lambda),
+  `F(t)` = pexp(t, rate = lambda),
+  `S(t)` = 1 - pexp(t, rate = lambda)
+)
+datos_long <- pivot_longer(datos, cols = -t, names_to = "funcion", values_to = "valor")
+ggplot(datos_long, aes(x = t, y = valor, color = funcion, linetype = funcion)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Funciones f(t), F(t) y S(t) para la distribución Exponencial(λ = 0.5)",
+    x = "t",
+    y = "Valor",
+    color = "Función",
+    linetype = "Función"
+  ) +
+  theme_minimal()
+```
+
+:::
+
+::::
+
+
 
 # Función de riesgo $h(t)$
 
@@ -316,9 +348,53 @@ $$
 h(t) = \frac{f(t)}{S(t)}
 $$
 
+
+:::: {.columns}
+
+::: {.column width="40%" .smaller}
+
+```{r}
+#| eval: false
+#| echo: true
+library(survival)
+
+t <- seq(0.1, 10, length.out = 200)
+lambda <- 1
+k1 <- 0.5  # riesgo decreciente
+k2 <- 1.2    # riesgo creciente
+
+hazard_weibull <- function(t, lambda, k) {
+  (k / lambda) * (t / lambda)^(k - 1)
+}
+
+datos_hazard <- data.frame(
+  t = t,
+  Exp = rep(lambda, length(t)),
+  Weibull_decr = hazard_weibull(t, lambda, k1),
+  Weibull_incr = hazard_weibull(t, lambda, k2)
+)
+
+library(tidyr)
+datos_long <- pivot_longer(datos_hazard, -t, names_to = "Distribucion", values_to = "h")
+
+ggplot(datos_long, aes(x = t, y = h, color = Distribucion)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Funciones de riesgo para distintas distribuciones",
+    x = "t",
+    y = "h(t)",
+    color = "Distribución"
+  ) +
+  theme_minimal()
+```
+:::
+
+::: {.column width="60%" .smaller}
+
 Para la distribución exponencial con $\lambda = 0.5$, $h(t) = \lambda$, constante.
 
 Comparémosla con la distribución Weibull, donde el riesgo puede aumentar o disminuir con el tiempo.
+
 
 ```{r}
 library(survival)
@@ -352,6 +428,10 @@ ggplot(datos_long, aes(x = t, y = h, color = Distribucion)) +
   ) +
   theme_minimal()
 ```
+:::
+
+::::
+
 
 ------------------------------------------------------------------------
 
@@ -471,6 +551,128 @@ Si $S(\infty) = 0$, entonces $H(\infty) = \infty$.
 ## Visualización de funciones (cont.) {.scrollable transition="fade"}
 
 ![](figura/Funciones2.png){fig-align="center"}
+
+
+
+## Cuidado con la parametrización {.smaller}
+
+
+- Las distribuciones **Weibull**, **Gamma**, **Log-normal**, etc., se usan comúnmente para modelar tiempos de vida.
+- Cada una tiene formas **teóricas** bien definidas.
+- Sin embargo, en R y otros lenguajes de programación:
+  - La **parametrización puede cambiar**.
+  - Es crucial revisar la **documentación oficial** (`?dweibull`, `?dgamma`, etc.)
+
+
+![Funciones](figura/Funciones1.png)
+
+
+---
+
+## Weibull: teoría vs. R 
+
+::: {.columns}
+
+::: {.column width="55%"}
+
+### **Teoría**:
+$$
+f(x) = \alpha \lambda x^{\alpha - 1} \exp(-\lambda x^\alpha)
+$$
+
+- $\lambda$: parámetro de escala
+- $\alpha$: parámetro de forma
+
+:::
+
+::: {.column width="45%"}
+
+### **R (base)**:
+```r
+dweibull(x, shape, scale = 1)
+```
+
+usa 
+$$
+f(x) = (\alpha /\sigma)  (x/\sigma)^{\alpha - 1} \exp(- (x/\sigma)^\alpha)
+$$
+
+- El parámetro de forma $\alpha$ y el parámetro de escala $$\sigma=\lambda^{-1/\alpha}$$ 
+- La forma teórica $\lambda$ no es directa en R
+
+:::
+
+:::
+
+
+
+## Gamma: teoría vs. R 
+
+::: {.columns}
+
+::: {.column width="55%"}
+
+### **Teoría**:
+$$
+f(x) = \frac{\lambda^\beta x^{\beta - 1} \exp(-\lambda x)}{\Gamma(\beta)}
+$$
+
+- $\beta$: forma (shape)
+- $\lambda$: tasa (rate)
+
+:::
+
+::: {.column width="45%"}
+
+### **R (base)**:
+```r
+dgamma(x, shape, rate = 1, scale = 1/rate)
+```
+
+Usa $$f(x)=\frac{1}{\sigma^{\alpha}\Gamma(\alpha)}x^{\alpha-1}e^{-x/\sigma}.$$ Con parámetro de forma $shape=\alpha$ y $scale=\sigma$
+
+Entonces 
+
+- El parámetro de forma coincide, $\beta =\alpha$
+- Pero $\sigma = scale = 1 / rate = 1/\lambda$
+
+:::
+
+:::
+
+
+## Log-Normal: teoría vs. R 
+
+::: {.columns}
+
+::: {.column width="55%"}
+
+### **Teoría**:
+$$
+f(x) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left( -\frac{1}{2} \left( \frac{\ln x - \mu}{\sigma} \right)^2 \right)
+$$
+
+:::
+
+::: {.column width="45%"}
+
+### **R (base)**:
+```r
+dlnorm(x, meanlog = μ, sdlog = σ)
+```
+
+- `meanlog` y `sdlog` son la media y desviación estandar es escala logarítmica.
+
+:::
+
+:::
+
+
+## Recomendación 
+
+- Revisa siempre la documentación: `?dweibull`, `?dgamma`, `?survreg`, etc.
+- Haz pruebas con valores conocidos para validar interpretación.
+- Utiliza visualización para entender las funciones.
 
 ## Visualización de Funciones en R
 
