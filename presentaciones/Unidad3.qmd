@@ -61,9 +61,541 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 # Estimación no paramétrica
 
 
+## General Data Layout
+
+
+::::: columns
+::: {.column .smaller width="50%"}
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Cargar la librería knitr para la creación de tablas
+library(knitr)
+
+# Crear un data.frame de ejemplo con notación LaTeX para subíndices
+# Se utilizan nombres de columna legibles en R y se envuelven en 'I()' para evitar que R los interprete como fórmulas.
+# La notación LaTeX se incluye directamente en los valores de las celdas.
+data_layout <- data.frame(
+  No._Indiv. = c("1", "2", "...", "$n$"),
+  t = c("$t_1$", "$t_2$", "$\\cdots$", "$t_n$"),
+  d = c("$d_1$", "$d_2$", "$\\cdots$", "$d_n$"),
+  X_1 = c("$X_{11}$", "$X_{21}$", "$\\cdots$", "$X_{n1}$"),
+  X_2 = c("$X_{12}$", "$X_{22}$", "$\\cdots$", "$X_{n2}$"),
+  ... = c("$\\cdots$", "$\\cdots$", "$\\cdots$", "$\\cdots$"),
+  X_p = c("$X_{1p}$", "$X_{2p}$", "$\\cdots$", "$X_{np}$")
+)
+
+# Definir los nombres de las columnas que se mostrarán en la tabla, usando LaTeX para el formato
+nombres_columnas_latex <- c(
+  "No. Indiv.",
+  "$t$",
+  "$d$",
+  "$X_1$",
+  "$X_2$",
+  "...",
+  "$X_p$"
+)
+
+# Generar la tabla usando kable
+# escape = FALSE es crucial para que LaTeX se renderice correctamente.
+# caption proporciona un título descriptivo a la tabla.
+# col.names se usa para asignar los nombres de columna con formato LaTeX.
+kable(data_layout,
+      escape = FALSE,
+      caption = "Esquema General de Datos con Subíndices",
+      col.names = nombres_columnas_latex)
+
+```
+
+
+:::
+
+::: {.column width="50%" .smaller}
+
+
+
+```{r}
+## Alternative (Ordered) Data Layout
+library(knitr)
+
+# Crear el data.frame con contenido en notación LaTeX
+ordered_layout <- data.frame(
+  `Tiempo ordenado` = c("$t_{(0)}$", "$t_{(1)}$", "$t_{(2)}$", "$\\cdots$", "$t_{(k)}$"),
+  `# Fallos` = c("$m_0$", "$m_1$", "$m_2$", "$\\cdots$", "$m_k$"),
+  `# Censurados` = c("$q_0$", "$q_1$", "$q_2$", "$\\cdots$", "$q_k$"),
+  `Riesgo` = c("$R(t_{(0)})$", "$R(t_{(1)})$", "$R(t_{(2)})$", "$\\cdots$", "$R(t_{(k)})$")
+)
+
+# Encabezados con notación LaTeX
+encabezados <- c(
+  "Tiempos de fallo ordenados $t_{(f)}$",
+  "Núm. de fallos $m_f$",
+  "Censurados en $[t_{(f)}, t_{(f+1)})$,  $q_f$",
+  "Conjunto de riesgo $R(t_{(f)})$"
+)
+
+# Generar la tabla
+kable(ordered_layout,
+      escape = FALSE,
+      caption = "Disposición alternativa de los datos ordenados",
+      col.names = encabezados)
+
+```
+
+
+
+
+:::
+:::::
+
+
+::: {.callout-note title="Disposición alternativa de los datos ordenados"}
+
+Una disposición alternativa de los datos se muestra a continuación.  
+Esta organización es la base sobre la cual se derivan las curvas de supervivencia de Kaplan-Meier.
+
+- La primera columna de la tabla presenta los tiempos de supervivencia ordenados de menor a mayor.
+- La segunda columna muestra el conteo de fallos en cada uno de los tiempos de fallo distintos.
+- La tercera columna presenta los conteos de censura, denotados por $q_f$, correspondientes a las personas censuradas en el intervalo de tiempo que inicia en el tiempo de fallo $t_{(f)}$ y termina justo antes del siguiente tiempo de fallo, $t_{(f+1)}$.
+- La última columna muestra el conjunto de riesgo, que representa el grupo de individuos que han sobrevivido al menos hasta el tiempo $t_{(f)}$.
+
+:::
+
+
 ------------------------------------------------------------------------
 
+::::: columns
+::: {.column .smaller width="60%"}
+
+
+::: {.callout-note title="Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con leucemia"}
+
+
+::::: columns
+::: {.column  width="50%"}
+
+
+**Grupo 1** ($n = 21$) — *Tratamiento*  
+6, 6, 6, 7, 10,  
+13, 16, 22, 23,  
+6$^+$, 9$^+$, 10$^+$, 11$^+$,  
+17$^+$, 19$^+$, 20$^+$,  
+25$^+$, 32$^+$, 32$^+$,  
+34$^+$, 35$^+$
+
+:::
+
+::: {.column width="50%"}
+
+**Grupo 2** ($n = 21$) — *Placebo*  
+1, 1, 2, 2, 3,  
+4, 4, 5, 5,  
+8, 8, 8, 8,  
+11, 11, 12, 13,  
+15, 17, 22, 23
+
+:::
+:::::
+
+> Nota: el símbolo $^+$ denota observaciones censuradas.
+
+| Grupo   | # Fallos | # Censurados | Total |
+|---------|----------|--------------|--------|
+| Grupo 1 | 9        | 12           | 21     |
+| Grupo 2 | 21       | 0            | 21     |
+
+**Estadísticos descriptivos:**
+
+- $\bar{T}_1$ (ignorando censuras): 17.1  
+- $\bar{T}_2$: 8.6  
+
+:::
+
+:::
+
+::: {.column width="20%" .smaller}
+
+
+```{r}
+library(knitr)
+
+grupo1 <- data.frame(
+  `t_{(f)}` = c("0", "6", "7", "10", "13", "16", "22", "23", ">23"),
+  `n_f` = c(21, 21, 18, 17, 15, 11, 7, 2, "—"),
+  `m_f` = c(0, 3, 1, 1, 1, 1, 1, 1, "—"),
+  `q_f` = c(0, 1, 1, 2, 0, 3, 0, 5, "—")
+)
+
+kable(grupo1,
+      caption = "Grupo 1 (tratamiento): Tiempos de fallo ordenados",
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$"),
+      escape = FALSE)
+```
+
+
+:::
+::: {.column width="20%" .smaller}
+
+
+
+```{r}
+grupo2 <- data.frame(
+  `t_{(f)}` = c("0", "1", "2", "3", "4", "5", "8", "11", "12", "13", "15", "17", "22", "23"),
+  `n_f` = c(21, 21, 19, 17, 16, 14, 12, 8, 6, 4, 3, 2, 1, 1),
+  `m_f` = c(0, 2, 2, 1, 2, 2, 4, 2, 2, 1, 1, 1, 1, 1),
+  `q_f` = rep(0, 14)
+)
+
+kable(grupo2,
+      caption = "Grupo 2 (placebo): Tiempos de fallo ordenados",
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$"),
+      escape = FALSE)
+
+```
+
+
+:::
+:::::
+
+
+
+
+---
+
+
+
+::::: columns
+::: {.column .smaller width="25%"}
+
+```{r}
+# Librerías
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Datos
+df_g2 <- data.frame(
+  t = c(0, 1, 2, 3, 4, 5, 8, 11, 12, 13, 15, 17, 22, 23),
+  nf = c(21, 21, 19, 17, 16, 14, 12, 8, 6, 4, 3, 2, 1, 1),
+  mf = c(0, 2, 2, 1, 2, 2, 4, 2, 2, 1, 1, 1, 1, 1),
+  qf = rep(0, 14),
+  S_hat = c(1.00, 0.90, 0.81, 0.76, 0.67, 0.57, 0.48,
+            0.29, 0.19, 0.14, 0.10, 0.05, 0.00, 0.00)
+)
+
+# Convertir a carácter formateado
+df_g2$`\\hat{S}(t_{(f)})` <- sprintf("%.2f", df_g2$S_hat)
+
+# Tabla resumen
+kable(df_g2[, c("t", "nf", "mf", "qf", "\\hat{S}(t_{(f)})")],
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      caption = "Grupo 2 (placebo): Estimación de la función de supervivencia empírica (Kaplan-Meier)",
+      escape = FALSE)
+```
+
+
+
+:::
+
+::: {.column width="75%"}
+
+
+```{r}
+# Graficar curva KM
+ggplot(df_g2, aes(x = t, y = S_hat)) +
+  geom_step(direction = "hv", color = "black") +
+  labs(
+    title = "Curva de Kaplan-Meier para Grupo 2 (Placebo)",
+    x = "Semanas",
+    y = expression(hat(S)(t))
+  ) +
+  theme_minimal()
+
+```
+
+
+::: {.callout-note title="Interpretación"}
+
+- $\hat{S}(t_{(f)}) = \dfrac{\text{Número de sujetos sobrevivientes después de } t_{(f)}}{21}$
+- No hay censura en el Grupo 2.
+- Se utilizó el método de Kaplan-Meier para estimar la función de supervivencia.
+
+:::
+
+:::
+:::::
+
+
+---
+
+
+::: {.callout-note title="Ejemplo: Cálculo de la función de supervivencia empírica"}
+
+
+
+::::: columns
+::: {.column .smaller width="25%"}
+
+```{r}
+
+# Tabla resumen
+kable(df_g2[, c("t", "nf", "mf", "qf", "\\hat{S}(t_{(f)})")],
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      caption = "Grupo 2 (placebo): Estimación de la función de supervivencia empírica (Kaplan-Meier)",
+      escape = FALSE)
+```
+
+
+:::
+
+::: {.column width="75%"}
+
+
+
+Sea $\hat{S}(4)$ la probabilidad estimada de supervivencia más allá de la semana 4:
+
+$$
+\hat{S}(4) = 1 \times \frac{19}{21} \times \frac{17}{19} \times \frac{16}{17} \times \frac{14}{16} = \frac{14}{21} = 0.67
+$$
+
+Esto equivale a:
+
+- $\Pr(T > t_{(0)}) = \frac{21}{21}=1$
+- $\Pr(T > t_{(1)} \mid T \ge t_{(1)}) = \frac{19}{21}$
+- $\Pr(T > t_{(2)} \mid T \ge t_{(2)}) = \frac{19}{19}$
+- $\Pr(T > t_{(3)} \mid T \ge t_{(3)}) = \frac{16}{17}$
+- $\Pr(T > t_{(4)} \mid T \ge t_{(4)}) = \frac{14}{16}$
+
+Donde $16$ es el número de individuos en riesgo en la semana 4.
+
+Para $t = 8$:
+
+$$
+\hat{S}(8) = 1 \times \frac{19}{21} \times \frac{17}{19} \times \frac{16}{17} \times \frac{14}{16} \times \frac{12}{14} \times \frac{8}{12} = \frac{8}{21}
+$$
+
+
+:::
+:::::
+
+:::
+
+**Fórmula KM:**  
+$$
+\hat{S}(t) = \prod_{t_{(j)} \le t} \left( 1 - \frac{d_j}{n_j} \right)
+$$
+donde $d_j$ es el número de eventos (fallos) en $t_{(j)}$ y $n_j$ el número en riesgo.
+
+---
+
+### Tabla (Grupo 1 – Tratamiento)
+
+```{r}
+library(knitr)
+
+grupo1_km <- data.frame(
+  `t_{(f)}` = c("0", "6", ".", ".", ".", ".", ".", "."),
+  `n_f` = c(21, 21, "", "", "", "", "", ""),
+  `m_f` = c(0, 3, "", "", "", "", "", ""),
+  `q_f` = c(0, 1, "", "", "", "", "", ""),
+  `\\hat{S}(t_{(f)})` = c("1", "18/21", ".", ".", ".", ".", ".", ".")
+)
+
+kable(grupo1_km,
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      caption = "Grupo 1 (tratamiento): estimación inicial de la curva de supervivencia empírica",
+      escape = FALSE)
+
+```
+
+---
+
+::: {.smaller}
+
+```{r}
+library(knitr)
+
+grupo1_km <- data.frame(
+  `t_{(f)}` = c("0", "6", "7", "10", "13", "16", "22", "23"),
+  `n_f` = c(21, 21, 17, 15, 12, 11, 7, 6),
+  `m_f` = c(0, 3, 1, 1, 1, 1, 1, 1),
+  `q_f` = c(0, 1, 1, 2, 1, 2, 1, 1),
+  `\\hat{S}(t_{(f)})` = c("1", "18/21 = 0.8571",
+                         "0.8571 × 16/17 = 0.8067",
+                         "0.8067 × 14/15 = 0.7529",
+                         "0.7529 × 11/12 = 0.6902",
+                         "0.6902 × 10/11 = 0.6275",
+                         "0.6275 × 6/7 = 0.5378",
+                         "0.5378 × 5/6 = 0.4482")
+)
+
+kable(grupo1_km,
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      caption = "Grupo 1 (tratamiento): Estimación paso a paso de la función de supervivencia KM",
+      escape = FALSE)
+```
+
+:::
+
+::: {.callout-note title="Cálculo de otras estimaciones de supervivencia"}
+
+Las demás estimaciones de supervivencia se calculan multiplicando la estimación en el tiempo de fallo inmediatamente anterior por una fracción.
+
+Por ejemplo:
+
+- La fracción es $\frac{18}{21}$ para sobrevivir más allá de la semana 6, porque 21 sujetos permanecen hasta la semana 6 y 3 de ellos no sobreviven más allá de esa semana.
+- La fracción es $\frac{16}{17}$ para sobrevivir más allá de la semana 7, ya que 17 personas permanecen hasta la semana 7 y 1 de ellas no sobrevive más allá de esa semana.
+
+Las demás fracciones se calculan de manera similar.
+
+:::
+
+
+---
+
+```{r}
+# Datos simulados de los puntos clave (estimaciones manuales de ambos grupos)
+grupo1 <- data.frame(
+  t = c(0, 6, 7, 10, 13, 16, 22, 23),
+  S_hat = c(1, 0.8571, 0.8067, 0.7529, 0.6902, 0.6275, 0.5378, 0.4482),
+  grupo = "Grupo 1 (tratamiento)"
+)
+
+grupo2 <- data.frame(
+  t = c(0, 1, 2, 3, 4, 5, 8, 11, 12, 13, 15, 17, 22, 23),
+  S_hat = c(1.00, 0.90, 0.81, 0.76, 0.67, 0.57, 0.48, 0.29,
+            0.19, 0.14, 0.10, 0.05, 0.00, 0.00),
+  grupo = "Grupo 2 (placebo)"
+)
+
+km_data <- rbind(grupo1, grupo2)
+
+library(ggplot2)
+
+ggplot(km_data, aes(x = t, y = S_hat, color = grupo)) +
+  geom_step(direction = "hv") +
+  labs(
+    title = "Curvas de Kaplan-Meier para los Grupos de Tratamiento",
+    x = "Semanas",
+    y = expression(hat(S)(t)),
+    color = "Grupo"
+  ) +
+  theme_minimal()
+
+```
+
+
+## III. Características Generales de las Curvas de Kaplan-Meier
+
+### Fórmula general de KM
+
+$$
+\hat{S}(t_{(f)}) = \hat{S}(t_{(f-1)}) \times \Pr(T > t_{(f)} \mid T \ge t_{(f)})
+$$
+
+### Fórmula producto-límite (KM)
+
+$$
+\hat{S}(t_{(f)}) = \prod_{i=1}^{f} \Pr(T > t_{(i)} \mid T \ge t_{(i)})
+$$
+
+---
+
+### Ejemplo
+
+::::: columns
+::: {.column .smaller width="45%"}
+
+```{r}
+
+kable(grupo1_km,
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      caption = "Grupo 1 (tratamiento): Estimación paso a paso de la función de supervivencia KM",
+      escape = FALSE)
+```
+
+
+:::
+
+::: {.column width="55%" .smaller}
+
+
+#### Para $t = 10$:
+
+$$
+\hat{S}(10) = 0.8067 \times \frac{14}{15} = 0.7529
+$$
+
+También se puede expresar como:
+
+$$
+\hat{S}(10) = \frac{18}{21} \times \frac{16}{17} \times \frac{14}{15}
+$$
+
+#### Para $t = 16$:
+
+$$
+\hat{S}(16) = 0.6902 \times \frac{10}{11} = 0.6274
+$$
+
+O bien:
+
+$$
+\hat{S}(16) = \frac{18}{21} \times \frac{16}{17} \times \frac{14}{15} \times \frac{11}{12} \times \frac{10}{11}
+$$
+
+
+:::
+:::::
+
+
+## Justificación Matemática de la Fórmula KM
+
+
+
+Sea:
+
+- $A = \{T \ge t_{(f)}\}$
+- $B = \{T > t_{(f)}\}$
+
+
+Entonces:
+
+
+
+$$
+\Pr(A \cap B) = \Pr(B) = \hat{S}(t_{(f)})
+$$
+
+Dado que no hay fallos en $t_{(f-1)} < T < t_{(f)}$:
+
+$$
+\Pr(A) = \Pr(T \ge t_{(f-1)}) = \hat{S}(t_{(f-1)})
+$$
+
+Y por la regla de la probabilidad condicional:
+
+$$
+\Pr(B \mid A) = \Pr(T > t_{(f)} \mid T \ge t_{(f)})
+$$
+
+Por lo tanto, usando $\Pr(A \cap B) = \Pr(A) \cdot \Pr(B \mid A)$:
+
+$$
+\hat{S}(t_{(f)}) = \hat{S}(t_{(f-1)}) \cdot \Pr(T > t_{(f)} \mid T \ge t_{(f)})
+$$
+
+                                               
 ## La función de distribución acumulada empírica (FDAE)
+
+
+::::: columns
+::: {.column  width="50%"}
+
 
 Dada una muestra de tiempos de falla sin censura:
 
@@ -80,13 +612,11 @@ $$
 
 **Limitación**: no puede manejar adecuadamente datos censurados.
 
-------------------------------------------------------------------------
 
-## Ejemplo en R: FDAE
+:::
 
+::: {.column width="50%"}
 
-::::: columns
-::: {.column .smaller width="25%"}
 
 ```{r}
 library(ggplot2)
@@ -105,7 +635,48 @@ datos <- data.frame(
   F_hat = F_emp(t_grid),
   S_hat = S_emp(t_grid)
 )
-knitr::kable(datos)
+# Aumentar puntos para que la FDAE inicie en 0 y termine en 1
+datos_ext <- rbind(
+  data.frame(t = 0, F_hat = 0, S_hat = 1),
+  datos,
+  data.frame(t = max(tiempos) + 1, F_hat = 1, S_hat = 0)
+)
+ggplot(datos_ext, aes(x = t)) +
+  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv", size = 1) +
+  labs(
+    title = "FDAE y supervivencia empírica sin censura",
+    y = "Valor",
+    x = "t",
+    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
+  ) +
+  theme_minimal()
+ggplot(datos_ext, aes(x = t)) +
+  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv", size = 1) +
+  labs(
+    title = "FDAE y supervivencia empírica sin censura",
+    y = "Valor",
+    x = "t",
+    caption = "F̂(t): verde sólido | Ŝ(t): azul discontinua"
+  ) +
+  theme_minimal()
+```
+
+
+:::
+:::::
+
+
+------------------------------------------------------------------------
+
+## Ejemplo en R: FDAE
+
+
+::::: columns
+::: {.column .smaller width="25%"}
+
+```{r}
+
+knitr::kable(datos_ext)
 ```
 
 :::
@@ -113,9 +684,9 @@ knitr::kable(datos)
 ::: {.column width="75%"}
 
 ```{r}
-ggplot(datos, aes(x = t)) +
-  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv") +
-  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv") +
+ggplot(datos_ext, aes(x = t)) +
+  geom_step(aes(y = F_hat), color = "darkgreen", direction = "hv", size = 1) +
+  geom_step(aes(y = S_hat), color = "blue", linetype = "dashed", direction = "hv", size = 1) +
   labs(
     title = "FDAE y supervivencia empírica sin censura",
     y = "Valor",

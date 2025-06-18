@@ -145,6 +145,22 @@
 
 
 \makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\@ifpackageloaded{fontawesome5}{}{\usepackage{fontawesome5}}
+\definecolor{quarto-callout-color}{HTML}{909090}
+\definecolor{quarto-callout-note-color}{HTML}{0758E5}
+\definecolor{quarto-callout-important-color}{HTML}{CC1914}
+\definecolor{quarto-callout-warning-color}{HTML}{EB9113}
+\definecolor{quarto-callout-tip-color}{HTML}{00A047}
+\definecolor{quarto-callout-caution-color}{HTML}{FC5300}
+\definecolor{quarto-callout-color-frame}{HTML}{acacac}
+\definecolor{quarto-callout-note-color-frame}{HTML}{4582ec}
+\definecolor{quarto-callout-important-color-frame}{HTML}{d9534f}
+\definecolor{quarto-callout-warning-color-frame}{HTML}{f0ad4e}
+\definecolor{quarto-callout-tip-color-frame}{HTML}{02b875}
+\definecolor{quarto-callout-caution-color-frame}{HTML}{fd7e14}
+\makeatother
+\makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
 \ifdefined\contentsname
@@ -222,7 +238,536 @@
 \section{Estimación no
 paramétrica}\label{estimaciuxf3n-no-paramuxe9trica}
 
+\subsection{General Data Layout}\label{general-data-layout}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1692}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1385}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1385}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1385}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1385}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1385}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1385}}@{}}
+\caption{Esquema General de Datos con Subíndices}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+No.~Indiv.
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(t\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(d\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(X_1\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(X_2\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\ldots{}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(X_p\)
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+No.~Indiv.
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(t\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(d\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(X_1\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(X_2\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\ldots{}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(X_p\)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & \(t_1\) & \(d_1\) & \(X_{11}\) & \(X_{12}\) & \(\cdots\) &
+\(X_{1p}\) \\
+2 & \(t_2\) & \(d_2\) & \(X_{21}\) & \(X_{22}\) & \(\cdots\) &
+\(X_{2p}\) \\
+\ldots{} & \(\cdots\) & \(\cdots\) & \(\cdots\) & \(\cdots\) &
+\(\cdots\) & \(\cdots\) \\
+\(n\) & \(t_n\) & \(d_n\) & \(X_{n1}\) & \(X_{n2}\) & \(\cdots\) &
+\(X_{np}\) \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2741}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1556}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2370}}@{}}
+\caption{Disposición alternativa de los datos ordenados}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Tiempos de fallo ordenados \(t_{(f)}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Núm. de fallos \(m_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Censurados en \([t_{(f)}, t_{(f+1)})\), \(q_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Conjunto de riesgo \(R(t_{(f)})\)
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Tiempos de fallo ordenados \(t_{(f)}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Núm. de fallos \(m_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Censurados en \([t_{(f)}, t_{(f+1)})\), \(q_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Conjunto de riesgo \(R(t_{(f)})\)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\(t_{(0)}\) & \(m_0\) & \(q_0\) & \(R(t_{(0)})\) \\
+\(t_{(1)}\) & \(m_1\) & \(q_1\) & \(R(t_{(1)})\) \\
+\(t_{(2)}\) & \(m_2\) & \(q_2\) & \(R(t_{(2)})\) \\
+\(\cdots\) & \(\cdots\) & \(\cdots\) & \(\cdots\) \\
+\(t_{(k)}\) & \(m_k\) & \(q_k\) & \(R(t_{(k)})\) \\
+\end{longtable}
+
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+
+Una disposición alternativa de los datos se muestra a continuación.\\
+Esta organización es la base sobre la cual se derivan las curvas de
+supervivencia de Kaplan-Meier.
+
+\begin{itemize}
+\tightlist
+\item
+  La primera columna de la tabla presenta los tiempos de supervivencia
+  ordenados de menor a mayor.
+\item
+  La segunda columna muestra el conteo de fallos en cada uno de los
+  tiempos de fallo distintos.
+\item
+  La tercera columna presenta los conteos de censura, denotados por
+  \(q_f\), correspondientes a las personas censuradas en el intervalo de
+  tiempo que inicia en el tiempo de fallo \(t_{(f)}\) y termina justo
+  antes del siguiente tiempo de fallo, \(t_{(f+1)}\).
+\item
+  La última columna muestra el conjunto de riesgo, que representa el
+  grupo de individuos que han sobrevivido al menos hasta el tiempo
+  \(t_{(f)}\).
+\end{itemize}
+
+\end{tcolorbox}
+
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
+leucemia}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+
+\textbf{Grupo 1} (\(n = 21\)) --- \emph{Tratamiento}\\
+6, 6, 6, 7, 10,\\
+13, 16, 22, 23,\\
+6\(^+\), 9\(^+\), 10\(^+\), 11\(^+\),\\
+17\(^+\), 19\(^+\), 20\(^+\),\\
+25\(^+\), 32\(^+\), 32\(^+\),\\
+34\(^+\), 35\(^+\)
+
+\textbf{Grupo 2} (\(n = 21\)) --- \emph{Placebo}\\
+1, 1, 2, 2, 3,\\
+4, 4, 5, 5,\\
+8, 8, 8, 8,\\
+11, 11, 12, 13,\\
+15, 17, 22, 23
+
+\begin{quote}
+Nota: el símbolo \(^+\) denota observaciones censuradas.
+\end{quote}
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Grupo & \# Fallos & \# Censurados & Total \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Grupo 1 & 9 & 12 & 21 \\
+Grupo 2 & 21 & 0 & 21 \\
+\end{longtable}
+
+\textbf{Estadísticos descriptivos:}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\bar{T}_1\) (ignorando censuras): 17.1\\
+\item
+  \(\bar{T}_2\): 8.6
+\end{itemize}
+
+\end{tcolorbox}
+
+\begin{longtable}[]{@{}llll@{}}
+\caption{Grupo 1 (tratamiento): Tiempos de fallo
+ordenados}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 \\
+6 & 21 & 3 & 1 \\
+7 & 18 & 1 & 1 \\
+10 & 17 & 1 & 2 \\
+13 & 15 & 1 & 0 \\
+16 & 11 & 1 & 3 \\
+22 & 7 & 1 & 0 \\
+23 & 2 & 1 & 5 \\
+\textgreater23 & --- & --- & --- \\
+\end{longtable}
+
+\begin{longtable}[]{@{}lrrr@{}}
+\caption{Grupo 2 (placebo): Tiempos de fallo ordenados}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 \\
+1 & 21 & 2 & 0 \\
+2 & 19 & 2 & 0 \\
+3 & 17 & 1 & 0 \\
+4 & 16 & 2 & 0 \\
+5 & 14 & 2 & 0 \\
+8 & 12 & 4 & 0 \\
+11 & 8 & 2 & 0 \\
+12 & 6 & 2 & 0 \\
+13 & 4 & 1 & 0 \\
+15 & 3 & 1 & 0 \\
+17 & 2 & 1 & 0 \\
+22 & 1 & 1 & 0 \\
+23 & 1 & 1 & 0 \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{longtable}[]{@{}rrrrl@{}}
+\caption{Grupo 2 (placebo): Estimación de la función de supervivencia
+empírica (Kaplan-Meier)}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 & 1.00 \\
+1 & 21 & 2 & 0 & 0.90 \\
+2 & 19 & 2 & 0 & 0.81 \\
+3 & 17 & 1 & 0 & 0.76 \\
+4 & 16 & 2 & 0 & 0.67 \\
+5 & 14 & 2 & 0 & 0.57 \\
+8 & 12 & 4 & 0 & 0.48 \\
+11 & 8 & 2 & 0 & 0.29 \\
+12 & 6 & 2 & 0 & 0.19 \\
+13 & 4 & 1 & 0 & 0.14 \\
+15 & 3 & 1 & 0 & 0.10 \\
+17 & 2 & 1 & 0 & 0.05 \\
+22 & 1 & 1 & 0 & 0.00 \\
+23 & 1 & 1 & 0 & 0.00 \\
+\end{longtable}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-7-1.pdf}}
+
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+
+\begin{itemize}
+\tightlist
+\item
+  \(\hat{S}(t_{(f)}) = \dfrac{\text{Número de sujetos sobrevivientes después de } t_{(f)}}{21}\)
+\item
+  No hay censura en el Grupo 2.
+\item
+  Se utilizó el método de Kaplan-Meier para estimar la función de
+  supervivencia.
+\end{itemize}
+
+\end{tcolorbox}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+
+\begin{longtable}[]{@{}rrrrl@{}}
+\caption{Grupo 2 (placebo): Estimación de la función de supervivencia
+empírica (Kaplan-Meier)}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 & 1.00 \\
+1 & 21 & 2 & 0 & 0.90 \\
+2 & 19 & 2 & 0 & 0.81 \\
+3 & 17 & 1 & 0 & 0.76 \\
+4 & 16 & 2 & 0 & 0.67 \\
+5 & 14 & 2 & 0 & 0.57 \\
+8 & 12 & 4 & 0 & 0.48 \\
+11 & 8 & 2 & 0 & 0.29 \\
+12 & 6 & 2 & 0 & 0.19 \\
+13 & 4 & 1 & 0 & 0.14 \\
+15 & 3 & 1 & 0 & 0.10 \\
+17 & 2 & 1 & 0 & 0.05 \\
+22 & 1 & 1 & 0 & 0.00 \\
+23 & 1 & 1 & 0 & 0.00 \\
+\end{longtable}
+
+Sea \(\hat{S}(4)\) la probabilidad estimada de supervivencia más allá de
+la semana 4:
+
+\[
+\hat{S}(4) = 1 \times \frac{19}{21} \times \frac{17}{19} \times \frac{16}{17} \times \frac{14}{16} = \frac{14}{21} = 0.67
+\]
+
+Esto equivale a:
+
+\begin{itemize}
+\tightlist
+\item
+  \(\Pr(T > t_{(0)}) = \frac{21}{21}=1\)
+\item
+  \(\Pr(T > t_{(1)} \mid T \ge t_{(1)}) = \frac{19}{21}\)
+\item
+  \(\Pr(T > t_{(2)} \mid T \ge t_{(2)}) = \frac{19}{19}\)
+\item
+  \(\Pr(T > t_{(3)} \mid T \ge t_{(3)}) = \frac{16}{17}\)
+\item
+  \(\Pr(T > t_{(4)} \mid T \ge t_{(4)}) = \frac{14}{16}\)
+\end{itemize}
+
+Donde \(16\) es el número de individuos en riesgo en la semana 4.
+
+Para \(t = 8\):
+
+\[
+\hat{S}(8) = 1 \times \frac{19}{21} \times \frac{17}{19} \times \frac{16}{17} \times \frac{14}{16} \times \frac{12}{14} \times \frac{8}{12} = \frac{8}{21}
+\]
+
+\end{tcolorbox}
+
+\textbf{Fórmula KM:}\\
+\[
+\hat{S}(t) = \prod_{t_{(j)} \le t} \left( 1 - \frac{d_j}{n_j} \right)
+\] donde \(d_j\) es el número de eventos (fallos) en \(t_{(j)}\) y
+\(n_j\) el número en riesgo.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{Tabla (Grupo 1 --
+Tratamiento)}\label{tabla-grupo-1-tratamiento}
+
+\begin{longtable}[]{@{}lllll@{}}
+\caption{Grupo 1 (tratamiento): estimación inicial de la curva de
+supervivencia empírica}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 & 1 \\
+6 & 21 & 3 & 1 & 18/21 \\
+. & & & & . \\
+. & & & & . \\
+. & & & & . \\
+. & & & & . \\
+. & & & & . \\
+. & & & & . \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{longtable}[]{@{}lrrrl@{}}
+\caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
+supervivencia KM}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 & 1 \\
+6 & 21 & 3 & 1 & 18/21 = 0.8571 \\
+7 & 17 & 1 & 1 & 0.8571 × 16/17 = 0.8067 \\
+10 & 15 & 1 & 2 & 0.8067 × 14/15 = 0.7529 \\
+13 & 12 & 1 & 1 & 0.7529 × 11/12 = 0.6902 \\
+16 & 11 & 1 & 2 & 0.6902 × 10/11 = 0.6275 \\
+22 & 7 & 1 & 1 & 0.6275 × 6/7 = 0.5378 \\
+23 & 6 & 1 & 1 & 0.5378 × 5/6 = 0.4482 \\
+\end{longtable}
+
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, rightrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}, arc=.35mm, breakable, bottomtitle=1mm, toprule=.15mm, titlerule=0mm, opacitybacktitle=0.6, bottomrule=.15mm, toptitle=1mm, colback=white, left=2mm, opacityback=0, leftrule=.75mm, colframe=quarto-callout-note-color-frame]
+
+Las demás estimaciones de supervivencia se calculan multiplicando la
+estimación en el tiempo de fallo inmediatamente anterior por una
+fracción.
+
+Por ejemplo:
+
+\begin{itemize}
+\tightlist
+\item
+  La fracción es \(\frac{18}{21}\) para sobrevivir más allá de la semana
+  6, porque 21 sujetos permanecen hasta la semana 6 y 3 de ellos no
+  sobreviven más allá de esa semana.
+\item
+  La fracción es \(\frac{16}{17}\) para sobrevivir más allá de la semana
+  7, ya que 17 personas permanecen hasta la semana 7 y 1 de ellas no
+  sobrevive más allá de esa semana.
+\end{itemize}
+
+Las demás fracciones se calculan de manera similar.
+
+\end{tcolorbox}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-11-1.pdf}}
+
+\subsection{III. Características Generales de las Curvas de
+Kaplan-Meier}\label{iii.-caracteruxedsticas-generales-de-las-curvas-de-kaplan-meier}
+
+\subsubsection{Fórmula general de KM}\label{fuxf3rmula-general-de-km}
+
+\[
+\hat{S}(t_{(f)}) = \hat{S}(t_{(f-1)}) \times \Pr(T > t_{(f)} \mid T \ge t_{(f)})
+\]
+
+\subsubsection{Fórmula producto-límite
+(KM)}\label{fuxf3rmula-producto-luxedmite-km}
+
+\[
+\hat{S}(t_{(f)}) = \prod_{i=1}^{f} \Pr(T > t_{(i)} \mid T \ge t_{(i)})
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{Ejemplo}\label{ejemplo}
+
+\begin{longtable}[]{@{}lrrrl@{}}
+\caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
+supervivencia KM}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 & 1 \\
+6 & 21 & 3 & 1 & 18/21 = 0.8571 \\
+7 & 17 & 1 & 1 & 0.8571 × 16/17 = 0.8067 \\
+10 & 15 & 1 & 2 & 0.8067 × 14/15 = 0.7529 \\
+13 & 12 & 1 & 1 & 0.7529 × 11/12 = 0.6902 \\
+16 & 11 & 1 & 2 & 0.6902 × 10/11 = 0.6275 \\
+22 & 7 & 1 & 1 & 0.6275 × 6/7 = 0.5378 \\
+23 & 6 & 1 & 1 & 0.5378 × 5/6 = 0.4482 \\
+\end{longtable}
+
+\paragraph{\texorpdfstring{Para
+\(t = 10\):}{Para t = 10:}}\label{para-t-10}
+
+\[
+\hat{S}(10) = 0.8067 \times \frac{14}{15} = 0.7529
+\]
+
+También se puede expresar como:
+
+\[
+\hat{S}(10) = \frac{18}{21} \times \frac{16}{17} \times \frac{14}{15}
+\]
+
+\paragraph{\texorpdfstring{Para
+\(t = 16\):}{Para t = 16:}}\label{para-t-16}
+
+\[
+\hat{S}(16) = 0.6902 \times \frac{10}{11} = 0.6274
+\]
+
+O bien:
+
+\[
+\hat{S}(16) = \frac{18}{21} \times \frac{16}{17} \times \frac{14}{15} \times \frac{11}{12} \times \frac{10}{11}
+\]
+
+\subsection{Justificación Matemática de la Fórmula
+KM}\label{justificaciuxf3n-matemuxe1tica-de-la-fuxf3rmula-km}
+
+Sea:
+
+\begin{itemize}
+\tightlist
+\item
+  \(A = \{T \ge t_{(f)}\}\)
+\item
+  \(B = \{T > t_{(f)}\}\)
+\end{itemize}
+
+Entonces:
+
+\[
+\Pr(A \cap B) = \Pr(B) = \hat{S}(t_{(f)})
+\]
+
+Dado que no hay fallos en \(t_{(f-1)} < T < t_{(f)}\):
+
+\[
+\Pr(A) = \Pr(T \ge t_{(f-1)}) = \hat{S}(t_{(f-1)})
+\]
+
+Y por la regla de la probabilidad condicional:
+
+\[
+\Pr(B \mid A) = \Pr(T > t_{(f)} \mid T \ge t_{(f)})
+\]
+
+Por lo tanto, usando \(\Pr(A \cap B) = \Pr(A) \cdot \Pr(B \mid A)\):
+
+\[
+\hat{S}(t_{(f)}) = \hat{S}(t_{(f-1)}) \cdot \Pr(T > t_{(f)} \mid T \ge t_{(f)})
+\]
 
 \subsection{La función de distribución acumulada empírica
 (FDAE)}\label{la-funciuxf3n-de-distribuciuxf3n-acumulada-empuxedrica-fdae}
@@ -242,6 +787,10 @@ La función de supervivencia empírica se define como:
 
 \textbf{Limitación}: no puede manejar adecuadamente datos censurados.
 
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-13-1.pdf}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-13-2.pdf}}
+
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{Ejemplo en R: FDAE}\label{ejemplo-en-r-fdae}
@@ -253,6 +802,7 @@ t & F\_hat & S\_hat \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
+0.0 & 0.0000000 & 1.0000000 \\
 2.0 & 0.1428571 & 0.8571429 \\
 3.0 & 0.2857143 & 0.7142857 \\
 4.0 & 0.4285714 & 0.5714286 \\
@@ -260,9 +810,10 @@ t & F\_hat & S\_hat \\
 6.0 & 0.7142857 & 0.2857143 \\
 7.0 & 0.8571429 & 0.1428571 \\
 9.0 & 1.0000000 & 0.0000000 \\
+10.0 & 1.0000000 & 0.0000000 \\
 \end{longtable}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-3-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-15-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -339,7 +890,7 @@ Ind 7 & 9.0 & 0 \\
 Ind 8 & 10.0 & 1 \\
 \end{longtable}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-6-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-18-1.pdf}}
 
 \begin{verbatim}
 Call: survfit(formula = surv_obj ~ 1, data = datos)
@@ -392,7 +943,7 @@ paciente & entrada & fin & evento \\
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-10-1.pdf}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-22-1.pdf}}
 
 }
 
@@ -436,7 +987,7 @@ paciente & tiempo & status \\
 \begin{figure}
 
 \begin{minipage}{\linewidth}
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-12-1.pdf}}\end{minipage}%
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-24-1.pdf}}\end{minipage}%
 
 \end{figure}%
 
@@ -591,7 +1142,7 @@ supervivencia}\label{graficando-la-curva-de-supervivencia}
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-16-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-28-1.pdf}}
 
 \begin{quote}
 Puedes usar
@@ -608,7 +1159,7 @@ del paquete \texttt{survminer} para una mejor presentación visual.
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-17-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-29-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -653,9 +1204,9 @@ paciente & tiempo & status \\
   Los datos se desordenaron para este ejemplo
 \end{itemize}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-20-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-32-1.pdf}}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-21-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-33-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -708,13 +1259,13 @@ Call: survfit(formula = Surv(timeMonths, delta) ~ 1, data = gastricXelox)
  18.050     10       1    0.273  0.0720        0.163        0.458
 \end{verbatim}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-23-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-35-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{Comparación entre grupos}\label{comparaciuxf3n-entre-grupos}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-24-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-36-1.pdf}}
 
 Note: La \texttt{p-value} corresponde a la prueba log-rank para igualdad
 de curvas.
@@ -780,7 +1331,7 @@ relativo, pero no es significativo.
 \subsection{Supuestos del modelo de
 Cox}\label{supuestos-del-modelo-de-cox}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-27-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-39-1.pdf}}
 
 Note: El test de \texttt{cox.zph()} evalúa el supuesto de
 proporcionalidad de riesgos.
