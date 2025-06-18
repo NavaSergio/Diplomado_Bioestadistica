@@ -330,7 +330,7 @@ donde:
 Es un estimador escalonado que \textbf{ajusta el denominador} cuando hay
 censura.
 
-\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
 
 \begin{longtable}[]{@{}rrrrr@{}}
 \caption{Comparación entre FDAE, Supervivencia Empírica y
@@ -377,7 +377,7 @@ No.~Indiv.
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \(t\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\(d\)
+\(D\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \(X_1\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -395,7 +395,7 @@ No.~Indiv.
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \(t\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\(d\)
+\(D\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \(X_1\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -409,13 +409,13 @@ No.~Indiv.
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-1 & \(t_1\) & \(d_1\) & \(X_{11}\) & \(X_{12}\) & \(\cdots\) &
+1 & \(t_1\) & \(D_1\) & \(X_{11}\) & \(X_{12}\) & \(\cdots\) &
 \(X_{1p}\) \\
-2 & \(t_2\) & \(d_2\) & \(X_{21}\) & \(X_{22}\) & \(\cdots\) &
+2 & \(t_2\) & \(D_2\) & \(X_{21}\) & \(X_{22}\) & \(\cdots\) &
 \(X_{2p}\) \\
 \ldots{} & \(\cdots\) & \(\cdots\) & \(\cdots\) & \(\cdots\) &
 \(\cdots\) & \(\cdots\) \\
-\(n\) & \(t_n\) & \(d_n\) & \(X_{n1}\) & \(X_{n2}\) & \(\cdots\) &
+\(n\) & \(t_n\) & \(D_n\) & \(X_{n1}\) & \(X_{n2}\) & \(\cdots\) &
 \(X_{np}\) \\
 \end{longtable}
 
@@ -429,7 +429,7 @@ No.~Indiv.
 \begin{minipage}[b]{\linewidth}\raggedright
 Tiempos de fallo ordenados \(t_{(f)}\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Núm. de fallos \(m_f\)
+Núm. de fallos \(d_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Censurados en \([t_{(f)}, t_{(f+1)})\), \(q_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -441,7 +441,7 @@ Conjunto de riesgo \(R(t_{(f)})\)
 \begin{minipage}[b]{\linewidth}\raggedright
 Tiempos de fallo ordenados \(t_{(f)}\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Núm. de fallos \(m_f\)
+Núm. de fallos \(d_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Censurados en \([t_{(f)}, t_{(f+1)})\), \(q_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -451,14 +451,14 @@ Conjunto de riesgo \(R(t_{(f)})\)
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\(t_{(0)}\) & \(m_0\) & \(q_0\) & \(R(t_{(0)})\) \\
-\(t_{(1)}\) & \(m_1\) & \(q_1\) & \(R(t_{(1)})\) \\
-\(t_{(2)}\) & \(m_2\) & \(q_2\) & \(R(t_{(2)})\) \\
+\(t_{(0)}\) & \(d_0\) & \(q_0\) & \(R(t_{(0)})\) \\
+\(t_{(1)}\) & \(d_1\) & \(q_1\) & \(R(t_{(1)})\) \\
+\(t_{(2)}\) & \(d_2\) & \(q_2\) & \(R(t_{(2)})\) \\
 \(\cdots\) & \(\cdots\) & \(\cdots\) & \(\cdots\) \\
-\(t_{(k)}\) & \(m_k\) & \(q_k\) & \(R(t_{(k)})\) \\
+\(t_{(k)}\) & \(d_k\) & \(q_k\) & \(R(t_{(k)})\) \\
 \end{longtable}
 
-\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
 
 Una disposición alternativa de los datos se muestra a continuación.\\
 Esta organización es la base sobre la cual se derivan las curvas de
@@ -487,8 +487,8 @@ supervivencia de Kaplan-Meier.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
-leucemia}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
+leucemia}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
 
 \textbf{Grupo 1} (\(n = 21\)) --- \emph{Tratamiento}\\
 6, 6, 6, 7, 10,\\
@@ -536,11 +536,11 @@ Grupo 2 & 21 & 0 & 21 \\
 \caption{Grupo 1 (tratamiento): Tiempos de fallo
 ordenados}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -559,11 +559,11 @@ ordenados}\tabularnewline
 \begin{longtable}[]{@{}lrrr@{}}
 \caption{Grupo 2 (placebo): Tiempos de fallo ordenados}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -590,11 +590,11 @@ ordenados}\tabularnewline
 \caption{Grupo 2 (placebo): Estimación de la función de supervivencia
 empírica (Kaplan-Meier)}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -617,7 +617,7 @@ empírica (Kaplan-Meier)}\tabularnewline
 
 \pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-11-1.pdf}}
 
-\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
 
 \begin{itemize}
 \tightlist
@@ -634,17 +634,17 @@ empírica (Kaplan-Meier)}\tabularnewline
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
 
 \begin{longtable}[]{@{}rrrrl@{}}
 \caption{Grupo 2 (placebo): Estimación de la función de supervivencia
 empírica (Kaplan-Meier)}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -710,11 +710,11 @@ Para \(t = 8\):
 \caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
 supervivencia KM}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -729,7 +729,7 @@ supervivencia KM}\tabularnewline
 23 & 6 & 1 & 1 & 0.5378 × 5/6 = 0.4482 \\
 \end{longtable}
 
-\begin{tcolorbox}[enhanced jigsaw, titlerule=0mm, colback=white, arc=.35mm, toprule=.15mm, breakable, coltitle=black, bottomrule=.15mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, colframe=quarto-callout-note-color-frame, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
 
 Las demás estimaciones de supervivencia se calculan multiplicando la
 estimación en el tiempo de fallo inmediatamente anterior por una
@@ -781,11 +781,11 @@ Kaplan-Meier}\label{iii.-caracteruxedsticas-generales-de-las-curvas-de-kaplan-me
 \caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
 supervivencia KM}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -902,8 +902,6 @@ Call: survfit(formula = surv_obj ~ 1, data = datos)
     7      3       1    0.312   0.178        0.102        0.955
    10      1       1    0.000     NaN           NA           NA
 \end{verbatim}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \section{Aplicación}\label{aplicaciuxf3n}
 

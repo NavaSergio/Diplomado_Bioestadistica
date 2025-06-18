@@ -263,7 +263,7 @@ library(knitr)
 data_layout <- data.frame(
   No._Indiv. = c("1", "2", "...", "$n$"),
   t = c("$t_1$", "$t_2$", "$\\cdots$", "$t_n$"),
-  d = c("$d_1$", "$d_2$", "$\\cdots$", "$d_n$"),
+  D = c("$D_1$", "$D_2$", "$\\cdots$", "$D_n$"),
   X_1 = c("$X_{11}$", "$X_{21}$", "$\\cdots$", "$X_{n1}$"),
   X_2 = c("$X_{12}$", "$X_{22}$", "$\\cdots$", "$X_{n2}$"),
   ... = c("$\\cdots$", "$\\cdots$", "$\\cdots$", "$\\cdots$"),
@@ -274,7 +274,7 @@ data_layout <- data.frame(
 nombres_columnas_latex <- c(
   "No. Indiv.",
   "$t$",
-  "$d$",
+  "$D$",
   "$X_1$",
   "$X_2$",
   "...",
@@ -306,7 +306,7 @@ library(knitr)
 # Crear el data.frame con contenido en notación LaTeX
 ordered_layout <- data.frame(
   `Tiempo ordenado` = c("$t_{(0)}$", "$t_{(1)}$", "$t_{(2)}$", "$\\cdots$", "$t_{(k)}$"),
-  `# Fallos` = c("$m_0$", "$m_1$", "$m_2$", "$\\cdots$", "$m_k$"),
+  `# Fallos` = c("$d_0$", "$d_1$", "$d_2$", "$\\cdots$", "$d_k$"),
   `# Censurados` = c("$q_0$", "$q_1$", "$q_2$", "$\\cdots$", "$q_k$"),
   `Riesgo` = c("$R(t_{(0)})$", "$R(t_{(1)})$", "$R(t_{(2)})$", "$\\cdots$", "$R(t_{(k)})$")
 )
@@ -314,7 +314,7 @@ ordered_layout <- data.frame(
 # Encabezados con notación LaTeX
 encabezados <- c(
   "Tiempos de fallo ordenados $t_{(f)}$",
-  "Núm. de fallos $m_f$",
+  "Núm. de fallos $d_f$",
   "Censurados en $[t_{(f)}, t_{(f+1)})$,  $q_f$",
   "Conjunto de riesgo $R(t_{(f)})$"
 )
@@ -407,13 +407,13 @@ library(knitr)
 grupo1 <- data.frame(
   `t_{(f)}` = c("0", "6", "7", "10", "13", "16", "22", "23", ">23"),
   `n_f` = c(21, 21, 18, 17, 15, 11, 7, 2, "—"),
-  `m_f` = c(0, 3, 1, 1, 1, 1, 1, 1, "—"),
+  `d_f` = c(0, 3, 1, 1, 1, 1, 1, 1, "—"),
   `q_f` = c(0, 1, 1, 2, 0, 3, 0, 5, "—")
 )
 
 kable(grupo1,
       caption = "Grupo 1 (tratamiento): Tiempos de fallo ordenados",
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$"),
       escape = FALSE)
 ```
 
@@ -427,13 +427,13 @@ kable(grupo1,
 grupo2 <- data.frame(
   `t_{(f)}` = c("0", "1", "2", "3", "4", "5", "8", "11", "12", "13", "15", "17", "22", "23"),
   `n_f` = c(21, 21, 19, 17, 16, 14, 12, 8, 6, 4, 3, 2, 1, 1),
-  `m_f` = c(0, 2, 2, 1, 2, 2, 4, 2, 2, 1, 1, 1, 1, 1),
+  `d_f` = c(0, 2, 2, 1, 2, 2, 4, 2, 2, 1, 1, 1, 1, 1),
   `q_f` = rep(0, 14)
 )
 
 kable(grupo2,
       caption = "Grupo 2 (placebo): Tiempos de fallo ordenados",
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$"),
       escape = FALSE)
 
 ```
@@ -473,7 +473,7 @@ df_g2$`\\hat{S}(t_{(f)})` <- sprintf("%.2f", df_g2$S_hat)
 
 # Tabla resumen
 kable(df_g2[, c("t", "nf", "mf", "qf", "\\hat{S}(t_{(f)})")],
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 2 (placebo): Estimación de la función de supervivencia empírica (Kaplan-Meier)",
       escape = FALSE)
 ```
@@ -525,7 +525,7 @@ ggplot(df_g2, aes(x = t, y = S_hat)) +
 
 # Tabla resumen
 kable(df_g2[, c("t", "nf", "mf", "qf", "\\hat{S}(t_{(f)})")],
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 2 (placebo): Estimación de la función de supervivencia empírica (Kaplan-Meier)",
       escape = FALSE)
 ```
@@ -582,7 +582,7 @@ library(knitr)
 grupo1_km <- data.frame(
   `t_{(f)}` = c("0", "6", "7", "10", "13", "16", "22", "23"),
   `n_f` = c(21, 21, 17, 15, 12, 11, 7, 6),
-  `m_f` = c(0, 3, 1, 1, 1, 1, 1, 1),
+  `d_f` = c(0, 3, 1, 1, 1, 1, 1, 1),
   `q_f` = c(0, 1, 1, 2, 1, 2, 1, 1),
   `\\hat{S}(t_{(f)})` = c("1", "18/21 = 0.8571",
                          "0.8571 × 16/17 = 0.8067",
@@ -594,7 +594,7 @@ grupo1_km <- data.frame(
 )
 
 kable(grupo1_km,
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 1 (tratamiento): Estimación paso a paso de la función de supervivencia KM",
       escape = FALSE)
 ```
@@ -673,7 +673,7 @@ $$
 ```{r}
 
 kable(grupo1_km,
-      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 1 (tratamiento): Estimación paso a paso de la función de supervivencia KM",
       escape = FALSE)
 ```
@@ -841,7 +841,6 @@ graficar_supervivencia_individual <- function(datos) {
 ```
 
 
----
 
 # Aplicación
 
