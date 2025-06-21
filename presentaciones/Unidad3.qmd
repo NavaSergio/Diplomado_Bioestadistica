@@ -194,12 +194,12 @@ ggplot(datos_ext, aes(x = t)) +
 Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función de supervivencia como:
 
 $$
-\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
+\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{m_i}{n_i} \right)
 $$
 
 donde:
 
--   $d_i$: número de eventos en el tiempo $t_i$
+-   $m_i$: número de eventos en el tiempo $t_i$
 -   $n_i$: número de individuos en riesgo justo antes de $t_i$
 
 Es un estimador escalonado que **ajusta el denominador** cuando hay censura.
@@ -306,7 +306,7 @@ library(knitr)
 # Crear el data.frame con contenido en notación LaTeX
 ordered_layout <- data.frame(
   `Tiempo ordenado` = c("$t_{(0)}$", "$t_{(1)}$", "$t_{(2)}$", "$\\cdots$", "$t_{(k)}$"),
-  `# Fallos` = c("$d_0$", "$d_1$", "$d_2$", "$\\cdots$", "$d_k$"),
+  `# Fallos` = c("$m_0$", "$m_1$", "$m_2$", "$\\cdots$", "$m_k$"),
   `# Censurados` = c("$q_0$", "$q_1$", "$q_2$", "$\\cdots$", "$q_k$"),
   `Riesgo` = c("$R(t_{(0)})$", "$R(t_{(1)})$", "$R(t_{(2)})$", "$\\cdots$", "$R(t_{(k)})$")
 )
@@ -314,7 +314,7 @@ ordered_layout <- data.frame(
 # Encabezados con notación LaTeX
 encabezados <- c(
   "Tiempos de fallo ordenados $t_{(f)}$",
-  "Núm. de fallos $d_f$",
+  "Núm. de fallos $m_f$",
   "Censurados en $[t_{(f)}, t_{(f+1)})$,  $q_f$",
   "Conjunto de riesgo $R(t_{(f)})$"
 )
@@ -339,10 +339,10 @@ kable(ordered_layout,
 Una disposición alternativa de los datos se muestra a continuación.  
 Esta organización es la base sobre la cual se derivan las curvas de supervivencia de Kaplan-Meier.
 
-- La primera columna de la tabla presenta los tiempos de supervivencia ordenados de menor a mayor.
-- La segunda columna muestra el conteo de fallos en cada uno de los tiempos de fallo distintos.
-- La tercera columna presenta los conteos de censura, denotados por $q_f$, correspondientes a las personas censuradas en el intervalo de tiempo que inicia en el tiempo de fallo $t_{(f)}$ y termina justo antes del siguiente tiempo de fallo, $t_{(f+1)}$.
-- La última columna muestra el conjunto de riesgo, que representa el grupo de individuos que han sobrevivido al menos hasta el tiempo $t_{(f)}$.
+- La primera columna de la tabla presenta los tiempos de supervivencia ordenados de menor a mayor. $t_{(f)}$
+- La segunda columna muestra el conteo de fallos en cada uno de los tiempos de fallo distintos. $m_{f}$
+- La tercera columna presenta los conteos de censura, denotados por $q_f$, correspondientes a las personas censuradas en el intervalo de tiempo que inicia en el tiempo de fallo $t_{(f)}$ y termina justo antes del siguiente tiempo de fallo, $t_{(f+1)}$. $q_{f}$
+- La última columna muestra el conjunto de riesgo, que representa el grupo de individuos que han sobrevivido al menos hasta el tiempo $t_{(f)}$. $R(t_{(f)})$
 
 :::
 
@@ -407,13 +407,13 @@ library(knitr)
 grupo1 <- data.frame(
   `t_{(f)}` = c("0", "6", "7", "10", "13", "16", "22", "23", ">23"),
   `n_f` = c(21, 21, 18, 17, 15, 11, 7, 2, "—"),
-  `d_f` = c(0, 3, 1, 1, 1, 1, 1, 1, "—"),
+  `m_f` = c(0, 3, 1, 1, 1, 1, 1, 1, "—"),
   `q_f` = c(0, 1, 1, 2, 0, 3, 0, 5, "—")
 )
 
 kable(grupo1,
       caption = "Grupo 1 (tratamiento): Tiempos de fallo ordenados",
-      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$"),
       escape = FALSE)
 ```
 
@@ -427,13 +427,13 @@ kable(grupo1,
 grupo2 <- data.frame(
   `t_{(f)}` = c("0", "1", "2", "3", "4", "5", "8", "11", "12", "13", "15", "17", "22", "23"),
   `n_f` = c(21, 21, 19, 17, 16, 14, 12, 8, 6, 4, 3, 2, 1, 1),
-  `d_f` = c(0, 2, 2, 1, 2, 2, 4, 2, 2, 1, 1, 1, 1, 1),
+  `m_f` = c(0, 2, 2, 1, 2, 2, 4, 2, 2, 1, 1, 1, 1, 1),
   `q_f` = rep(0, 14)
 )
 
 kable(grupo2,
       caption = "Grupo 2 (placebo): Tiempos de fallo ordenados",
-      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$"),
       escape = FALSE)
 
 ```
@@ -473,7 +473,7 @@ df_g2$`\\hat{S}(t_{(f)})` <- sprintf("%.2f", df_g2$S_hat)
 
 # Tabla resumen
 kable(df_g2[, c("t", "nf", "mf", "qf", "\\hat{S}(t_{(f)})")],
-      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 2 (placebo): Estimación de la función de supervivencia empírica (Kaplan-Meier)",
       escape = FALSE)
 ```
@@ -525,7 +525,7 @@ ggplot(df_g2, aes(x = t, y = S_hat)) +
 
 # Tabla resumen
 kable(df_g2[, c("t", "nf", "mf", "qf", "\\hat{S}(t_{(f)})")],
-      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 2 (placebo): Estimación de la función de supervivencia empírica (Kaplan-Meier)",
       escape = FALSE)
 ```
@@ -567,9 +567,9 @@ $$
 
 **Fórmula KM:**  
 $$
-\hat{S}(t) = \prod_{t_{(j)} \le t} \left( 1 - \frac{d_j}{n_j} \right)
+\hat{S}(t) = \prod_{t_{(j)} \le t} \left( 1 - \frac{m_j}{n_j} \right)
 $$
-donde $d_j$ es el número de eventos (fallos) en $t_{(j)}$ y $n_j$ el número en riesgo.
+donde $m_j$ es el número de eventos (fallos) en $t_{(j)}$ y $n_j$ el número en riesgo.
 
 
 ---
@@ -582,7 +582,7 @@ library(knitr)
 grupo1_km <- data.frame(
   `t_{(f)}` = c("0", "6", "7", "10", "13", "16", "22", "23"),
   `n_f` = c(21, 21, 17, 15, 12, 11, 7, 6),
-  `d_f` = c(0, 3, 1, 1, 1, 1, 1, 1),
+  `m_f` = c(0, 3, 1, 1, 1, 1, 1, 1),
   `q_f` = c(0, 1, 1, 2, 1, 2, 1, 1),
   `\\hat{S}(t_{(f)})` = c("1", "18/21 = 0.8571",
                          "0.8571 × 16/17 = 0.8067",
@@ -594,7 +594,7 @@ grupo1_km <- data.frame(
 )
 
 kable(grupo1_km,
-      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 1 (tratamiento): Estimación paso a paso de la función de supervivencia KM",
       escape = FALSE)
 ```
@@ -673,7 +673,7 @@ $$
 ```{r}
 
 kable(grupo1_km,
-      col.names = c("$t_{(f)}$", "$n_f$", "$d_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
+      col.names = c("$t_{(f)}$", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t_{(f)})$"),
       caption = "Grupo 1 (tratamiento): Estimación paso a paso de la función de supervivencia KM",
       escape = FALSE)
 ```
@@ -1066,3 +1066,310 @@ Pasos:
 4.  Probar igualdad con log-rank
 
 
+# Log-Rank Test
+
+## Objetivo
+
+- Comparar curvas de supervivencia entre **dos o más grupos**.
+- Detectar diferencias globales en el riesgo de eventos a lo largo del tiempo.
+
+
+## Hipótesis
+
+$$
+H_0: S_1(t) = S_2(t) \quad \forall t \\
+H_A: S_1(t) \ne S_2(t) \quad \text{para al menos un valor de } t
+$$
+
+- Prueba **no paramétrica**
+- Se basa en la comparación entre **observados** y **esperados**
+
+---
+
+## Fundamento de la prueba
+
+En cada tiempo de fallo:
+
+- Se registra el número de eventos observados ($O_{1j}$, $O_{2j}$)
+- Se calcula el número esperado bajo $H_0$ ($E_{1j}$, $E_{2j}$)
+
+Se acumulan a lo largo del tiempo:
+
+$$
+Z = \sum_j (O_{1j} - E_{1j})
+$$
+
+y la varianza:
+
+$$
+\text{Var}(Z) = \sum_j V_j
+$$
+
+---
+
+::: {.callout-note title="Cálculo del número esperado bajo $H_0$"}
+
+En la prueba de log-rank, bajo la hipótesis nula $H_0: S_1(t) = S_2(t)$, se asume que **las tasas de fallo son iguales en ambos grupos**. Por tanto, el número esperado de fallos para cada grupo en el tiempo de fallo $t_{(f)}$ se calcula como:
+
+- Número total de fallos en $t_{(f)}$:  
+  $$
+  m_f = m_{1f} + m_{2f}
+  $$
+
+- Número total en riesgo en $t_{(f)}$:  
+  $$
+  n_f = n_{1f} + n_{2f}
+  $$
+
+- **Esperado en el grupo 1**:  
+  $$
+  e_{1f} = \frac{n_{1f}}{n_f} \cdot m_f
+  $$
+
+- **Esperado en el grupo 2**:  
+  $$
+  e_{2f} = \frac{n_{2f}}{n_f} \cdot m_f
+  $$
+
+Este cálculo se repite en cada tiempo de fallo $t_{(f)}$ y los valores se acumulan para calcular el estadístico de prueba:
+
+$$
+Z = \sum_f (m_{1f} - e_{1f}), \quad \text{Var}(Z) = \sum_f \frac{n_{1f}n_{2f}m_f(n_f - m_f)}{n_f^2(n_f - 1)}
+$$
+
+:::
+
+
+---
+
+## Estadístico de prueba
+
+$$
+\chi^2 = \frac{(O_1 - E_1)^2}{\text{Var}(Z)} \sim \chi^2_{(1)}
+$$
+
+Se compara con la distribución $\chi^2$ con 1 grado de libertad (para dos grupos).
+
+---
+
+## Tabla Expandida (Datos de Remisión) {.smaller}
+
+::::  {.columns align=top .onlytextwidth}
+
+::: {.column width="80%" .smaller align=center}
+
+
+```{r}
+library(knitr)
+
+# Datos de la tabla expandida
+tabla_logrank <- data.frame(
+  f = 1:17,
+  `t(f)` = c(1,2,3,4,5,6,7,8,10,11,12,13,15,16,17,22,23),
+  m1f = c(0,0,0,0,0,1,1,0,1,0,0,1,1,1,1,1,1),
+  m2f = c(2,1,1,2,2,2,0,2,0,1,1,0,1,0,1,0,0),
+  n1f = c(21,21,21,21,21,21,17,17,15,14,13,12,11,10,7,6,6),
+  n2f = c(21,19,18,16,14,12,12,10,8,7,6,6,4,4,2,1,1),
+  e1f = c("(21/42) × 2", "(21/40) × 2", "(21/38) × 1", "(21/37) × 1", "(21/35) × 2",
+          "(17/33) × 2", "(17/29) × 1", "(17/27) × 2", "(15/23) × 1", "(14/21) × 1",
+          "(13/19) × 1", "(12/18) × 1", "(11/15) × 1", "(10/13) × 1", "(7/9) × 1",
+          "(6/7) × 2", "(6/7) × 1"),
+  e2f = c("(21/42) × 2", "(19/40) × 2", "(17/38) × 1", "(16/37) × 1", "(14/35) × 2",
+          "(16/33) × 2", "(12/29) × 1", "(10/27) × 2", "(8/23) × 1", "(7/21) × 1",
+          "(6/19) × 1", "(6/18) × 1", "(4/15) × 1", "(3/13) × 1", "(2/9) × 1",
+          "(1/7) × 2", "(1/7) × 1"),
+  obs_menos_esp1 = c("-1.00", "-1.00", "-0.55", "-0.55", "-1.20", "-0.97",
+                     "-0.41", "0.41", "0.35", "0.33", "0.68", "-1.33", "-0.73", "-0.25", "-0.56", "-0.71", "-0.71"),
+  obs_menos_esp2 = c("1.00", "1.00", "0.55", "0.55", "1.20", "0.97",
+                     "0.41", "-0.41", "-0.35", "-0.33", "-0.68", "1.33", "0.73", "0.25", "0.56", "0.71", "0.71")
+)
+
+# Agregar fila de totales
+tabla_logrank[nrow(tabla_logrank) + 1, ] <- list("Totales", "", sum(tabla_logrank$m1f), sum(tabla_logrank$m2f),
+                                                 "", "", "", "", "19.26", "10.74", "-10.26", "-10.26")
+
+# Mostrar tabla
+kable(tabla_logrank,
+      col.names = c("f", "$t_{(f)}$", "$m_{1f}$", "$m_{2f}$",
+                    "$n_{1f}$", "$n_{2f}$", "$e_{1f}$", "$e_{2f}$",
+                    "$m_{1f} - e_{1f}$", "$m_{2f} - e_{2f}$"),
+      caption = "Tabla expandida: Datos de remisión para prueba de log-rank",
+      escape = FALSE)
+```
+
+:::
+
+::: {.column width="20%"}
+
+
+::: {.callout-note title="Significado de las columnas de la tabla expandida"}
+
+
+
+
+```{r}
+library(knitr)
+
+col_def <- data.frame(
+  Columna = c("f", "$t_{(f)}$", "$m_{1f}$", "$m_{2f}$",
+              "$n_{1f}$", "$n_{2f}$", "$e_{1f}$", "$e_{2f}$",
+              "$m_{1f} - e_{1f}$", "$m_{2f} - e_{2f}$"),
+  Significado = c(
+    "Índice del tiempo de fallo ordenado",
+    "Tiempo observado de fallo número f",
+    "Número de fallos en el grupo 1 en $t_{(f)}$",
+    "Número de fallos en el grupo 2 en $t_{(f)}$",
+    "Número en riesgo en el grupo 1 justo antes de $t_{(f)}$",
+    "Número en riesgo en el grupo 2 justo antes de $t_{(f)}$",
+    "Número esperado de fallos en el grupo 1 bajo $H_0$",
+    "Número esperado de fallos en el grupo 2 bajo $H_0$",
+    "Diferencia entre observados y esperados en el grupo 1",
+    "Diferencia entre observados y esperados en el grupo 2"
+  )
+)
+
+kable(col_def, escape = FALSE, col.names = c("Columna", "Significado"),
+      caption = "Descripción de las columnas en la tabla expandida de log-rank")
+```
+
+:::
+
+:::
+
+:::: 
+
+
+---
+
+## Ejemplo (Grupo Tratamiento vs Placebo)
+
+
+::: {.callout-note title="Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con leucemia" .smaller}
+
+
+::::: columns
+::: {.column  width="50%"}
+
+
+**Grupo 1** ($n = 21$) — *Tratamiento*  
+6, 6, 6, 7, 10, 13, 16, 22, 23,  
+6$^+$, 9$^+$, 10$^+$, 11$^+$,  
+17$^+$, 19$^+$, 20$^+$,  
+25$^+$, 32$^+$, 32$^+$, 34$^+$, 35$^+$
+
+> Nota: el símbolo $^+$ denota observaciones censuradas.
+:::
+
+::: {.column width="50%"}
+
+**Grupo 2** ($n = 21$) — *Placebo*  
+1, 1, 2, 2, 3,  
+4, 4, 5, 5,  
+8, 8, 8, 8,  
+11, 11, 12, 13,  
+15, 17, 22, 23
+
+:::
+:::::
+
+
+| Grupo   | # Fallos | # Censurados | Total |
+|---------|----------|--------------|--------|
+| Grupo 1 | 9        | 12           | 21     |
+| Grupo 2 | 21       | 0            | 21     |
+
+:::
+
+
+```{r}
+#| echo: true
+library(survival)
+
+datos <- data.frame(tiempo = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 
+                               6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35, 
+                               1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 
+                               11, 12, 13, 15, 17, 22, 23),
+                    status = c(rep(1,9),rep(0,12), rep(1,21)),
+                    grupo = factor(c(rep("Tratamiento",21),rep("Placebo",21))))
+
+survdiff(Surv(tiempo, status) ~ grupo, data = datos)
+```
+
+---
+
+## Interpretación de la salida
+
+- Se obtiene un valor de $\chi^2$ y un valor-p.
+- Si $p < \alpha$, se **rechaza $H_0$**: hay evidencia de que las curvas difieren.
+- Si $p \ge \alpha$, no se rechaza $H_0$: no hay evidencia suficiente.
+
+---
+
+## Generalización de la prueba de log-rank (k grupos)
+
+Sea $k$ el número de grupos a comparar.
+
+En cada tiempo de fallo $t_{(f)}$:
+
+- $m_{if}$: número de fallos en el grupo $i$.
+- $n_{if}$: número en riesgo en el grupo $i$.
+- $m_f = \sum_{i=1}^{k} m_{if}$: total de fallos.
+- $n_f = \sum_{i=1}^{k} n_{if}$: total en riesgo.
+
+**Valor esperado para el grupo $i$**:
+
+$$
+e_{if} = \frac{n_{if}}{n_f} \cdot m_f
+$$
+
+---
+
+## Estadístico de prueba para $k$ grupos
+
+Sea $O_i = \sum_f m_{if}$ y $E_i = \sum_f e_{if}$
+
+El estadístico log-rank generalizado es:
+
+$$
+X^2 = (O - E)^T \Sigma^{-1} (O - E)
+$$
+
+donde:
+
+- $O = (O_1, \dots, O_{k-1})$  
+- $E = (E_1, \dots, E_{k-1})$  
+- $\Sigma$ es la matriz de covarianza de $O$
+
+**Distribución asintótica**:
+
+$$
+X^2 \sim \chi^2_{k - 1}
+$$
+
+Se **rechaza $H_0$** si el valor-p es menor al nivel de significancia.
+
+---
+
+## Consideraciones
+
+- Sensible a diferencias en tiempos largos si hay censura temprana.
+- La prueba de log-rank **asume riesgos proporcionales**.
+- No considera covariables — usar modelo de Cox si se desea controlar otras variables.
+
+---
+
+## Visualización
+
+```{r}
+fit <- survfit(Surv(tiempo, status) ~ grupo, data = datos)
+plot(fit, col = c("blue", "darkgreen"), lty = 1:2,
+     xlab = "Tiempo", ylab = "Probabilidad de Supervivencia")
+legend("bottomleft", legend = levels(datos$grupo), col = c("blue", "darkgreen"), lty = 1:2)
+```
+
+---
+
+## Conclusión
+
+- La prueba de log-rank es útil para **comparar curvas de supervivencia** entre grupos.
+- Es ampliamente usada por su simplicidad y poder bajo riesgos proporcionales.
