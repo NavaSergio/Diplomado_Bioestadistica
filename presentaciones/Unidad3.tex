@@ -131,6 +131,39 @@
 \makeatother
 
 
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 
 
@@ -314,7 +347,7 @@ Cuando hay censura, la FDAE no es válida. Kaplan-Meier estima la función
 de supervivencia como:
 
 \[
-\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{d_i}{n_i} \right)
+\hat{S}(t) = \prod_{t_i \leq t} \left(1 - \frac{m_i}{n_i} \right)
 \]
 
 donde:
@@ -322,7 +355,7 @@ donde:
 \begin{itemize}
 \tightlist
 \item
-  \(d_i\): número de eventos en el tiempo \(t_i\)
+  \(m_i\): número de eventos en el tiempo \(t_i\)
 \item
   \(n_i\): número de individuos en riesgo justo antes de \(t_i\)
 \end{itemize}
@@ -330,7 +363,7 @@ donde:
 Es un estimador escalonado que \textbf{ajusta el denominador} cuando hay
 censura.
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo}]
 
 \begin{longtable}[]{@{}rrrrr@{}}
 \caption{Comparación entre FDAE, Supervivencia Empírica y
@@ -429,7 +462,7 @@ No.~Indiv.
 \begin{minipage}[b]{\linewidth}\raggedright
 Tiempos de fallo ordenados \(t_{(f)}\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Núm. de fallos \(d_f\)
+Núm. de fallos \(m_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Censurados en \([t_{(f)}, t_{(f+1)})\), \(q_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -441,7 +474,7 @@ Conjunto de riesgo \(R(t_{(f)})\)
 \begin{minipage}[b]{\linewidth}\raggedright
 Tiempos de fallo ordenados \(t_{(f)}\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Núm. de fallos \(d_f\)
+Núm. de fallos \(m_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Censurados en \([t_{(f)}, t_{(f+1)})\), \(q_f\)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -451,14 +484,14 @@ Conjunto de riesgo \(R(t_{(f)})\)
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\(t_{(0)}\) & \(d_0\) & \(q_0\) & \(R(t_{(0)})\) \\
-\(t_{(1)}\) & \(d_1\) & \(q_1\) & \(R(t_{(1)})\) \\
-\(t_{(2)}\) & \(d_2\) & \(q_2\) & \(R(t_{(2)})\) \\
+\(t_{(0)}\) & \(m_0\) & \(q_0\) & \(R(t_{(0)})\) \\
+\(t_{(1)}\) & \(m_1\) & \(q_1\) & \(R(t_{(1)})\) \\
+\(t_{(2)}\) & \(m_2\) & \(q_2\) & \(R(t_{(2)})\) \\
 \(\cdots\) & \(\cdots\) & \(\cdots\) & \(\cdots\) \\
-\(t_{(k)}\) & \(d_k\) & \(q_k\) & \(R(t_{(k)})\) \\
+\(t_{(k)}\) & \(m_k\) & \(q_k\) & \(R(t_{(k)})\) \\
 \end{longtable}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Disposición alternativa de los datos ordenados}]
 
 Una disposición alternativa de los datos se muestra a continuación.\\
 Esta organización es la base sobre la cual se derivan las curvas de
@@ -468,27 +501,27 @@ supervivencia de Kaplan-Meier.
 \tightlist
 \item
   La primera columna de la tabla presenta los tiempos de supervivencia
-  ordenados de menor a mayor.
+  ordenados de menor a mayor. \(t_{(f)}\)
 \item
   La segunda columna muestra el conteo de fallos en cada uno de los
-  tiempos de fallo distintos.
+  tiempos de fallo distintos. \(m_{f}\)
 \item
   La tercera columna presenta los conteos de censura, denotados por
   \(q_f\), correspondientes a las personas censuradas en el intervalo de
   tiempo que inicia en el tiempo de fallo \(t_{(f)}\) y termina justo
-  antes del siguiente tiempo de fallo, \(t_{(f+1)}\).
+  antes del siguiente tiempo de fallo, \(t_{(f+1)}\). \(q_{f}\)
 \item
   La última columna muestra el conjunto de riesgo, que representa el
   grupo de individuos que han sobrevivido al menos hasta el tiempo
-  \(t_{(f)}\).
+  \(t_{(f)}\). \(R(t_{(f)})\)
 \end{itemize}
 
 \end{tcolorbox}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
-leucemia}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
+leucemia}]
 
 \textbf{Grupo 1} (\(n = 21\)) --- \emph{Tratamiento}\\
 6, 6, 6, 7, 10,\\
@@ -536,11 +569,11 @@ Grupo 2 & 21 & 0 & 21 \\
 \caption{Grupo 1 (tratamiento): Tiempos de fallo
 ordenados}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -559,11 +592,11 @@ ordenados}\tabularnewline
 \begin{longtable}[]{@{}lrrr@{}}
 \caption{Grupo 2 (placebo): Tiempos de fallo ordenados}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -590,11 +623,11 @@ ordenados}\tabularnewline
 \caption{Grupo 2 (placebo): Estimación de la función de supervivencia
 empírica (Kaplan-Meier)}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -617,7 +650,7 @@ empírica (Kaplan-Meier)}\tabularnewline
 
 \pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-11-1.pdf}}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Interpretación}]
 
 \begin{itemize}
 \tightlist
@@ -634,17 +667,17 @@ empírica (Kaplan-Meier)}\tabularnewline
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Cálculo de la función de supervivencia empírica}]
 
 \begin{longtable}[]{@{}rrrrl@{}}
 \caption{Grupo 2 (placebo): Estimación de la función de supervivencia
 empírica (Kaplan-Meier)}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -700,8 +733,8 @@ Para \(t = 8\):
 
 \textbf{Fórmula KM:}\\
 \[
-\hat{S}(t) = \prod_{t_{(j)} \le t} \left( 1 - \frac{d_j}{n_j} \right)
-\] donde \(d_j\) es el número de eventos (fallos) en \(t_{(j)}\) y
+\hat{S}(t) = \prod_{t_{(j)} \le t} \left( 1 - \frac{m_j}{n_j} \right)
+\] donde \(m_j\) es el número de eventos (fallos) en \(t_{(j)}\) y
 \(n_j\) el número en riesgo.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
@@ -710,11 +743,11 @@ Para \(t = 8\):
 \caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
 supervivencia KM}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -729,7 +762,7 @@ supervivencia KM}\tabularnewline
 23 & 6 & 1 & 1 & 0.5378 × 5/6 = 0.4482 \\
 \end{longtable}
 
-\begin{tcolorbox}[enhanced jigsaw, colbacktitle=quarto-callout-note-color!10!white, bottomtitle=1mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}, opacitybacktitle=0.6, bottomrule=.15mm, colback=white, opacityback=0, left=2mm, toprule=.15mm, coltitle=black, rightrule=.15mm, leftrule=.75mm, titlerule=0mm, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo de otras estimaciones de supervivencia}]
 
 Las demás estimaciones de supervivencia se calculan multiplicando la
 estimación en el tiempo de fallo inmediatamente anterior por una
@@ -781,11 +814,11 @@ Kaplan-Meier}\label{iii.-caracteruxedsticas-generales-de-las-curvas-de-kaplan-me
 \caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
 supervivencia KM}\tabularnewline
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endfirsthead
 \toprule\noalign{}
-\(t_{(f)}\) & \(n_f\) & \(d_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
@@ -1073,6 +1106,246 @@ del paquete \texttt{survminer} para una mejor presentación visual.
 
 \pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-24-1.pdf}}
 
+\section{Intervalo de Confianza en
+Kaplan-Meier}\label{intervalo-de-confianza-en-kaplan-meier}
+
+\subsection{Intervalo de Confianza en
+Kaplan-Meier}\label{intervalo-de-confianza-en-kaplan-meier-1}
+
+\begin{itemize}
+\tightlist
+\item
+  La estimación de la supervivencia mediante Kaplan-Meier es una curva
+  escalonada.
+\item
+  Cada punto de la curva tiene asociado un \textbf{intervalo de
+  confianza (IC)}.
+\item
+  El IC refleja la \textbf{incertidumbre} de la estimación en cada
+  tiempo debido a datos censurados y al tamaño muestral.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Fórmula general del IC}\label{fuxf3rmula-general-del-ic}
+
+Para una estimación de la probabilidad de supervivencia ŜKM(t) en un
+tiempo `t' dado, el IC del 95\% se calcula como:
+
+\[
+\hat{S}_{KM}(t) \pm 1.96 \cdot \sqrt{\text{Var}(\hat{S}_{KM}(t))}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(\hat{S}_{KM}(t)\): estimador de Kaplan-Meier
+\item
+  \(\text{Var}(\hat{S}_{KM}(t))\): varianza estimada con la fórmula de
+  Greenwood, ver Klein \& Moeschberger (2003).
+\item
+  \(1.96\): cuantil de la normal estándar para un 95\% de confianza
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Fórmula de Greenwood para la
+Varianza}\label{fuxf3rmula-de-greenwood-para-la-varianza}
+
+\[
+\text{Var}(\hat{S}(t)) = [\hat{S}(t)]^2 \cdot \sum_{j: t_j \leq t} \frac{m_j}{n_j(n_j - m_j)}
+\]
+
+Donde:
+
+\begin{itemize}
+\tightlist
+\item
+  \(m_j\): número de fallas en el tiempo \(t_j\)
+\item
+  \(n_j\): número de sujetos en riesgo justo antes de \(t_j\)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Ejemplo de cálculo}\label{ejemplo-de-cuxe1lculo}
+
+\begin{longtable}[]{@{}lrrrl@{}}
+\caption{Grupo 1 (tratamiento): Estimación paso a paso de la función de
+supervivencia KM}\tabularnewline
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\(t_{(f)}\) & \(n_f\) & \(m_f\) & \(q_f\) & \(\hat{S}(t_{(f)})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 21 & 0 & 0 & 1 \\
+6 & 21 & 3 & 1 & 18/21 = 0.8571 \\
+7 & 17 & 1 & 1 & 0.8571 × 16/17 = 0.8067 \\
+10 & 15 & 1 & 2 & 0.8067 × 14/15 = 0.7529 \\
+13 & 12 & 1 & 1 & 0.7529 × 11/12 = 0.6902 \\
+16 & 11 & 1 & 2 & 0.6902 × 10/11 = 0.6275 \\
+22 & 7 & 1 & 1 & 0.6275 × 6/7 = 0.5378 \\
+23 & 6 & 1 & 1 & 0.5378 × 5/6 = 0.4482 \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  A las 10 semanas, \[\hat{S}(10) = 0.753\]
+\item
+  Eventos y riesgos previos:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Semana 6: \(m_f = 3, n_f = 16\) → \(\frac{3}{16 \cdot 13} = 0.0144\)
+  \item
+    Semana 7: \(m_f = 1, n_f = 17\) → \(\frac{1}{17 \cdot 16} = 0.0037\)
+  \item
+    Semana 10: \(m_f = 1, n_f = 15\) →
+    \(\frac{1}{15 \cdot 14} = 0.0048\)
+  \end{itemize}
+\end{itemize}
+
+\[
+\sum = 0.0144 + 0.0037 + 0.0048 = 0.0229
+\]
+
+\[
+\text{Var}(\hat{S}(10)) = (0.753)^2 \cdot 0.0229 = 0.013
+\]
+
+IC del 95\%: \[
+0.753 \pm 1.96 \cdot \sqrt{0.013} = (0.571, 0.935)
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Visualización en R}\label{visualizaciuxf3n-en-r}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(survival)}
+
+\NormalTok{tratamiento }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{tiempo =} \FunctionTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{23}\NormalTok{, }
+                               \DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{35}\NormalTok{),}
+                    \AttributeTok{status =} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{9}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{12}\NormalTok{)))}
+
+\NormalTok{ajuste }\OtherTok{\textless{}{-}} \FunctionTok{survfit}\NormalTok{(}\FunctionTok{Surv}\NormalTok{(tiempo, status) }\SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{, }\AttributeTok{data =}\NormalTok{ tratamiento)}
+\FunctionTok{summary}\NormalTok{(ajuste)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Call: survfit(formula = Surv(tiempo, status) ~ 1, data = tratamiento)
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6     21       3    0.857  0.0764        0.720        1.000
+    7     17       1    0.807  0.0869        0.653        0.996
+   10     15       1    0.753  0.0963        0.586        0.968
+   13     12       1    0.690  0.1068        0.510        0.935
+   16     11       1    0.627  0.1141        0.439        0.896
+   22      7       1    0.538  0.1282        0.337        0.858
+   23      6       1    0.448  0.1346        0.249        0.807
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggsurvplot}\NormalTok{(}\AttributeTok{fit=}\NormalTok{ajuste,}\AttributeTok{data=}\NormalTok{tratamiento)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-26-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Consideraciones finales de los intervalos de
+confianza}\label{consideraciones-finales-de-los-intervalos-de-confianza}
+
+\begin{itemize}
+\tightlist
+\item
+  Los IC permiten visualizar la precisión de las curvas de
+  supervivencia.
+\item
+  Son especialmente útiles para comparar entre grupos.
+\end{itemize}
+
+\section{Supervivencia Mediana}\label{supervivencia-mediana}
+
+\subsection{¿Qué es la supervivencia
+mediana?}\label{quuxe9-es-la-supervivencia-mediana}
+
+\begin{itemize}
+\tightlist
+\item
+  Es el tiempo en el cual la \textbf{probabilidad de supervivencia} se
+  reduce al \textbf{50\%}.
+\item
+  También se define como el tiempo \texttt{t} tal que \[S(t) = 0.5\].
+\item
+  Es preferida sobre la \textbf{media} cuando hay datos
+  \textbf{censurados}, ya que la media puede no estar bien definida si
+  la cola derecha no está completamente observada.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Ejemplo visual}\label{ejemplo-visual}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-27-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{¿Por qué es útil?}\label{por-quuxe9-es-uxfatil}
+
+\begin{itemize}
+\tightlist
+\item
+  Es \textbf{robusta} frente a valores extremos.
+\item
+  Resume la distribución del tiempo hasta el evento.
+\item
+  Tiene una \textbf{interpretación clara}: la mitad de los individuos
+  han experimentado el evento para ese tiempo.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Cálculo en R}\label{cuxe1lculo-en-r}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(ajuste)}\SpecialCharTok{$}\NormalTok{table[}\StringTok{"median"}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  median 
+11.00339 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(ajuste)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Call: survfit(formula = surv_obj ~ 1)
+
+      n events median 0.95LCL 0.95UCL
+[1,] 50     36     11    7.91    15.6
+\end{verbatim}
+
+Este valor representa la \textbf{supervivencia mediana} estimada a
+partir de los datos.
+
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{\texorpdfstring{Conjunto de datos \texttt{gastricXelox} de
@@ -1116,9 +1389,9 @@ paciente & tiempo & status \\
   Los datos se desordenaron para este ejemplo
 \end{itemize}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-27-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-31-1.pdf}}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-28-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-32-1.pdf}}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1171,40 +1444,464 @@ Call: survfit(formula = Surv(timeMonths, delta) ~ 1, data = gastricXelox)
  18.050     10       1    0.273  0.0720        0.163        0.458
 \end{verbatim}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-30-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-34-1.pdf}}
 
-\section{Comparación entre grupos}\label{comparaciuxf3n-entre-grupos}
+\section{Comparación entre grupos (Log-Rank
+Test)}\label{comparaciuxf3n-entre-grupos-log-rank-test}
 
-\subsection{Comparación entre
-grupos}\label{comparaciuxf3n-entre-grupos-1}
+\subsection{Objetivo}\label{objetivo}
 
-\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-31-1.pdf}}
+\begin{itemize}
+\tightlist
+\item
+  Comparar curvas de supervivencia entre \textbf{dos o más grupos}.
+\item
+  Detectar diferencias globales en el riesgo de eventos a lo largo del
+  tiempo.
+\end{itemize}
 
-Note: La \texttt{p-value} corresponde a la prueba log-rank para igualdad
-de curvas.
+\subsection{Hipótesis}\label{hipuxf3tesis}
+
+\[
+H_0: S_1(t) = S_2(t) \quad \forall t \\
+H_A: S_1(t) \ne S_2(t) \quad \text{para al menos un valor de } t
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  Prueba \textbf{no paramétrica}
+\item
+  Se basa en la comparación entre \textbf{observados} y
+  \textbf{esperados}
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Prueba Log-Rank}\label{prueba-log-rank}
+\subsection{Fundamento de la prueba}\label{fundamento-de-la-prueba}
+
+En cada tiempo de fallo:
+
+\begin{itemize}
+\tightlist
+\item
+  Se registra el número de eventos observados (\(O_{1j}\), \(O_{2j}\))
+\item
+  Se calcula el número esperado bajo \(H_0\) (\(E_{1j}\), \(E_{2j}\))
+\end{itemize}
+
+Se acumulan a lo largo del tiempo:
+
+\[
+Z = \sum_j (O_{1j} - E_{1j})
+\]
+
+y la varianza:
+
+\[
+\text{Var}(Z) = \sum_j V_j
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Cálculo del número esperado bajo \(H_0\)}]
+
+En la prueba de log-rank, bajo la hipótesis nula
+\(H_0: S_1(t) = S_2(t)\), se asume que \textbf{las tasas de fallo son
+iguales en ambos grupos}. Por tanto, el número esperado de fallos para
+cada grupo en el tiempo de fallo \(t_{(f)}\) se calcula como:
+
+\begin{itemize}
+\item
+  Número total de fallos en \(t_{(f)}\):\\
+  \[
+  m_f = m_{1f} + m_{2f}
+  \]
+\item
+  Número total en riesgo en \(t_{(f)}\):\\
+  \[
+  n_f = n_{1f} + n_{2f}
+  \]
+\item
+  \textbf{Esperado en el grupo 1}:\\
+  \[
+  e_{1f} = \frac{n_{1f}}{n_f} \cdot m_f
+  \]
+\item
+  \textbf{Esperado en el grupo 2}:\\
+  \[
+  e_{2f} = \frac{n_{2f}}{n_f} \cdot m_f
+  \]
+\end{itemize}
+
+Este cálculo se repite en cada tiempo de fallo \(t_{(f)}\) y los valores
+se acumulan para calcular el estadístico de prueba:
+
+\[
+Z = \sum_f (m_{1f} - e_{1f}), \quad \text{Var}(Z) = \sum_f \frac{n_{1f}n_{2f}m_f(n_f - m_f)}{n_f^2(n_f - 1)}
+\]
+
+\end{tcolorbox}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Estadístico de prueba}\label{estaduxedstico-de-prueba}
+
+\[
+\chi^2 = \frac{(O_1 - E_1)^2}{\text{Var}(Z)} \sim \chi^2_{(1)}
+\]
+
+Se compara con la distribución \(\chi^2\) con 1 grado de libertad (para
+dos grupos).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Tabla Expandida (Datos de
+Remisión)}\label{tabla-expandida-datos-de-remisiuxf3n}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0714}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0643}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0643}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0643}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0643}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0429}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0429}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0643}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.0643}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.1000}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.1286}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 24\tabcolsep) * \real{0.1286}}@{}}
+\caption{Tabla expandida completa: cálculo detallado para prueba de
+log-rank}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\(t_{(f)}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(n_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(n_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(m_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(n_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(e_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(e_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(e_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(e_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{1f} - e_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{2f} - e_{2f}\)
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\(t_{(f)}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(n_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(n_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(m_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(n_f\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(e_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(e_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(e_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\(e_{2f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{1f} - e_{1f}\)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\(m_{2f} - e_{2f}\)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 0 & 2 & 21 & 21 & 2 & 42 & 1.00 & 1.00 & ≈ (21/42 × 2) & ≈ (21/42 ×
+2) & -1.00 & 1.00 \\
+2 & 0 & 2 & 21 & 19 & 2 & 40 & 1.05 & 0.95 & ≈ (21/40 × 2) & ≈ (21/40 ×
+2) & -1.05 & 1.05 \\
+3 & 0 & 1 & 21 & 17 & 1 & 38 & 0.55 & 0.45 & ≈ (21/38 × 1) & ≈ (21/38 ×
+1) & -0.55 & 0.55 \\
+4 & 0 & 2 & 21 & 16 & 2 & 37 & 1.14 & 0.86 & ≈ (21/37 × 2) & ≈ (21/37 ×
+2) & -1.14 & 1.14 \\
+5 & 0 & 2 & 21 & 14 & 2 & 35 & 1.20 & 0.80 & ≈ (21/35 × 2) & ≈ (21/35 ×
+2) & -1.20 & 1.20 \\
+6 & 3 & 0 & 21 & 12 & 3 & 33 & 1.91 & 1.09 & ≈ (21/33 × 3) & ≈ (21/33 ×
+3) & 1.09 & -1.09 \\
+7 & 1 & 0 & 17 & 12 & 1 & 29 & 0.59 & 0.41 & ≈ (17/29 × 1) & ≈ (17/29 ×
+1) & 0.41 & -0.41 \\
+8 & 0 & 4 & 16 & 12 & 4 & 28 & 2.29 & 1.71 & ≈ (16/28 × 4) & ≈ (16/28 ×
+4) & -2.29 & 2.29 \\
+10 & 1 & 0 & 15 & 8 & 1 & 23 & 0.65 & 0.35 & ≈ (15/23 × 1) & ≈ (15/23 ×
+1) & 0.35 & -0.35 \\
+11 & 0 & 2 & 13 & 8 & 2 & 21 & 1.24 & 0.76 & ≈ (13/21 × 2) & ≈ (13/21 ×
+2) & -1.24 & 1.24 \\
+12 & 0 & 1 & 12 & 6 & 1 & 18 & 0.67 & 0.33 & ≈ (12/18 × 1) & ≈ (12/18 ×
+1) & -0.67 & 0.67 \\
+13 & 1 & 1 & 12 & 5 & 2 & 17 & 1.41 & 0.59 & ≈ (12/17 × 2) & ≈ (12/17 ×
+2) & -0.41 & 0.41 \\
+15 & 0 & 1 & 11 & 4 & 1 & 15 & 0.73 & 0.27 & ≈ (11/15 × 1) & ≈ (11/15 ×
+1) & -0.73 & 0.73 \\
+16 & 1 & 0 & 11 & 3 & 1 & 14 & 0.79 & 0.21 & ≈ (11/14 × 1) & ≈ (11/14 ×
+1) & 0.21 & -0.21 \\
+17 & 0 & 1 & 10 & 3 & 1 & 13 & 0.77 & 0.23 & ≈ (10/13 × 1) & ≈ (10/13 ×
+1) & -0.77 & 0.77 \\
+22 & 1 & 1 & 7 & 2 & 2 & 9 & 1.56 & 0.44 & ≈ (7/9 × 2) & ≈ (7/9 × 2) &
+-0.56 & 0.56 \\
+23 & 1 & 1 & 6 & 1 & 2 & 7 & 1.71 & 0.29 & ≈ (6/7 × 2) & ≈ (6/7 × 2) &
+-0.71 & 0.71 \\
+Totales & 9 & 21 & & & & & 19.26 & 10.74 & & & -10.26 & 10.26 \\
+\end{longtable}
+
+\begin{itemize}
+\item
+  \textbf{Esperado en el grupo 1}:
+  \(e_{1f} = \frac{n_{1f}}{n_f} \cdot m_f\)
+\item
+  \textbf{Esperado en el grupo 2}:
+  \(e_{2f} = \frac{n_{2f}}{n_f} \cdot m_f\)
+\end{itemize}
+
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Significado de las columnas de la tabla expandida}]
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.2432}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.7568}}@{}}
+\caption{Descripción de las columnas en la tabla expandida de
+log-rank}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Columna
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Significado
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Columna
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Significado
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+f & Índice del tiempo de fallo ordenado \\
+\(t_{(f)}\) & Tiempo observado de fallo número f \\
+\(m_{1f}\) & Número de fallos en el grupo 1 en \(t_{(f)}\) \\
+\(m_{2f}\) & Número de fallos en el grupo 2 en \(t_{(f)}\) \\
+\(n_{1f}\) & Número en riesgo en el grupo 1 justo antes de
+\(t_{(f)}\) \\
+\(n_{2f}\) & Número en riesgo en el grupo 2 justo antes de
+\(t_{(f)}\) \\
+\(e_{1f}\) & Número esperado de fallos en el grupo 1 bajo \(H_0\) \\
+\(e_{2f}\) & Número esperado de fallos en el grupo 2 bajo \(H_0\) \\
+\(m_{1f} - e_{1f}\) & Diferencia entre observados y esperados en el
+grupo 1 \\
+\(m_{2f} - e_{2f}\) & Diferencia entre observados y esperados en el
+grupo 2 \\
+\end{longtable}
+
+\end{tcolorbox}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Ejemplo (Grupo Tratamiento vs
+Placebo)}\label{ejemplo-grupo-tratamiento-vs-placebo}
+
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, coltitle=black, opacitybacktitle=0.6, colbacktitle=quarto-callout-note-color!10!white, breakable, toprule=.15mm, titlerule=0mm, colframe=quarto-callout-note-color-frame, colback=white, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, bottomtitle=1mm, toptitle=1mm, opacityback=0, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Ejemplo: Tiempos de remisión (semanas) para dos grupos de pacientes con
+leucemia}]
+
+\textbf{Grupo 1} (\(n = 21\)) --- \emph{Tratamiento}\\
+6, 6, 6, 7, 10, 13, 16, 22, 23,\\
+6\(^+\), 9\(^+\), 10\(^+\), 11\(^+\),\\
+17\(^+\), 19\(^+\), 20\(^+\),\\
+25\(^+\), 32\(^+\), 32\(^+\), 34\(^+\), 35\(^+\)
+
+\begin{quote}
+Nota: el símbolo \(^+\) denota observaciones censuradas.
+\end{quote}
+
+\textbf{Grupo 2} (\(n = 21\)) --- \emph{Placebo}\\
+1, 1, 2, 2, 3,\\
+4, 4, 5, 5,\\
+8, 8, 8, 8,\\
+11, 11, 12, 13,\\
+15, 17, 22, 23
+
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Grupo & \# Fallos & \# Censurados & Total \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Grupo 1 & 9 & 12 & 21 \\
+Grupo 2 & 21 & 0 & 21 \\
+\end{longtable}
+
+\end{tcolorbox}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(survival)}
+
+\NormalTok{datos }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{tiempo =} \FunctionTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{23}\NormalTok{, }
+                               \DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{35}\NormalTok{, }
+                               \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{11}\NormalTok{, }
+                               \DecValTok{11}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{23}\NormalTok{),}
+                    \AttributeTok{status =} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{9}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{12}\NormalTok{), }\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{21}\NormalTok{)),}
+                    \AttributeTok{grupo =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\StringTok{"Tratamiento"}\NormalTok{,}\DecValTok{21}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\StringTok{"Placebo"}\NormalTok{,}\DecValTok{21}\NormalTok{))))}
+
+\FunctionTok{survdiff}\NormalTok{(}\FunctionTok{Surv}\NormalTok{(tiempo, status) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ grupo, }\AttributeTok{data =}\NormalTok{ datos)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{verbatim}
 Call:
-survdiff(formula = Surv(tiempo, evento) ~ grupo, data = datos.df)
+survdiff(formula = Surv(tiempo, status) ~ grupo, data = datos)
 
-        N Observed Expected (O-E)^2/E (O-E)^2/V
-grupo=A 3        2     1.23     0.477     0.825
-grupo=B 3        2     2.77     0.212     0.825
+                   N Observed Expected (O-E)^2/E (O-E)^2/V
+grupo=Placebo     21       21     10.8      9.76      16.8
+grupo=Tratamiento 21        9     19.2      5.45      16.8
 
- Chisq= 0.8  on 1 degrees of freedom, p= 0.4 
+ Chisq= 16.8  on 1 degrees of freedom, p= 4e-05 
 \end{verbatim}
 
-Salida típica:
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{verbatim}
-     N Observed Expected (O-E)^2/E (O-E)^2/V
-grupo= A 3      2.0      1.2     0.533   0.60
-grupo= B 3      1.0      1.8     0.356   0.60
-\end{verbatim}
+\subsection{Interpretación de la
+salida}\label{interpretaciuxf3n-de-la-salida}
+
+\begin{itemize}
+\tightlist
+\item
+  Se obtiene un valor de \(\chi^2\) y un valor-p.
+\item
+  Si \(p < \alpha\), se \textbf{rechaza \(H_0\)}: hay evidencia de que
+  las curvas difieren.
+\item
+  Si \(p \ge \alpha\), no se rechaza \(H_0\): no hay evidencia
+  suficiente.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Generalización de la prueba de log-rank (k
+grupos)}\label{generalizaciuxf3n-de-la-prueba-de-log-rank-k-grupos}
+
+Sea \(k\) el número de grupos a comparar.
+
+En cada tiempo de fallo \(t_{(f)}\):
+
+\begin{itemize}
+\tightlist
+\item
+  \(m_{if}\): número de fallos en el grupo \(i\).
+\item
+  \(n_{if}\): número en riesgo en el grupo \(i\).
+\item
+  \(m_f = \sum_{i=1}^{k} m_{if}\): total de fallos.
+\item
+  \(n_f = \sum_{i=1}^{k} n_{if}\): total en riesgo.
+\end{itemize}
+
+\textbf{Valor esperado para el grupo \(i\)}:
+
+\[
+e_{if} = \frac{n_{if}}{n_f} \cdot m_f
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{Estadístico de prueba para \(k\)
+grupos}{Estadístico de prueba para k grupos}}\label{estaduxedstico-de-prueba-para-k-grupos}
+
+Sea \(O_i = \sum_f m_{if}\) y \(E_i = \sum_f e_{if}\)
+
+El estadístico log-rank generalizado es:
+
+\[
+X^2 = (O - E)^T \Sigma^{-1} (O - E)
+\]
+
+donde:
+
+\begin{itemize}
+\tightlist
+\item
+  \(O = (O_1, \dots, O_{k-1})\)\\
+\item
+  \(E = (E_1, \dots, E_{k-1})\)\\
+\item
+  \(\Sigma\) es la matriz de covarianza de \(O\)
+\end{itemize}
+
+\textbf{Distribución asintótica}:
+
+\[
+X^2 \sim \chi^2_{k - 1}
+\]
+
+Se \textbf{rechaza \(H_0\)} si el valor-p es menor al nivel de
+significancia.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Consideraciones}\label{consideraciones}
+
+\begin{itemize}
+\tightlist
+\item
+  Sensible a diferencias en tiempos largos si hay censura temprana.
+\item
+  La prueba de log-rank \textbf{asume riesgos proporcionales}.
+\item
+  No considera covariables --- usar modelo de Cox si se desea controlar
+  otras variables.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Visualización}\label{visualizaciuxf3n}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad3_files/figure-pdf/unnamed-chunk-38-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Conclusión}\label{conclusiuxf3n}
+
+\begin{itemize}
+\tightlist
+\item
+  La prueba de log-rank es útil para \textbf{comparar curvas de
+  supervivencia} entre grupos.
+\item
+  Es ampliamente usada por su simplicidad y poder bajo riesgos
+  proporcionales.
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1227,6 +1924,16 @@ Pasos:
 \item
   Probar igualdad con log-rank
 \end{enumerate}
+
+\section{Referencias}\label{referencias}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-klein2003}
+Klein, J. P., \& Moeschberger, M. L. (2003). \emph{Survival analysis:
+Techniques for censored and truncated data} (2nd ed.). Springer.
+
+\end{CSLReferences}
 
 
 

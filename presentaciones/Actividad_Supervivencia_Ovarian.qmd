@@ -1,0 +1,102 @@
+---
+title: "Actividad práctica: Análisis de supervivencia con R"
+format: pdf
+editor: visual
+---
+
+## 🎯 Fin de aprendizaje
+
+Aplicar herramientas del análisis de supervivencia utilizando R, incluyendo la creación de objetos de tipo `Surv`, la estimación de funciones de supervivencia, el análisis de curvas Kaplan-Meier, y la comparación entre grupos mediante la prueba log-rank.
+
+------------------------------------------------------------------------
+
+## 🧭 Introducción
+
+El análisis de supervivencia es una técnica estadística utilizada para modelar el tiempo hasta que ocurre un evento de interés.\
+En esta actividad trabajarás con el conjunto de datos `ovarian`, incluido en el paquete `survival` de R. Este dataset contiene información sobre pacientes con cáncer de ovario y permite realizar análisis de supervivencia por grupo de tratamiento.
+
+------------------------------------------------------------------------
+
+## 📝 Tipo de actividad
+
+**Individual.**
+
+------------------------------------------------------------------------
+
+## 📦 Producto esperado
+
+-   Un script en R (`.R`) o un documento R Markdown (`.Rmd`) con el código, resultados y comentarios.
+-   Un archivo PDF generado desde R Markdown o desde el script con resultados y visualizaciones.
+
+------------------------------------------------------------------------
+
+## 🔧 Instrucciones
+
+1.  **Carga el conjunto de datos `ovarian`** incluido en el paquete `survival`.
+
+    ``` r
+    library(survival)
+    data(ovarian)
+    head(ovarian)
+    ```
+
+2.  **Explora las siguientes variables clave:**
+
+    -   `futime`: tiempo de seguimiento (en días)
+    -   `fustat`: estado del evento (1 = evento, 0 = censura)
+    -   `rx`: grupo de tratamiento (1 = estándar, 2 = experimental)
+
+3.  **Crea el objeto de supervivencia:**
+
+    ``` r
+    surv_obj <- Surv(time = ovarian$futime, event = ovarian$fustat)
+    ```
+
+4.  **Estima curvas Kaplan-Meier** para todos los pacientes y por grupo (`rx`):
+
+    ``` r
+    km_all <- survfit(surv_obj ~ 1)
+    km_rx <- survfit(surv_obj ~ rx, data = ovarian)
+    ```
+
+5.  **Grafica las curvas** utilizando base R o `survminer`:
+
+    ``` r
+    plot(km_rx, col = c("blue", "red"), xlab = "Días", ylab = "Supervivencia")
+    legend("bottomleft", legend = c("Tratamiento estándar", "Tratamiento experimental"), col = c("blue", "red"), lty = 1)
+    ```
+
+6.  **Aplica la prueba log-rank** para comparar diferencias entre grupos de tratamiento:
+
+    ``` r
+    survdiff(Surv(futime, fustat) ~ rx, data = ovarian)
+    ```
+
+7.  **Documenta tus hallazgos** en el documento:
+
+    -   Descripción del conjunto de datos
+    -   Variables empleadas y estructura del análisis
+    -   Interpretación de las curvas
+    -   Resultados del log-rank test
+    -   Conclusiones personales
+
+------------------------------------------------------------------------
+
+## 📤 Entrega del trabajo
+
+Sube dos archivos a la plataforma:
+
+-   `Tarea_Supervivencia_Nombre_Apellido.Rmd` o `.R`
+-   `Tarea_Supervivencia_Nombre_Apellido.pdf`
+
+------------------------------------------------------------------------
+
+## 📊 Criterios de evaluación (20 pts)
+
+| Criterio                                                | Puntos |
+|---------------------------------------------------------|--------|
+| Carga y estructura de datos, creación del objeto `Surv` | 4 pts  |
+| Estimación y visualización de curvas de supervivencia   | 5 pts  |
+| Comparación entre grupos (log-rank test)                | 5 pts  |
+| Interpretación y documentación de resultados            | 4 pts  |
+| Claridad, orden y presentación del documento            | 2 pts  |

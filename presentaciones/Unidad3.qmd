@@ -12,7 +12,7 @@ author:
           state: Ags
 date: 2025-06-01
 toc: true
-toc-depth: 2
+toc-depth: 1
 
 format: 
   revealjs:
@@ -21,8 +21,8 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    # chalkboard: true # ov a chalboard:  true o va self-contained: true
-    self-contained: true
+    chalkboard: true # ov a chalboard:  true o va self-contained: true
+    # self-contained: true
     menu: true
     transition: slide
     background-transition: fade
@@ -935,6 +935,216 @@ survminer::ggsurvplot(modelo,data=datos, xlab = "Tiempo", ylab = "Supervivencia 
      title = "Curva de Kaplan-Meier")
 ```
 
+
+# Intervalo de Confianza en Kaplan-Meier
+
+## Intervalo de Confianza en Kaplan-Meier
+
+- La estimación de la supervivencia mediante Kaplan-Meier es una curva escalonada.
+- Cada punto de la curva tiene asociado un **intervalo de confianza (IC)**.
+- El IC refleja la **incertidumbre** de la estimación en cada tiempo debido a datos censurados y al tamaño muestral.
+
+---
+
+## Fórmula general del IC
+
+Para una estimación de la probabilidad de supervivencia ŜKM(t) en un tiempo 't' dado, el IC del 95% se calcula como:
+
+$$
+\hat{S}_{KM}(t) \pm 1.96 \cdot \sqrt{\text{Var}(\hat{S}_{KM}(t))}
+$$
+
+- $\hat{S}_{KM}(t)$: estimador de Kaplan-Meier
+- $\text{Var}(\hat{S}_{KM}(t))$: varianza estimada con la fórmula de Greenwood, ver @klein2003.
+- $1.96$: cuantil de la normal estándar para un 95% de confianza
+
+---
+
+## Fórmula de Greenwood para la Varianza
+
+$$
+\text{Var}(\hat{S}(t)) = [\hat{S}(t)]^2 \cdot \sum_{j: t_j \leq t} \frac{m_j}{n_j(n_j - m_j)}
+$$
+
+Donde:
+
+- $m_j$: número de fallas en el tiempo $t_j$
+- $n_j$: número de sujetos en riesgo justo antes de $t_j$
+
+---
+
+## Ejemplo de cálculo
+
+
+:::: {.columns}
+
+::: {.column width="55%" .smaller}
+
+```{r}
+library(survival)
+library(dplyr)
+library(knitr)
+
+# Datos originales
+tratamiento <- data.frame(
+  tiempo = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 
+             6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35),
+  status = c(rep(1,9), rep(0,12))
+)
+
+# Kaplan-Meier
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = tratamiento)
+resumen <- summary(ajuste)
+
+# Tiempos únicos en el dataset
+todos_los_tiempos <- sort(unique(tratamiento$tiempo))
+
+# Contar eventos y censuras
+eventos <- as.numeric(table(factor(tratamiento$tiempo[tratamiento$status == 1], levels = todos_los_tiempos)))
+censuras <- as.numeric(table(factor(tratamiento$tiempo[tratamiento$status == 0], levels = todos_los_tiempos)))
+
+# Extraer supervivencia y error estándar con padding
+surv_map <- setNames(round(resumen$surv, 3), resumen$time)
+stderr_map <- setNames(round(resumen$std.err, 4), resumen$time)
+lower_map <- setNames(round(resumen$lower, 3), resumen$time)
+upper_map <- setNames(round(resumen$upper, 3), resumen$time)
+
+# Crear tabla completa
+tabla_completa <- data.frame(
+  tiempo = todos_los_tiempos,
+  m_f = eventos,
+  q_f = censuras,
+  S_hat = surv_map[as.character(todos_los_tiempos)],
+  std_err = stderr_map[as.character(todos_los_tiempos)],
+  lower = lower_map[as.character(todos_los_tiempos)],
+  upper = upper_map[as.character(todos_los_tiempos)]
+)
+
+# Número en riesgo (retropropagado desde summary)
+n_risk_map <- setNames(resumen$n.risk, resumen$time)
+tabla_completa$n_f <- n_risk_map[as.character(todos_los_tiempos)]
+
+# Reemplazar NAs con 0 o vacío
+tabla_completa[is.na(tabla_completa)] <- ""
+
+# Mostrar
+kable(tabla_completa[, c("tiempo", "n_f", "m_f", "q_f", "S_hat", "std_err", "lower", "upper")],
+      col.names = c("t", "$n_f$", "$m_f$", "$q_f$", "$\\hat{S}(t)$", "Error estándar", "Límite inferior", "Límite superior"),
+      caption = "Tabla completa con eventos y censuras para los 21 casos",
+      escape = FALSE)
+
+
+```
+:::
+
+::: {.column width="45%" .smaller}
+
+
+
+- A las 10 semanas, $$\hat{S}(10) = 0.753$$
+- Eventos y riesgos previos:
+  - Semana 6: $m_f = 3, n_f = 21$ → $\frac{3}{21 \cdot 18} = 0.0079$
+  - Semana 7: $m_f = 1, n_f = 18$ → $\frac{1}{18 \cdot 17} = 0.0033$
+  - Semana 10: $m_f = 1, n_f = 17$ → $\frac{1}{17 \cdot 16} = 0.0037$
+
+$$
+\sum = 0.0079+0.0033+0.0037=0.0149
+$$
+
+$$
+\text{Var}(\hat{S}(10)) = (0.753)^2 \cdot 0.0149=0.0084
+$$
+
+IC del 95%:
+$$
+0.753 \pm 1.96 \cdot \sqrt{0.0084} = (0.570, 0.936)
+$$
+:::
+
+::::
+
+
+---
+
+
+## Visualización en R
+
+
+```{r}
+#| echo: true
+library(survival)
+
+tratamiento <- data.frame(tiempo = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 
+                               6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35),
+                    status = c(rep(1,9),rep(0,12)))
+
+
+ajuste <- survfit(Surv(tiempo, status) ~ 1, data = tratamiento)
+summary(ajuste)
+ggsurvplot(fit=ajuste,data=tratamiento)
+
+```
+
+
+---
+
+## Consideraciones finales de los intervalos de confianza
+
+- Los IC permiten visualizar la precisión de las curvas de supervivencia.
+- Son especialmente útiles para comparar entre grupos.
+
+
+# Supervivencia Mediana
+
+## ¿Qué es la supervivencia mediana?
+
+- Es el tiempo en el cual la **probabilidad de supervivencia** se reduce al **50%**.
+- También se define como el tiempo `t` tal que $$S(t) = 0.5$$.
+- Es preferida sobre la **media** cuando hay datos **censurados**, ya que la media puede no estar bien definida si la cola derecha no está completamente observada.
+
+---
+
+## Ejemplo visual {.smaller}
+
+
+```{r}
+#| echo: false
+library(survival)
+set.seed(123)
+tiempos <- rexp(50, rate = 0.1) 
+censura <- sample(0:1, 50, replace = TRUE, prob = c(0.3, 0.7))
+surv_obj <- Surv(tiempos, censura)
+ajuste <- survfit(surv_obj ~ 1)
+plot(ajuste, xlab = "Tiempo", ylab = "Probabilidad de supervivencia",
+     main = "Curva de Kaplan-Meier")
+abline(h = 0.5, col = "red", lty = 2)
+abline(v = summary(ajuste)$table["median"], col = "blue", lty = 2)
+legend("topright", legend = c("S(t) = 0.5", "Supervivencia mediana"),
+       col = c("red", "blue"), lty = 2)
+```
+
+---
+
+## ¿Por qué es útil?
+
+- Es **robusta** frente a valores extremos.
+- Resume la distribución del tiempo hasta el evento.
+- Tiene una **interpretación clara**: la mitad de los individuos han experimentado el evento para ese tiempo.
+
+---
+
+## Cálculo en R
+
+```{r}
+#| echo: true
+summary(ajuste)$table["median"]
+print(ajuste)
+```
+
+Este valor representa la **supervivencia mediana** estimada a partir de los datos.
+
+
+
 ---
 
 ## Conjunto de datos `gastricXelox` de la biblioteca `asaur`
@@ -1017,56 +1227,7 @@ plot(ajuste, conf.int=TRUE, xlab="Meses", ylab="Supervivencia")
 
 :::
 
-
-
-# Comparación entre grupos
-
-## Comparación entre grupos
-
-``` {r}
-datos.df <- data.frame(
-  tiempo = c(5, 8, 10, 12, 18, 22),
-  evento = c(1, 1, 0, 1, 0, 1),
-  grupo  = c("A", "A", "B", "B", "A", "B")
-)
-ajuste_grupo <- survfit(Surv(tiempo, evento) ~ grupo, data = datos.df)
-ggsurvplot(ajuste_grupo, pval = TRUE)
-```
-
-Note: La `p-value` corresponde a la prueba log-rank para igualdad de curvas.
-
-------------------------------------------------------------------------
-
-## Prueba Log-Rank
-
-``` {r}
-survdiff(Surv(tiempo, evento) ~ grupo, data = datos.df)
-```
-
-Salida típica:
-
-```         
-     N Observed Expected (O-E)^2/E (O-E)^2/V
-grupo= A 3      2.0      1.2     0.533   0.60
-grupo= B 3      1.0      1.8     0.356   0.60
-```
-
-
-------------------------------------------------------------------------
-
-## Actividad práctica guiada
-
-**Datos**: `lung` del paquete `survival`.
-
-Pasos:
-
-1.  Cargar datos con `data(lung)`
-2.  Crear objeto `Surv(time, status)`
-3.  Estimar curvas por `sex`
-4.  Probar igualdad con log-rank
-
-
-# Log-Rank Test
+# Comparación entre grupos (Log-Rank Test)
 
 ## Objetivo
 
@@ -1159,43 +1320,92 @@ Se compara con la distribución $\chi^2$ con 1 grado de libertad (para dos grupo
 ::: {.column width="80%" .smaller align=center}
 
 
+
+
 ```{r}
+library(dplyr)
 library(knitr)
 
-# Datos de la tabla expandida
-tabla_logrank <- data.frame(
-  f = 1:17,
-  `t(f)` = c(1,2,3,4,5,6,7,8,10,11,12,13,15,16,17,22,23),
-  m1f = c(0,0,0,0,0,1,1,0,1,0,0,1,1,1,1,1,1),
-  m2f = c(2,1,1,2,2,2,0,2,0,1,1,0,1,0,1,0,0),
-  n1f = c(21,21,21,21,21,21,17,17,15,14,13,12,11,10,7,6,6),
-  n2f = c(21,19,18,16,14,12,12,10,8,7,6,6,4,4,2,1,1),
-  e1f = c("(21/42) × 2", "(21/40) × 2", "(21/38) × 1", "(21/37) × 1", "(21/35) × 2",
-          "(17/33) × 2", "(17/29) × 1", "(17/27) × 2", "(15/23) × 1", "(14/21) × 1",
-          "(13/19) × 1", "(12/18) × 1", "(11/15) × 1", "(10/13) × 1", "(7/9) × 1",
-          "(6/7) × 2", "(6/7) × 1"),
-  e2f = c("(21/42) × 2", "(19/40) × 2", "(17/38) × 1", "(16/37) × 1", "(14/35) × 2",
-          "(16/33) × 2", "(12/29) × 1", "(10/27) × 2", "(8/23) × 1", "(7/21) × 1",
-          "(6/19) × 1", "(6/18) × 1", "(4/15) × 1", "(3/13) × 1", "(2/9) × 1",
-          "(1/7) × 2", "(1/7) × 1"),
-  obs_menos_esp1 = c("-1.00", "-1.00", "-0.55", "-0.55", "-1.20", "-0.97",
-                     "-0.41", "0.41", "0.35", "0.33", "0.68", "-1.33", "-0.73", "-0.25", "-0.56", "-0.71", "-0.71"),
-  obs_menos_esp2 = c("1.00", "1.00", "0.55", "0.55", "1.20", "0.97",
-                     "0.41", "-0.41", "-0.35", "-0.33", "-0.68", "1.33", "0.73", "0.25", "0.56", "0.71", "0.71")
+# Datos del segundo script
+datos <- data.frame(
+  tiempo = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 
+             6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35, 
+             1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 
+             11, 12, 13, 15, 17, 22, 23),
+  status = c(rep(1,9),rep(0,12), rep(1,21)),
+  grupo = factor(c(rep("Tratamiento",21),rep("Placebo",21)))
 )
 
+# Tiempos únicos con eventos
+tiempos_evento <- sort(unique(datos$tiempo[datos$status == 1]))
+
+# Inicializar tabla
+tabla <- data.frame()
+
+for (t in tiempos_evento) {
+  en_t <- datos[datos$tiempo == t & datos$status == 1, ]
+  en_riesgo <- datos[datos$tiempo >= t, ]
+
+  m1f <- sum(en_t$grupo == "Tratamiento")
+  m2f <- sum(en_t$grupo == "Placebo")
+  d <- m1f + m2f
+
+  n1f <- sum(en_riesgo$grupo == "Tratamiento")
+  n2f <- sum(en_riesgo$grupo == "Placebo")
+  n <- n1f + n2f
+
+  e1_num <- round(d * (n1f / n), 2)
+  e2_num <- round(d * (n2f / n), 2)
+
+  e1f <- sprintf("≈ (%d/%d × %d)",  n1f, n, d)
+  e2f <- sprintf("≈ (%d/%d × %d)",  n2f, n, d)
+
+  tabla <- rbind(tabla, data.frame(
+    `t(f)` = t,
+    m1f = m1f,
+    m2f = m2f,
+    n1f = n1f,
+    n2f = n2f,
+    d = d,
+    n = n,
+    e1_num = e1_num,
+    e2_num = e2_num,
+    `e1f` = e1f,
+    `e2f` = e1f,
+    `m1f - e1f` = round(m1f - e1_num, 2),
+    `m2f - e2f` = round(m2f - e2_num, 2)
+  ))
+}
+
 # Agregar fila de totales
-tabla_logrank[nrow(tabla_logrank) + 1, ] <- list("Totales", "", sum(tabla_logrank$m1f), sum(tabla_logrank$m2f),
-                                                 "", "", "", "", "19.26", "10.74", "-10.26", "-10.26")
+totales <- data.frame(
+  `t(f)` = "Totales",
+  m1f = sum(tabla$m1f),
+  m2f = sum(tabla$m2f),
+  n1f = "", n2f = "", d = "", n = "",
+  e1_num = sum(tabla$e1_num), e2_num = sum(tabla$e2_num), e1f = "", e2f = "",
+  `m1f - e1f` = round(sum(tabla$m1f...e1f), 2),
+  `m2f - e2f` = round(sum(tabla$m2f...e2f), 2)
+)
+
+tabla2 <- rbind(tabla, totales)
 
 # Mostrar tabla
-kable(tabla_logrank,
-      col.names = c("f", "$t_{(f)}$", "$m_{1f}$", "$m_{2f}$",
-                    "$n_{1f}$", "$n_{2f}$", "$e_{1f}$", "$e_{2f}$",
+kable(tabla2,
+      col.names = c("$t_{(f)}$", "$m_{1f}$", "$m_{2f}$",
+                    "$n_{1f}$", "$n_{2f}$", "$m_f$", "$n_f$",
+                    "$e_{1f}$", "$e_{2f}$", "$e_{1f}$", "$e_{2f}$",
                     "$m_{1f} - e_{1f}$", "$m_{2f} - e_{2f}$"),
-      caption = "Tabla expandida: Datos de remisión para prueba de log-rank",
+      caption = "Tabla expandida completa: cálculo detallado para prueba de log-rank",
       escape = FALSE)
+
+
 ```
+
+
+- **Esperado en el grupo 1**:  $e_{1f} = \frac{n_{1f}}{n_f} \cdot m_f$
+
+- **Esperado en el grupo 2**:  $e_{2f} = \frac{n_{2f}}{n_f} \cdot m_f$
 
 :::
 
@@ -1373,3 +1583,23 @@ legend("bottomleft", legend = levels(datos$grupo), col = c("blue", "darkgreen"),
 
 - La prueba de log-rank es útil para **comparar curvas de supervivencia** entre grupos.
 - Es ampliamente usada por su simplicidad y poder bajo riesgos proporcionales.
+
+
+------------------------------------------------------------------------
+
+## Actividad práctica guiada
+
+**Datos**: `lung` del paquete `survival`.
+
+Pasos:
+
+1.  Cargar datos con `data(lung)`
+2.  Crear objeto `Surv(time, status)`
+3.  Estimar curvas por `sex`
+4.  Probar igualdad con log-rank
+
+
+# Referencias
+
+::: references
+:::

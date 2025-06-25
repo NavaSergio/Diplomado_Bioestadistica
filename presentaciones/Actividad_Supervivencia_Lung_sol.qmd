@@ -1,0 +1,113 @@
+---
+title: "Actividad práctica: Análisis de supervivencia con R"
+format: pdf
+editor: visual
+---
+
+## 🎯 Fin de aprendizaje
+
+Aplicar herramientas del análisis de supervivencia utilizando R, incluyendo la creación de objetos de tipo `Surv`, la estimación de funciones de supervivencia, el análisis de curvas Kaplan-Meier, y la comparación entre grupos mediante la prueba log-rank.
+
+------------------------------------------------------------------------
+
+## 🧭 Introducción
+
+El análisis de supervivencia es una técnica estadística utilizada para modelar el tiempo hasta que ocurre un evento de interés.\
+En esta actividad trabajarás con datos reales incluidos en el paquete `survival` de R para:
+
+-   Identificar la estructura de datos de supervivencia.
+-   Estimar curvas de supervivencia.
+-   Aplicar pruebas de hipótesis para comparar grupos.
+
+------------------------------------------------------------------------
+
+## 📝 Tipo de actividad
+
+**Individual.**
+
+------------------------------------------------------------------------
+
+## 📦 Producto esperado
+
+-   Un script en R (`.R`) o un documento R Markdown (`.Rmd`) con el código, resultados y comentarios.
+-   Un archivo PDF generado desde R Markdown o desde el script con resultados y visualizaciones.
+
+------------------------------------------------------------------------
+
+## 🔧 Instrucciones
+
+1.  **Carga el conjunto de datos `lung`** incluido en el paquete `survival`.
+
+    ```{r}
+    library(survival)
+    data(lung)
+    head(lung)
+    ```
+
+2.  **Explora las siguientes variables clave:**
+
+    -   `time`: tiempo hasta el evento (en días)
+    -   `status`: 1 = censurado, 2 = evento (muerte)
+    -   `sex`: 1 = hombre, 2 = mujer
+    -   `ph.ecog`: estado funcional del paciente
+
+3.  **Preprocesa la variable `status`** para que siga la convención `1 = evento`, `0 = censura`:
+
+    ```{r}
+    lung$status2 <- ifelse(lung$status == 2, 1, 0)
+    ```
+
+4.  **Crea el objeto de supervivencia:**
+
+    ```{r}
+    surv_obj <- Surv(time = lung$time, event = lung$status2)
+    ```
+
+5.  **Estima curvas Kaplan-Meier** para todos los pacientes y por grupo (`sex`):
+
+    ```{r}
+    km_all <- survfit(surv_obj ~ 1)
+    km_sex <- survfit(surv_obj ~ sex, data = lung)
+    ```
+
+6.  **Grafica las curvas** utilizando base R o `survminer`:
+
+    ```{r}
+    plot(km_all, xlab = "Días", ylab = "Supervivencia")
+    plot(km_sex, col = c("blue", "red"), xlab = "Días", ylab = "Supervivencia")
+    legend("bottomleft", legend = c("Hombres", "Mujeres"), col = c("blue", "red"), lty = 1)
+    ```
+
+7.  **Aplica la prueba log-rank** para comparar si hay diferencias de supervivencia entre hombres y mujeres:
+
+    ```{r}
+    survdiff(Surv(time, status2) ~ sex, data = lung)
+    ```
+
+8.  **Documenta tus hallazgos** en el documento:
+
+    -   Descripción del conjunto de datos
+    -   Interpretación de las curvas
+    -   Resultados del log-rank test
+    -   Conclusiones personales
+
+------------------------------------------------------------------------
+
+## 📤 Entrega del trabajo
+
+Sube dos archivos a la plataforma:
+
+-   `Tarea_Supervivencia_Nombre_Apellido.Rmd` o `.R`
+-   `Tarea_Supervivencia_Nombre_Apellido.pdf`
+
+------------------------------------------------------------------------
+
+## 📊 Criterios de evaluación (25 pts)
+
+| Criterio                                                | Puntos |
+|---------------------------------------------------------|--------|
+| Carga y estructura de datos, creación del objeto `Surv` | 4 pts  |
+| Estimación y visualización de curvas de supervivencia   | 5 pts  |
+| Comparación entre grupos (log-rank test)                | 5 pts  |
+| Interpretación y documentación de resultados            | 4 pts  |
+| Claridad, orden y presentación del documento            | 2 pts  |
