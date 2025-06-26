@@ -21,8 +21,8 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    chalkboard: true # ov a chalboard:  true o va self-contained: true
-    # self-contained: true
+    # chalkboard: true # ov a chalboard:  true o va self-contained: true
+    self-contained: true
     menu: true
     transition: slide
     background-transition: fade
@@ -948,14 +948,14 @@ survminer::ggsurvplot(modelo,data=datos, xlab = "Tiempo", ylab = "Supervivencia 
 
 ## Fórmula general del IC
 
-Para una estimación de la probabilidad de supervivencia ŜKM(t) en un tiempo 't' dado, el IC del 95% se calcula como:
+Para una estimación de la probabilidad de supervivencia $\hat{S}_{KM}(t)$ en un tiempo 't' dado, el IC del 95% se calcula como:
 
 $$
 \hat{S}_{KM}(t) \pm 1.96 \cdot \sqrt{\text{Var}(\hat{S}_{KM}(t))}
 $$
 
 - $\hat{S}_{KM}(t)$: estimador de Kaplan-Meier
-- $\text{Var}(\hat{S}_{KM}(t))$: varianza estimada con la fórmula de Greenwood, ver @klein2003.
+- $\text{Var}(\hat{S}_{KM}(t))$: varianza estimada con la fórmula de Greenwood, Ver sección 4.4 de  @klein2003 para detalles sobre la fórmula de Greenwood.
 - $1.96$: cuantil de la normal estándar para un 95% de confianza
 
 ---
@@ -1371,7 +1371,7 @@ for (t in tiempos_evento) {
     e1_num = e1_num,
     e2_num = e2_num,
     `e1f` = e1f,
-    `e2f` = e1f,
+    `e2f` = e2f,
     `m1f - e1f` = round(m1f - e1_num, 2),
     `m2f - e2f` = round(m2f - e2_num, 2)
   ))
@@ -1571,6 +1571,7 @@ Se **rechaza $H_0$** si el valor-p es menor al nivel de significancia.
 ## Visualización
 
 ```{r}
+#| echo: true
 fit <- survfit(Surv(tiempo, status) ~ grupo, data = datos)
 plot(fit, col = c("blue", "darkgreen"), lty = 1:2,
      xlab = "Tiempo", ylab = "Probabilidad de Supervivencia")
@@ -1593,7 +1594,7 @@ legend("bottomleft", legend = levels(datos$grupo), col = c("blue", "darkgreen"),
 
 Pasos:
 
-1.  Cargar datos con `data(lung)`
+1.  Cargar datos con `data(cancer, package="survival"); head(lung)`
 2.  Crear objeto `Surv(time, status)`
 3.  Estimar curvas por `sex`
 4.  Probar igualdad con log-rank

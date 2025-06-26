@@ -1,0 +1,268 @@
+---
+title: "Análisis de Supervivencia"
+subtitle: "Modelo de Riesgos Proporcionales de Cox"
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+toc: true
+toc-depth: 1
+
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    logo: figs/CIMAT.png
+    css: style.css
+    chalkboard: true # ov a chalboard:  true o va self-contained: true
+    # self-contained: true
+    menu: true
+    transition: slide
+    incremental: false
+    background-transition: fade
+    title-slide-attributes:
+      data-background-image: figs/Banner_diplomado.jpg
+      data-background-size: 55%
+      data-background-position: top center
+
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-pos: "H"
+    keep-tex: true
+    documentclass: article
+
+profile-default: revealjs
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+bibliography: bibliografia.bib
+csl: apa.csl
+---
+
+```{r}
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+```
+
+## Introducción
+
+-   El modelo de riesgos proporcionales de Cox es el más utilizado para analizar datos de supervivencia con múltiples covariables.
+-   Modelo de regresión **semiparamétrico**.
+-   Basado en @klein2003.
+
+------------------------------------------------------------------------
+
+## Fundamento Matemático del Modelo
+
+$$
+h(t|X) = h_0(t) \cdot \exp(\beta^T X)
+$$
+
+-   $h(t|X)$: función de riesgo condicional.
+-   $h_0(t)$: riesgo base (no especificado).
+-   $X$: vector de covariables.
+-   $\beta$: coeficientes a estimar.
+
+------------------------------------------------------------------------
+
+## Suposición de Riesgos Proporcionales (PH)
+
+-   La razón de riesgos entre dos individuos: $$
+    \frac{h(t|X_1)}{h(t|X_2)} = \exp(\beta^T(X_1 - X_2))
+    $$
+-   No depende del tiempo → **proporcionalidad**.
+-   Si las funciones de riesgo se cruzan, la suposición PH se viola.
+
+------------------------------------------------------------------------
+
+## Características del Modelo
+
+-   **Semiparamétrico**: no se asume forma para $h_0(t)$.
+-   Estimación de coeficientes mediante **verosimilitud parcial**.
+-   Robusto y flexible ante diferentes tipos de datos censurados.
+
+------------------------------------------------------------------------
+
+## I. Ejemplo computacional: Modelo de Cox PH {.smaller}
+
+Analizaremos el modelo de Cox PH usando una base de datos de remisión en pacientes con leucemia (@Freireich1963).
+
+-   Dos grupos con 21 pacientes cada uno:**Grupo 1** (Tratamiento), **Grupo 2** (Placebo)
+-   Covariable adicional: **log WBC**, un importante predictor pronóstico en leucemia.
+
+**Pregunta de investigación**: Comparar la supervivencia entre grupos, **ajustando por posibles efectos de confusión o interacción con log WBC**.
+
+::: {.callout-note appearance="minimal"}
+
+```{r}
+library(knitr)
+
+
+# Crear los datos
+leukemia <- data.frame(
+  time = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35,
+           1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 11, 12, 12, 15, 17, 22, 23),
+  status = c(rep(1, 9), rep(0, 12), rep(1, 21)),
+  group = c(rep(1, 21), rep(2, 21)),
+  logWBC = c(2.31, 4.06, 3.28, 4.43, 2.96, 2.88, 3.60, 2.32, 2.57, 
+             3.20, 2.80, 2.70, 2.60, 2.16, 2.05, 2.01, 1.78, 2.20, 2.53, 1.47, 1.45,
+             2.80, 5.00, 4.91, 4.48, 4.01, 4.36, 2.42, 3.49, 3.97, 
+             3.52, 3.05, 2.32, 3.26, 3.49, 2.12, 1.50, 3.06, 2.30, 2.95, 2.73, 1.97)
+)
+
+# Crear columnas de tiempo con o sin "+"
+leukemia$t_weeks <- ifelse(leukemia$status == 0, paste0(leukemia$time, "+"), as.character(leukemia$time))
+
+# Separar por grupo
+grupo1 <- subset(leukemia, group == 1, select = c(t_weeks, logWBC))
+grupo2 <- subset(leukemia, group == 2, select = c(t_weeks, logWBC))
+
+# Mostrar resultados
+#print(grupo1)
+#print(grupo2)
+
+
+# Combinar las tablas lado a lado
+tabla <- data.frame(
+  "t(Grupo 1)" = grupo1$t_weeks,
+  "log WBC (Grupo 1)" = grupo1$logWBC,
+  "t(Grupo 2)" = grupo2$t_weeks,
+  "log WBC (Grupo 2)" = grupo2$logWBC
+)
+
+# Mostrar con kable
+kable(tabla, align = "c", caption = "Leukemia Remission Data: Group 1 (Treatment) vs Group 2 (Placebo)")
+
+```
+
+:::
+
+------------------------------------------------------------------------
+
+## Datos de Leucemia {.scrollable}
+
+```{r}
+# Cargar paquetes necesarios
+library(survival)
+library(survminer)
+
+
+# Ajustar modelo de Cox con logWBC y grupo como covariables
+cox_model <- coxph(Surv(time, status) ~ logWBC + factor(group), data = leukemia)
+summary(cox_model)
+
+# Interpretar razón de riesgo (HR)
+exp(coef(cox_model))
+confint(cox_model)
+
+# Evaluar la suposición de riesgos proporcionales
+test_ph <- cox.zph(cox_model)
+print(test_ph)
+plot(test_ph)
+
+# Curvas de supervivencia ajustadas
+fit <- survfit(cox_model, newdata = data.frame(logWBC = median(leukemia$logWBC), group = c(1, 2)))
+
+# Graficar curvas ajustadas
+ggsurvplot(
+  fit,
+  data = leukemia,
+  legend.title = "Grupo",
+  legend.labs = c("Tratamiento", "Placebo"),
+  xlab = "Tiempo (semanas)",
+  ylab = "Probabilidad de supervivencia ajustada",
+  risk.table = TRUE
+)
+
+
+```
+
+## Estimación: Verosimilitud Parcial
+
+Ejemplo ilustrativo:
+
+-   Tres individuos: A, B, C.
+-   Eventos observados: ordenados por tiempo.
+-   La verosimilitud se basa en la probabilidad condicional de que el individuo que falla en cierto tiempo sea el que efectivamente lo hizo, dado el conjunto de riesgo.
+
+$$
+L(\beta) = \prod_{i \in D} \frac{\exp(\beta^T X_i)}{\sum_{j \in R(t_i)} \exp(\beta^T X_j)}
+$$
+
+------------------------------------------------------------------------
+
+## Evaluación de la Suposición PH
+
+**1. Gráficas**: - Curvas log(-log) paralelas. - Gráficas de Schoenfeld residuals.
+
+**2. Pruebas formales**: - Test global de PH (e.g., `cox.zph` en R).
+
+**3. Extensión con covariables dependientes del tiempo**: - Incluir interacción con función del tiempo.
+
+------------------------------------------------------------------------
+
+## Soluciones a Violaciones de PH
+
+-   **Modelo estratificado**:
+    -   $h_0(t)$ específico por estrato.
+-   **Modelo extendido**:
+    -   Términos dependientes del tiempo.
+
+------------------------------------------------------------------------
+
+## Interpretación: Razón de Riesgo (HR)
+
+-   $HR = \exp(\beta)$.
+-   HR \> 1: mayor riesgo.
+-   HR \< 1: efecto protector.
+
+Ejemplo: - $\beta = -0.6931$ → HR = 0.5 → reducción del 50% en el riesgo.
+
+------------------------------------------------------------------------
+
+## Curvas de Supervivencia Ajustadas
+
+-   Se obtienen con `survfit()` sobre modelo `coxph`.
+-   Permiten observar la supervivencia ajustando por covariables.
+
+Comparación: - Kaplan-Meier: no ajusta. - Cox ajustado: incorpora covariables.
+
+------------------------------------------------------------------------
+
+## Implementación en Software
+
+-   **R**: `survival`, `survminer`, `coxph()`, `ggsurvplot()`.
+-   **Stata**: `stcox`.
+-   **SAS**: `PROC PHREG`.
+-   **SPSS**: análisis de supervivencia → modelo de Cox.
+
+------------------------------------------------------------------------
+
+## Conclusiones
+
+-   Modelo robusto y versátil.
+-   Permite ajustar múltiples covariables.
+-   Ideal para datos censurados.
+-   Evaluar la suposición PH es crucial.
+
+------------------------------------------------------------------------
+
+## Recursos Recomendados
+
+-   Kleinbaum & Klein (2012). *Survival Analysis: A Self-Learning Text*.
+-   `vignette("survival")` en R.
+-   Documentación de `cox.zph` y `survfit`.

@@ -1,0 +1,80 @@
+---
+title: "Tarea: Análisis de supervivencia con R"
+format: docx
+editor: visual
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+---
+
+## Fin de aprendizaje
+
+Aplica herramientas del análisis de supervivencia utilizando R, enfocándote en la estimación de funciones de supervivencia, el análisis de curvas Kaplan-Meier y la comparación entre grupos mediante la prueba log-rank, con énfasis en la interpretación de resultados.
+
+------------------------------------------------------------------------
+
+## Introducción
+
+El análisis de supervivencia es una técnica estadística que permite modelar el tiempo hasta que ocurre un evento de interés.\
+En esta tarea trabajarás con el conjunto de datos `ovarian`, incluido en el paquete `survival` de R. Este dataset contiene información sobre pacientes con cáncer de ovario y permite comparar la supervivencia entre grupos de tratamiento.
+
+------------------------------------------------------------------------
+
+## Descripción de la tarea
+
+Antes de comenzar, carga el conjunto de datos `ovarian` desde el paquete `survival`:
+
+``` r
+library(survival)
+data(ovarian)
+head(ovarian)
+```
+
+En esta tarea aplicarás el análisis de supervivencia en el contexto del cáncer de ovario, utilizando el conjunto de datos `ovarian`. Compararás la supervivencia entre dos grupos de tratamiento.
+
+Desarrolla un análisis completo que contenga:
+
+-   Una breve descripción del conjunto de datos.
+-   Identificación de las variables clave utilizadas (tiempo, evento, grupo de tratamiento).
+-   Estimación y visualización de curvas de supervivencia (Kaplan-Meier).
+-   Comparación entre grupos mediante la prueba log-rank.
+-   Cálculo e interpretación de la supervivencia estimada en el día 300:
+    -   ¿Cuál es la probabilidad estimada de supervivencia para un tiempo de 300 días considerando todos los pacientes sin agrupar?
+    -   ¿Cómo cambia esa estimación al considerar los grupos de tratamiento por separado?
+    -   Estima también el intervalo de confianza para la supervivencia en el día 300 en ambos casos.
+-   Estimación de la supervivencia mediana:
+    -   ¿Cuál es el tiempo mediano de supervivencia para el conjunto completo?
+    -   ¿Cuál es el tiempo mediano de supervivencia para cada grupo de tratamiento?
+-   Conclusiones basadas en los hallazgos.
+
+Incluye el código necesario para ejecutar las funciones estadísticas. Enfoca el trabajo principalmente en la **interpretación y comunicación de los resultados**.
+
+------------------------------------------------------------------------
+
+## Entrega del trabajo
+
+Sube dos archivos a la plataforma:
+
+-   `Tarea_Supervivencia_Nombre_Apellido.Rmd`
+-   `Tarea_Supervivencia_Nombre_Apellido.pdf`
+
+Incluye en el documento R Markdown (`.Rmd`) el código, así como la **descripción, interpretación, hallazgos y conclusiones** del ejercicio. Utiliza celdas de texto en formato Markdown dentro del mismo archivo para estructurar claramente cada sección del informe.
+
+------------------------------------------------------------------------
+
+## Criterios de evaluación (20 pts)
+
+| Criterio | Puntos |
+|----|----|
+| Descripción del conjunto de datos y variables clave | 3 pts |
+| Estimación e interpretación de curvas de supervivencia | 4 pts |
+| Cálculo e interpretación de la supervivencia estimada en el día 300 | 4 pts |
+| Estimación e interpretación de la supervivencia mediana | 3 pts |
+| Conclusiones integradas y fundamentadas | 4 pts |
+| Claridad, orden y presentación del documento | 2 pts |

@@ -1,0 +1,46 @@
+---
+title: "Tarea de análisis de supervivencia con el dataset 'ovarian'"
+author: "Nombre del estudiante"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducción
+
+Breve descripción del contexto de la tarea y del propósito del análisis.
+
+# Carga de datos
+
+```{r}
+library(survival)
+data(ovarian)
+head(ovarian)
+```
+
+# Descripción del conjunto de datos
+
+Describe las variables que usarás (tiempo, evento, grupo de tratamiento) y su significado.
+
+# Estimación de curvas de supervivencia
+
+
+# Supervivencia estimada en el día 300
+
+Incluye aquí tu código y explicación para calcular la probabilidad de supervivencia al día 300 sin considerar grupos y luego por grupo. Incluye intervalos de confianza.
+
+# Supervivencia mediana
+
+Incluye el código y la interpretación del tiempo mediano de supervivencia general y por grupo de tratamiento.
+
+# Comparación entre grupos: prueba log-rank
+
+
+Interpreta los resultados de esta prueba.
+
+# Conclusiones
+
+Redacta tus conclusiones basadas en los resultados obtenidos. Considera qué diferencias encontraste entre grupos y cómo interpretarías esos hallazgos en un contexto médico.
+
