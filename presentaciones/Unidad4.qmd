@@ -21,8 +21,8 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    chalkboard: true # ov a chalboard:  true o va self-contained: true
-    # self-contained: true
+    #chalkboard: true # ov a chalboard:  true o va self-contained: true
+    self-contained: true
     menu: true
     toc: true
     toc-depth: 2    
