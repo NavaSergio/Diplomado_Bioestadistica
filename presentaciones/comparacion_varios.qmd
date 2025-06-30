@@ -4,6 +4,7 @@ format:
   html:
     toc: true
     code-fold: true
+    self-contained: true
 execute:
   echo: true
   warning: false
@@ -42,8 +43,8 @@ leukemia <- data.frame(
 ```{r}
 modelo_1 <- coxph(Surv(time, status) ~ 1, data = leukemia)
 modelo_2 <- coxph(Surv(time, status) ~ factor(group), data = leukemia)
-modelo_3 <- coxph(Surv(time, status) ~ logWBC + factor(group), data = leukemia)
-modelo_4 <- coxph(Surv(time, status) ~ logWBC * factor(group), data = leukemia)
+modelo_3 <- coxph(Surv(time, status) ~ factor(group) + logWBC, data = leukemia)
+modelo_4 <- coxph(Surv(time, status) ~ factor(group)*logWBC, data = leukemia)
 ```
 
 ## Comparación de modelos
@@ -82,6 +83,17 @@ kable(aic_tabla, caption = "Comparación de AIC entre modelos")
 # Suponemos que el modelo 3 es el elegido por AIC
 cox.zph(modelo_3)
 plot(cox.zph(modelo_3))
+fit <- survfit(modelo_3, newdata = data.frame(logWBC = median(leukemia$logWBC), group = c(1, 2)))
+ggsurvplot(
+  fit,
+  fun = "cloglog",  # complementary log-log
+  data = leukemia,
+  legend.labs = c("Tratamiento", "Placebo"),
+  legend.title = "Grupo",
+  xlab = "Tiempo (semanas)",
+  ylab = "log(-log(S(t)))",
+  title = "Curvas log(-log) por grupo"
+)
 ```
 
 ## Curvas de supervivencia ajustadas para modelo 3
