@@ -1,0 +1,108 @@
+---
+title: "Comparación de Modelos de Supervivencia"
+format:
+  html:
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Introducción
+
+Este documento compara varios modelos de supervivencia ajustados al mismo conjunto de datos utilizando el modelo de Cox. Se analizan desde el modelo nulo hasta uno con interacción entre covariables.
+
+## Carga de paquetes necesarios
+
+```{r}
+library(survival)
+library(survminer)
+library(knitr)
+```
+
+## Preparación del conjunto de datos
+
+```{r}
+leukemia <- data.frame(
+  time = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35,
+           1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 11, 12, 12, 15, 17, 22, 23),
+  status = c(rep(1, 9), rep(0, 12), rep(1, 21)),
+  group = c(rep(1, 21), rep(2, 21)),
+  logWBC = c(2.31, 4.06, 3.28, 4.43, 2.96, 2.88, 3.60, 2.32, 2.57, 
+             3.20, 2.80, 2.70, 2.60, 2.16, 2.05, 2.01, 1.78, 2.20, 2.53, 1.47, 1.45,
+             2.80, 5.00, 4.91, 4.48, 4.01, 4.36, 2.42, 3.49, 3.97, 
+             3.52, 3.05, 2.32, 3.26, 3.49, 2.12, 1.50, 3.06, 2.30, 2.95, 2.73, 1.97)
+)
+```
+
+## Ajuste de modelos de Cox
+
+```{r}
+modelo_1 <- coxph(Surv(time, status) ~ 1, data = leukemia)
+modelo_2 <- coxph(Surv(time, status) ~ factor(group), data = leukemia)
+modelo_3 <- coxph(Surv(time, status) ~ logWBC + factor(group), data = leukemia)
+modelo_4 <- coxph(Surv(time, status) ~ logWBC * factor(group), data = leukemia)
+```
+
+## Comparación de modelos
+
+```{r}
+# Resumen de cada modelo
+summary(modelo_1)
+summary(modelo_2)
+summary(modelo_3)
+summary(modelo_4)
+```
+
+**Explicación**:
+
+- **Modelo 1**: modelo nulo, sin covariables.
+- **Modelo 2**: incluye solo el efecto del tratamiento.
+- **Modelo 3**: incluye tratamiento y logWBC como covariables.
+- **Modelo 4**: incluye interacción entre tratamiento y logWBC.
+
+## Comparación usando AIC
+
+```{r}
+aic_tabla <- data.frame(
+  Modelo = c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4"),
+  AIC = c(AIC(modelo_1), AIC(modelo_2), AIC(modelo_3), AIC(modelo_4))
+)
+
+kable(aic_tabla, caption = "Comparación de AIC entre modelos")
+```
+
+**Interpretación**: Un valor de AIC más bajo indica mejor ajuste. Comparar estos valores permite seleccionar el modelo más parsimonioso con buen poder explicativo.
+
+## Evaluación gráfica del modelo seleccionado
+
+```{r}
+# Suponemos que el modelo 3 es el elegido por AIC
+cox.zph(modelo_3)
+plot(cox.zph(modelo_3))
+```
+
+## Curvas de supervivencia ajustadas para modelo 3
+
+```{r}
+fit <- survfit(modelo_3, newdata = data.frame(logWBC = median(leukemia$logWBC), group = c(1, 2)))
+
+ggsurvplot(
+  fit,
+  data = leukemia,
+  legend.title = "Grupo",
+  legend.labs = c("Tratamiento", "Placebo"),
+  xlab = "Tiempo (semanas)",
+  ylab = "Probabilidad de supervivencia ajustada",
+  risk.table = TRUE
+)
+```
+
+## Conclusiones
+
+- Se ajustaron cuatro modelos de Cox con diferentes niveles de complejidad.
+- El modelo que incluye logWBC y tratamiento (modelo 3) suele balancear simplicidad y ajuste.
+- Se evaluó la suposición de riesgos proporcionales y se graficaron curvas ajustadas.
+- Esta comparación ayuda a entender el impacto relativo de cada variable en el tiempo hasta recaída.

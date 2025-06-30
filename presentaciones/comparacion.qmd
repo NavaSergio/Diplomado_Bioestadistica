@@ -1,0 +1,101 @@
+---
+title: "Comparación de Modelos de Supervivencia"
+format:
+  html:
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Introducción
+
+Este documento compara modelos de supervivencia con un enfoque especial en el modelo de riesgos proporcionales de Cox. Se utilizan datos simulados o reales para ilustrar el ajuste, la interpretación de coeficientes y la evaluación de supuestos del modelo.
+
+## Carga de paquetes necesarios
+
+```{r}
+library(survival)      # Modelo de Cox y análisis de supervivencia
+library(survminer)     # Visualización de curvas de supervivencia
+library(knitr)         # Tablas bonitas
+```
+
+## Preparación del conjunto de datos
+
+```{r}
+leukemia <- data.frame(
+  time = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35,
+           1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 11, 12, 12, 15, 17, 22, 23),
+  status = c(rep(1, 9), rep(0, 12), rep(1, 21)),
+  group = c(rep(1, 21), rep(2, 21)),
+  logWBC = c(2.31, 4.06, 3.28, 4.43, 2.96, 2.88, 3.60, 2.32, 2.57, 
+             3.20, 2.80, 2.70, 2.60, 2.16, 2.05, 2.01, 1.78, 2.20, 2.53, 1.47, 1.45,
+             2.80, 5.00, 4.91, 4.48, 4.01, 4.36, 2.42, 3.49, 3.97, 
+             3.52, 3.05, 2.32, 3.26, 3.49, 2.12, 1.50, 3.06, 2.30, 2.95, 2.73, 1.97)
+)
+```
+
+**Explicación**: Este conjunto representa a pacientes con leucemia, donde `time` es el tiempo hasta recaída (o censura), `status` indica si ocurrió el evento (1) o no (0), `group` es el tratamiento (1 = tratado, 2 = placebo) y `logWBC` es el logaritmo del conteo de glóbulos blancos.
+
+## Ajuste del modelo de Cox
+
+```{r}
+cox_model <- coxph(Surv(time, status) ~ logWBC + factor(group), data = leukemia)
+summary(cox_model)
+```
+
+**Explicación**: El modelo de Cox ajusta el riesgo de recaída según el tratamiento y logWBC. `factor(group)` permite comparar placebo contra tratamiento. La salida incluye coeficientes `beta`, errores estándar, valor z y p-valor.
+
+## Interpretación del modelo (HR e IC)
+
+```{r}
+exp(coef(cox_model))       # Razón de riesgo (HR)
+exp(confint(cox_model))    # Intervalo de confianza del 95%
+```
+
+**Explicación**: Aquí se presentan los coeficientes exponenciados, que se interpretan como razones de riesgo (HR). Un HR > 1 indica mayor riesgo relativo; HR < 1 sugiere efecto protector. El intervalo de confianza permite evaluar si el efecto es estadísticamente significativo (no debe incluir 1).
+
+## Evaluación de la suposición de riesgos proporcionales
+
+```{r}
+test_ph <- cox.zph(cox_model)
+test_ph
+plot(test_ph)
+```
+
+**Hipótesis evaluadas con `cox.zph()`**:
+- **Hipótesis nula ($H_0$)**: la covariable cumple la suposición de riesgos proporcionales (el efecto de la covariable es constante en el tiempo).
+- **Hipótesis alternativa ($H_1$)**: la covariable no cumple la suposición de riesgos proporcionales (el efecto cambia con el tiempo).
+
+Un p-valor menor a 0.05 indica que se rechaza la hipótesis nula, sugiriendo que la suposición de riesgos proporcionales **no se cumple** para esa covariable.
+
+El gráfico asociado muestra residuos de Schoenfeld.
+
+## Curvas de supervivencia ajustadas
+
+```{r}
+fit <- survfit(cox_model, newdata = data.frame(logWBC = median(leukemia$logWBC), group = c(1, 2)))
+
+# Graficar curvas
+
+ggsurvplot(
+  fit,
+  data = leukemia,
+  legend.title = "Grupo",
+  legend.labs = c("Tratamiento", "Placebo"),
+  xlab = "Tiempo (semanas)",
+  ylab = "Probabilidad de supervivencia ajustada",
+  risk.table = TRUE
+)
+```
+
+**Explicación**: Se grafican las curvas de supervivencia estimadas para un paciente con nivel medio de logWBC, comparando tratamiento vs placebo. El `risk.table` muestra cuántos pacientes permanecen en riesgo a lo largo del tiempo.
+
+## Conclusiones
+
+- El modelo de Cox permite analizar el efecto conjunto de múltiples covariables sobre el tiempo de supervivencia.
+- La variable `logWBC` tiene un efecto significativo si su HR difiere de 1 con IC no cruzando el 1.
+- La suposición de riesgos proporcionales debe validarse gráficamente y estadísticamente.
+- Las curvas ajustadas permiten visualizar diferencias entre grupos controlando por otras covariables.

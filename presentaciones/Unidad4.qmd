@@ -1,5 +1,6 @@
 ---
-title: "Modelos Paramétricos"
+title: "Análisis de Supervivencia"
+subtitle: "Modelo de Riesgos Proporcionales de Cox"
 author: 
   - name: Sergio M. Nava Muñoz
     id: sn
@@ -20,10 +21,13 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    # chalkboard: true # ov a chalboard:  true o va self-contained: true
-    self-contained: true
+    chalkboard: true # ov a chalboard:  true o va self-contained: true
+    # self-contained: true
     menu: true
+    toc: true
+    toc-depth: 2    
     transition: slide
+    incremental: false
     background-transition: fade
     title-slide-attributes:
       data-background-image: figs/Banner_diplomado.jpg
@@ -48,158 +52,489 @@ execute:
 bibliography: bibliografia.bib
 csl: apa.csl
 ---
-## Objetivo
-
--   Introducir el concepto de máxima verosimilitud (MLE)
--   Aplicar MLE a modelos de tiempo de supervivencia
--   Usar R para estimar parámetros en presencia de censura
--   Interpretar estimaciones y su relación con funciones de supervivencia
-
-------------------------------------------------------------------------
-
-## ¿Qué es la verosimilitud?
-
--   Es una función que mide **cuán probable** es observar los datos dados ciertos parámetros. Este enfoque es introducido en @moore2016 como base para la estimación paramétrica en supervivencia.
-
--   Dado un modelo con función de densidad $f(t; \theta)$, la **verosimilitud** para un conjunto de datos $t_1, ..., t_n$ es:
-
-$$
-L(\theta) = \prod_{i=1}^n f(t_i; \theta)
-$$
-
--   Se busca el valor $\hat{\theta}$ que **maximiza** $L(\theta)$ o, más comúnmente, $\log L(\theta)$
-
-------------------------------------------------------------------------
-
-## Caso con censura
-
--   Si hay censura, se observa:
-
-    -   Tiempo $t_i$
-    -   Indicador $\delta_i = 1$ si ocurrió el evento, $0$ si censurado
-
--   La función de verosimilitud se ajusta:
-
-$$
-L(\theta) = \prod_{i=1}^n [f(t_i; \theta)]^{\delta_i} [S(t_i; \theta)]^{1 - \delta_i}
-$$
-
-Este desarrollo puede encontrarse también en @klein2003 como parte de la teoría general de modelos paramétricos en supervivencia.
-
-------------------------------------------------------------------------
-
-## Ejemplo: distribución exponencial
-
--   Supón $T \sim \text{Exp}(\lambda)$, entonces:
-
-    -   $f(t) = \lambda e^{-\lambda t}$
-    -   $S(t) = e^{-\lambda t}$
-
--   Verosimilitud con censura:
-
-$$
-L(\lambda) = \prod_{i=1}^n [\lambda e^{-\lambda t_i}]^{\delta_i} [e^{-\lambda t_i}]^{1 - \delta_i}
-= \lambda^d e^{-\lambda \sum t_i}
-$$
-
--   $d = \sum \delta_i$, número de eventos
-
-------------------------------------------------------------------------
-
-## Derivación del estimador MLE
-
-Para una discusión general sobre el principio de máxima verosimilitud, véase @casella2002statistical
-
--   Log-verosimilitud:
-
-$$
-\ell(\lambda) = d \log \lambda - \lambda \sum t_i
-$$
-
--   Derivando e igualando a 0:
-
-$$
-\frac{d}{d\lambda} \ell(\lambda) = \frac{d}{\lambda} - \sum t_i = 0
-\Rightarrow \hat{\lambda} = \frac{d}{\sum t_i}
-$$
-
-------------------------------------------------------------------------
-
-## Código R: estimación con censura
 
 ```{r}
-tt <- c(7, 6, 6, 5, 2, 4)
-status <- c(0, 1, 0, 0, 1, 1)
-
-d <- sum(status)
-suma_t <- sum(tt)
-lambda_hat <- d / suma_t
-lambda_hat
+#| results: hide
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+sapply(packages, require, character.only=TRUE)
 ```
 
+## Introducción
+
+-   El modelo de riesgos proporcionales de Cox es el más utilizado para analizar datos de supervivencia con múltiples covariables.
+-   Modelo de regresión **semiparamétrico**.
+-   Basado en @klein2003.
+
 ------------------------------------------------------------------------
 
-## Comparación con `survreg`
+## Fundamento Matemático del Modelo
+
+$$
+h(t|X) = h_0(t) \cdot \exp(\beta^T X)
+$$
+
+-   $h(t|X)$: función de riesgo condicional.
+-   $h_0(t)$: riesgo base (no especificado).
+-   $X$: vector de covariables.
+-   $\beta$: coeficientes a estimar.
+
+------------------------------------------------------------------------
+
+## Suposición de Riesgos Proporcionales (PH)
+
+-   La razón de riesgos entre dos individuos: $$
+    \frac{h(t|X_1)}{h(t|X_2)} = \exp(\beta^T(X_1 - X_2))
+    $$ 
+compara el riesgo de dos individuos con distintos valores de covariables $X_1$ y  $X_2$, en el mismo tiempo $t$.
+
+-   No depende del tiempo → **proporcionalidad**.
+-   Si las funciones de riesgo se cruzan, la suposición PH se viola.
+
+
+### Ejemplo concreto {.columns}
+
+
+::: {.column .smaller width="50%"}
+
+
+Supongamos un modelo con dos covariables:
+
+- `tratamiento`: 0 = control, 1 = experimental
+- `edad`: en años
+
+Y los coeficientes estimados son:
+
+- $\beta = (-0.5, 0.04)$
+
+
+:::
+
+::: {.column width="50%"}
+
 
 ```{r}
+#| echo: true
+# Vectores de covariables para dos individuos
+X1 <- c(tratamiento = 1, edad = 60)
+X2 <- c(tratamiento = 0, edad = 60)
+
+# Coeficientes estimados del modelo
+beta <- c(-0.5, 0.04)
+
+# Cálculo de la razón de riesgos
+HR <- exp(sum(beta * (X1 - X2)))
+HR
+```
+
+:::
+
+---
+
+
+### Ejemplo cuando no se cumple la proporcionalidad
+
+::::: columns
+::: {.column width="50%"}
+
+
+```{r}
+#| echo: true
 library(survival)
-fit <- survreg(Surv(tt, status) ~ 1, dist = "exponential")
-summary(fit)
+library(survminer)
+
+# Cargar datos
+data(lung)
+
+# Re-codificar status: 2 = evento, 1 = censura → convertir a 1/0
+lung$status2 <- ifelse(lung$status == 2, 1, 0)
+
+# Verificar niveles de sexo
+table(lung$sex)  # 1 = hombre, 2 = mujer
 ```
 
--   La estimación $\hat{\lambda}$ se relaciona con $\text{scale}^{-1}$
 
-## ¿Dónde está $\hat{\lambda}$ en `survreg()`?
+:::
 
-``` r
-fit <- survreg(Surv(tt, status) ~ 1, dist = "exponential")
-summary(fit)
-```
+::: {.column width="50%" }
 
--   El modelo AFT estima: $$
-    \log(T) = \mu + \varepsilon, \quad \text{con } \mu = \text{Intercepto}
-    $$
-
--   Para la distribución exponencial: $$
-    \mu = \log\left(\frac{1}{\lambda}\right) \Rightarrow
-    \hat{\lambda} = e^{-\mu}
-    $$
 
 ```{r}
-lambda_survreg <- exp(-fit$coefficients)
-lambda_survreg
+#| echo: true
+fit_km <- survfit(Surv(time, status2) ~ factor(sex), data = lung)
+
+ggsurvplot(fit_km,
+           data = lung,
+           conf.int = TRUE,
+           legend.labs = c("Hombre", "Mujer"),
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
 ```
 
--   En tu salida: `Intercept = 2.303`\
-    Entonces: $\hat{\lambda} = e^{-2.303} \approx 0.1$
+> Si las curvas se cruzan, puede indicar que la suposición de riesgos proporcionales se viola.
+
+
+:::
+:::::
+
+
 
 ------------------------------------------------------------------------
 
-## Interpretación de resultados
+## Características del Modelo
 
--   $\hat{\lambda}$ es la tasa de riesgo constante estimada
--   Su inverso es la **media de supervivencia**:
-
-$$
-\hat{E}(T) = \frac{1}{\hat{\lambda}}
-$$
+-   **Semiparamétrico**: no se asume forma para $h_0(t)$.
+-   Estimación de coeficientes mediante **verosimilitud parcial**.
+-   Robusto y flexible ante diferentes tipos de datos censurados.
 
 ------------------------------------------------------------------------
 
-## Actividad práctica
+## Interpretación de los coeficientes
 
-1.  Simula un conjunto de datos de supervivencia con censura
-2.  Calcula el estimador de máxima verosimilitud para $\lambda$
-3.  Usa `survreg` para confirmar
+### Razón de Riesgo (HR)
+
+-   $HR = \exp(\beta)$.
+-   HR \> 1: mayor riesgo.
+-   HR \< 1: efecto protector.
+-   HR ≈ 1 : no afecta el riesgo.
+
+### Ejemplos de interpretación de HR
+
+```{r}
+# Crear tabla de ejemplos
+ejemplos_hr <- data.frame(
+  Variable = c("tratamiento (experimental vs control)",
+               "edad (años)",
+               "karno (índice Karnofsky)"),
+  Coeficiente = c(-0.510, 0.050, -0.032),
+  HR = round(exp(c(-0.510, 0.050, -0.032)), 3),
+  Interpretación = c("40% menos riesgo en grupo experimental",
+                     "Cada año adicional → +5.1% riesgo",
+                     "Cada punto adicional → -3.2% riesgo")
+)
+
+# Mostrar tabla
+knitr::kable(ejemplos_hr,
+             caption = "Ejemplos de interpretación de razones de riesgo (HR)")
+
+```
+
+------------------------------------------------------------------------
+
+## Ejemplo computacional: Modelo de Cox PH {.smaller}
+
+Analizaremos el modelo de Cox PH usando una base de datos de remisión en pacientes con leucemia (@Freireich1963).
+
+-   Dos grupos con 21 pacientes cada uno:**Grupo 1** (Tratamiento), **Grupo 2** (Placebo)
+-   Covariable adicional: **log WBC**, un importante predictor pronóstico en leucemia.
+
+**Pregunta de investigación**: Comparar la supervivencia entre grupos, **ajustando por posibles efectos de confusión o interacción con log WBC**.
+
+::: {.callout-note appearance="minimal"}
+```{r}
+library(knitr)
+
+
+# Crear los datos
+leukemia <- data.frame(
+  time = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35,
+           1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 11, 12, 12, 15, 17, 22, 23),
+  status = c(rep(1, 9), rep(0, 12), rep(1, 21)),
+  group = c(rep(1, 21), rep(2, 21)),
+  logWBC = c(2.31, 4.06, 3.28, 4.43, 2.96, 2.88, 3.60, 2.32, 2.57, 
+             3.20, 2.80, 2.70, 2.60, 2.16, 2.05, 2.01, 1.78, 2.20, 2.53, 1.47, 1.45,
+             2.80, 5.00, 4.91, 4.48, 4.01, 4.36, 2.42, 3.49, 3.97, 
+             3.52, 3.05, 2.32, 3.26, 3.49, 2.12, 1.50, 3.06, 2.30, 2.95, 2.73, 1.97)
+)
+
+# Crear columnas de tiempo con o sin "+"
+leukemia$t_weeks <- ifelse(leukemia$status == 0, paste0(leukemia$time, "+"), as.character(leukemia$time))
+
+# Separar por grupo
+grupo1 <- subset(leukemia, group == 1, select = c(t_weeks, logWBC))
+grupo2 <- subset(leukemia, group == 2, select = c(t_weeks, logWBC))
+
+# Mostrar resultados
+#print(grupo1)
+#print(grupo2)
+
+
+# Combinar las tablas lado a lado
+tabla <- data.frame(
+  "t(Grupo 1)" = grupo1$t_weeks,
+  "log WBC (Grupo 1)" = grupo1$logWBC,
+  "t(Grupo 2)" = grupo2$t_weeks,
+  "log WBC (Grupo 2)" = grupo2$logWBC
+)
+
+# Mostrar con kable
+kable(tabla, align = "c", caption = "Leukemia Remission Data: Group 1 (Treatment) vs Group 2 (Placebo)")
+
+```
+:::
+
+------------------------------------------------------------------------
+
+### Datos de Leucemia {.scrollable}
+
+```{r}
+#| echo: true
+leukemia <- data.frame(
+  time = c(6, 6, 6, 7, 10, 13, 16, 22, 23, 6, 9, 10, 11, 17, 19, 20, 25, 32, 32, 34, 35,
+           1, 1, 2, 2, 3, 4, 4, 5, 5, 8, 8, 8, 8, 11, 11, 12, 12, 15, 17, 22, 23),
+  status = c(rep(1, 9), rep(0, 12), rep(1, 21)),
+  group = c(rep(1, 21), rep(2, 21)),
+  logWBC = c(2.31, 4.06, 3.28, 4.43, 2.96, 2.88, 3.60, 2.32, 2.57, 
+             3.20, 2.80, 2.70, 2.60, 2.16, 2.05, 2.01, 1.78, 2.20, 2.53, 1.47, 1.45,
+             2.80, 5.00, 4.91, 4.48, 4.01, 4.36, 2.42, 3.49, 3.97, 
+             3.52, 3.05, 2.32, 3.26, 3.49, 2.12, 1.50, 3.06, 2.30, 2.95, 2.73, 1.97)
+)
+```
+
+**Explicación**: Este conjunto representa a pacientes con leucemia, donde `time` es el tiempo hasta recaída (o censura), `status` indica si ocurrió el evento (1) o no (0), `group` es el tratamiento (1 = tratado, 2 = placebo) y `logWBC` es el logaritmo del conteo de glóbulos blancos.
+
+
+```{r}
+#| echo: true
+summary(leukemia)
+table(leukemia$status,leukemia$group)
+```
+
+
+---
+
+
+```{r}
+#| echo: true
+fit <- survfit(Surv(time, status) ~ group, data = leukemia)
+ggsurvplot(fit, xlab = "Tiempo", ylab = "Probabilidad de Supervivencia")
+```
+
+
+------------------------------------------------------------------------
+
+```{r}
+#| echo: true
+cox_model <- coxph(Surv(time, status) ~ factor(group) + logWBC, data = leukemia)
+summary(cox_model)
+```
+
+**Explicación**: El modelo de Cox ajusta el riesgo de recaída según el tratamiento y logWBC. `factor(group)` permite comparar placebo contra tratamiento. La salida incluye coeficientes `beta`, errores estándar, valor z y p-valor.
+
+------------------------------------------------------------------------
+
+**Interpretación del modelo (HR e IC)**
+
+```{r}
+#| echo: true
+exp(coef(cox_model))       # Razón de riesgo (HR)
+exp(confint(cox_model))    # Intervalo de confianza del 95% para HR
+```
+
+**Explicación**: Aquí se presentan los coeficientes exponenciados, que se interpretan como razones de riesgo (HR). Un HR \> 1 indica mayor riesgo relativo; HR \< 1 sugiere efecto protector. El intervalo de confianza permite evaluar si el efecto es estadísticamente significativo (no debe incluir 1).
+
+------------------------------------------------------------------------
+
+**Evaluación de la suposición de riesgos proporcionales**
+
+:::::: columns
+::: {.column width="50%"}
+```{r}
+#| echo: true
+test_ph <- cox.zph(cox_model)
+test_ph
+plot(test_ph)
+```
+:::
+
+:::: {.column width="50%"}
+::: {.callout-note title="Hipótesis evaluadas con `cox.zph()`"}
+-   **Hipótesis nula (**$H_0$): la covariable cumple la suposición de riesgos proporcionales (el efecto de la covariable es constante en el tiempo).
+-   **Hipótesis alternativa (**$H_1$): la covariable no cumple la suposición de riesgos proporcionales (el efecto cambia con el tiempo).
+
+Un p-valor menor a 0.05 indica que se rechaza la hipótesis nula, sugiriendo que la suposición de riesgos proporcionales **no se cumple** para esa covariable.
+
+El gráfico asociado muestra residuos de Schoenfeld.
+:::
+::::
+::::::
+
+------------------------------------------------------------------------
+
+### Curvas de supervivencia ajustadas
+
+```{r}
+fit <- survfit(cox_model, newdata = data.frame(logWBC = median(leukemia$logWBC), group = c(1, 2)))
+
+# Graficar curvas
+
+ggsurvplot(
+  fit,
+  data = leukemia,
+  legend.title = "Grupo",
+  legend.labs = c("Tratamiento", "Placebo"),
+  xlab = "Tiempo (semanas)",
+  ylab = "Probabilidad de supervivencia ajustada",
+  risk.table = TRUE
+)
+```
+
+**Explicación**: Se grafican las curvas de supervivencia estimadas para un paciente con nivel medio de logWBC, comparando tratamiento vs placebo. El `risk.table` muestra cuántos pacientes permanecen en riesgo a lo largo del tiempo.
+
+------------------------------------------------------------------------
+
+## Evaluación de la Suposición PH
+
+**1. Gráficas**:
+
+-   Curvas log(-log) paralelas.
+-   Gráficas de Schoenfeld residuals.
+
+**2. Pruebas formales**:
+
+-   Test global de PH (e.g., `cox.zph` en R).
+
+**3. Extensión con covariables dependientes del tiempo**:
+
+-   Incluir interacción con función del tiempo.
+
+
+------------------------------------------------------------------------
+
+### Evaluación de proporcionalidad: Curvas log(-log)
+
+::::: columns
+::: {.column .smaller width="50%"}
+-   Otra forma gráfica de verificar la suposición de riesgos proporcionales.
+-   Se grafican curvas:
+
+$$
+\log\{-\log[\hat{S}(t)]\}
+$$
+
+-   Se esperan **curvas paralelas** si la suposición PH se cumple.
+-   Se usa típicamente para comparar grupos categóricos (ej. tratamiento vs placebo).
+:::
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+fit_loglog <- survfit(Surv(time, status) ~ factor(group), data = leukemia)
+
+ggsurvplot(
+  fit_loglog,
+  fun = "cloglog",  # complementary log-log
+  data = leukemia,
+  legend.labs = c("Tratamiento", "Placebo"),
+  legend.title = "Grupo",
+  xlab = "Tiempo (semanas)",
+  ylab = "log(-log(S(t)))",
+  title = "Curvas log(-log) por grupo"
+)
+```
+
+-   Si las curvas **son aproximadamente paralelas**, la suposición PH se considera razonable.
+-   Si **se cruzan** o divergen significativamente, puede haber violación.
+:::
+:::::
+
+------------------------------------------------------------------------
+
+### Residuos de Schoenfeld
+
+::::: columns
+::: {.column .smaller width="50%"}
+-   Son residuos calculados **solo en los tiempos de evento**.
+-   Se usan para evaluar si el **efecto de una covariable es constante en el tiempo** (suposición de riesgos proporcionales).
+
+**Definición:**
+
+$$
+\text{Residuo de Schoenfeld} = X_{\text{observado}} - \mathbb{E}[X \mid \text{riesgo}]
+$$
+
+-   Donde $X$ es una covariable.
+-   Se calcula en cada tiempo de evento.
+:::
+
+::: {.column .smaller width="50%"}
+**Interpretación gráfica**
+
+-   Los residuos se grafican contra el tiempo.
+-   Se ajusta una curva de suavizado (por ejemplo, LOESS):
+    -   Si la curva es **horizontal**, el efecto de la covariable es constante.
+    -   Si tiene **pendiente creciente o decreciente**, sugiere que el efecto **cambia con el tiempo** → **violación de la suposición PH**.
+
+**Ejemplo de interpretación:**
+
+-   Línea plana: suposición PH razonable
+-   Tendencia ascendente: el efecto crece con el tiempo
+-   Tendencia descendente: el efecto decrece con el tiempo
+:::
+:::::
+
+------------------------------------------------------------------------
+
+### Test global de PH con `cox.zph()` {.columns}
+
+::: {.column width="50%"}
+### ¿Qué evalúa?
+
+-   Contrasta la **hipótesis nula** de que el efecto de cada covariable es constante en el tiempo.
+-   Evalúa la **proporcionalidad de riesgos** para cada covariable y de forma global.
+
+**Hipótesis:**
+
+-   $H_0$: la covariable cumple la suposición PH (efecto constante en el tiempo)
+-   $H_1$: el efecto varía con el tiempo
+
+Un **p-valor bajo (\< 0.05)** indica que **se viola** la suposición PH para esa covariable o globalmente.
+:::
+
+::: {.column width="50%"}
+### Ejemplo en R
+
+```{r}
+#| echo: true
+test_ph <- cox.zph(cox_model)
+test_ph
+```
+
+Esto muestra una tabla con:
+
+-   Una fila por covariable y una para el test global
+-   Estadístico chi-cuadrado y p-valor asociado
+
+**Interpretación**:
+
+-   Si el test global es significativo, el modelo **no cumple** con PH en general.
+-   Si solo una covariable tiene p \< 0.05, considerar transformaciones o modelos extendidos.
+:::
+
+---
+
+## Soluciones a Violaciones de PH
+
+-   **Modelo estratificado**:
+    -   $h_0(t)$ específico por estrato.
+-   **Modelo extendido**:
+    -   Términos dependientes del tiempo.
+
 
 ------------------------------------------------------------------------
 
 ## Conclusiones
 
--   MLE permite incorporar eventos y censura de forma natural
--   Las expresiones son simples en modelos paramétricos como el exponencial
--   Herramientas de R hacen este proceso accesible
+-   Modelo robusto y versátil.
+-   Permite ajustar múltiples covariables.
+-   Ideal para datos censurados.
+-   Evaluar la suposición PH es crucial.
 
-------------------------------------------------------------------------
 
-## Lecturas recomendadas
+
+## Referencias
+
+::: references
+:::
