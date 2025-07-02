@@ -55,10 +55,10 @@ summary(modelo_4)
 
 **Explicación**:
 
-- **Modelo 1**: modelo nulo, sin covariables.
-- **Modelo 2**: incluye solo el efecto del tratamiento.
-- **Modelo 3**: incluye tratamiento y age como covariables.
-- **Modelo 4**: incluye interacción entre tratamiento y age
+-   **Modelo 1**: modelo nulo, sin covariables.
+-   **Modelo 2**: incluye solo el efecto del tratamiento.
+-   **Modelo 3**: incluye tratamiento y age como covariables.
+-   **Modelo 4**: incluye interacción entre tratamiento y age
 
 ```{r}
 km_group <- survfit(Surv(futime, fustat) ~ group, data = ovarian)
@@ -66,8 +66,6 @@ ggsurvplot(km_group)
 ggsurvplot(km_group,
            fun="cloglog")
 ```
-
-
 
 ## Comparación usando AIC
 
@@ -119,7 +117,7 @@ ggsurvplot(
 
 ## Conclusiones
 
-- Se ajustaron cuatro modelos de Cox con diferentes niveles de complejidad.
-- El modelo que incluye age y tratamiento (modelo 3) suele balancear simplicidad y ajuste.
-- Se evaluó la suposición de riesgos proporcionales y se graficaron curvas ajustadas.
-- Esta comparación ayuda a entender el impacto relativo de cada variable en el tiempo hasta recaída.
+-   Se ajustaron cuatro modelos de Cox con diferentes niveles de complejidad.
+-   El modelo que incluye age y tratamiento (modelo 3) suele balancear simplicidad y ajuste.
+-   Se evaluó la suposición de riesgos proporcionales y se graficaron curvas ajustadas.
+-   Esta comparación ayuda a entender el impacto relativo de cada variable en el tiempo hasta recaída.

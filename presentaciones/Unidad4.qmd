@@ -21,8 +21,9 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    chalkboard: true # ov a chalboard:  true o va self-contained: true
-    #self-contained: true
+    code-fold: true
+    #chalkboard: true # ov a chalboard:  true o va self-contained: true
+    self-contained: true
     menu: true
     toc: true
     toc-depth: 2    
@@ -45,7 +46,7 @@ format:
 profile-default: revealjs
 
 execute:
-  echo: false
+  echo: true
   warning: false
   message: false
 
@@ -55,6 +56,7 @@ csl: apa.csl
 
 ```{r}
 #| results: hide
+#| echo: false
 packages <- c("survival","asaur","survminer")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
@@ -66,7 +68,7 @@ sapply(packages, require, character.only=TRUE)
 
 -   El modelo de riesgos proporcionales de Cox es el más utilizado para analizar datos de supervivencia con múltiples covariables.
 -   Modelo de regresión **semiparamétrico**.
--   Basado en @klein2003. 
+-   Basado en @klein2003.
 -   El artículo original se puede ver en @cox1972regression.
 
 ------------------------------------------------------------------------
@@ -88,34 +90,26 @@ $$
 
 -   La razón de riesgos entre dos individuos: $$
     \frac{h(t|X_1)}{h(t|X_2)} = \exp(\beta^T(X_1 - X_2))
-    $$ 
-compara el riesgo de dos individuos con distintos valores de covariables $X_1$ y  $X_2$, en el mismo tiempo $t$.
+    $$ compara el riesgo de dos individuos con distintos valores de covariables $X_1$ y $X_2$, en el mismo tiempo $t$.
 
 -   No depende del tiempo → **proporcionalidad**.
--   Si las funciones de riesgo se cruzan, la suposición PH se viola.
 
+-   Si las funciones de riesgo se cruzan, la suposición PH se viola.
 
 ### Ejemplo concreto {.columns}
 
-
 ::: {.column .smaller width="50%"}
-
-
 Supongamos un modelo con dos covariables:
 
-- `tratamiento`: 0 = control, 1 = experimental
-- `edad`: en años
+-   `tratamiento`: 0 = control, 1 = experimental
+-   `edad`: en años
 
 Y los coeficientes estimados son:
 
-- $\beta = (-0.5, 0.04)$
-
-
+-   $\beta = (-0.5, 0.04)$
 :::
 
 ::: {.column width="50%"}
-
-
 ```{r}
 #| echo: true
 # Vectores de covariables para dos individuos
@@ -129,25 +123,21 @@ beta <- c(-0.5, 0.04)
 HR <- exp(sum(beta * (X1 - X2)))
 HR
 ```
-
 :::
 
----
-
+------------------------------------------------------------------------
 
 ### Ejemplo cuando no se cumple la proporcionalidad
 
 ::::: columns
 ::: {.column width="50%"}
-
-
 ```{r}
 #| echo: true
 library(survival)
 library(survminer)
 
 # Cargar datos
-data(lung)
+data(cancer,package = "survival")
 
 # Re-codificar status: 2 = evento, 1 = censura → convertir a 1/0
 lung$status2 <- ifelse(lung$status == 2, 1, 0)
@@ -155,13 +145,9 @@ lung$status2 <- ifelse(lung$status == 2, 1, 0)
 # Verificar niveles de sexo
 table(lung$sex)  # 1 = hombre, 2 = mujer
 ```
-
-
 :::
 
-::: {.column width="50%" }
-
-
+::: {.column width="50%"}
 ```{r}
 #| echo: true
 fit_km <- survfit(Surv(time, status2) ~ factor(sex), data = lung)
@@ -175,12 +161,8 @@ ggsurvplot(fit_km,
 ```
 
 > Si las curvas se cruzan, puede indicar que la suposición de riesgos proporcionales se viola.
-
-
 :::
 :::::
-
-
 
 ------------------------------------------------------------------------
 
@@ -230,7 +212,6 @@ Analizaremos el modelo de Cox PH usando una base de datos de remisión en pacien
 
 -   Dos grupos con 21 pacientes cada uno:**Grupo 1** (Tratamiento), **Grupo 2** (Placebo)
 -   Covariable adicional: **log WBC** (*log white blood cell count* o logaritmo del recuento de leucocitos), un importante predictor pronóstico en leucemia.
-
 
 ::: {.callout-note appearance="minimal"}
 ```{r}
@@ -295,23 +276,19 @@ leukemia <- data.frame(
 
 **Explicación**: Este conjunto representa a pacientes con leucemia, donde `time` es el tiempo hasta recaída (o censura), `status` indica si ocurrió el evento (1) o no (0), `group` es el tratamiento (1 = tratado, 2 = placebo) y `logWBC` es el logaritmo del conteo de glóbulos blancos.
 
-
 ```{r}
 #| echo: true
 summary(leukemia)
 table(leukemia$status,leukemia$group)
 ```
 
-
----
-
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: true
 fit <- survfit(Surv(time, status) ~ group, data = leukemia)
 ggsurvplot(fit, xlab = "Tiempo", ylab = "Probabilidad de Supervivencia")
 ```
-
 
 ------------------------------------------------------------------------
 
@@ -399,7 +376,6 @@ ggsurvplot(
 **3. Extensión con covariables dependientes del tiempo**:
 
 -   Incluir interacción con función del tiempo.
-
 
 ------------------------------------------------------------------------
 
@@ -513,7 +489,7 @@ Esto muestra una tabla con:
 -   Si solo una covariable tiene p \< 0.05, considerar transformaciones o modelos extendidos.
 :::
 
----
+------------------------------------------------------------------------
 
 ## Soluciones a Violaciones de PH
 
@@ -522,8 +498,186 @@ Esto muestra una tabla con:
 -   **Modelo extendido**:
     -   Términos dependientes del tiempo.
 
+------------------------------------------------------------------------
+
+
+
+
+## Introducción a la estratificación {.smaller}
+
+-   El modelo de Cox supone que el efecto de cada covariable sobre el riesgo es **proporcional en el tiempo**.
+-   ¿Qué hacer si esta **suposición se viola para una covariable categórica**?
+-   **Solución práctica**: usar **estratificación**.
+
+### ¿Qué es la estratificación?
+
+-   Permite que la **función de riesgo base h₀(t)** sea **diferente para cada nivel** de una variable estratificadora.
+-   Se supone que **el efecto de otras covariables es el mismo** dentro de cada estrato.
+-   Se implementa con el argumento `strata()` en `coxph()`.
+
+### ¿Cuándo usarla?
+
+-   Cuando una covariable **no cumple la suposición de riesgos proporcionales**, pero **sí se desea controlar su efecto**.
+-   Ejemplos:
+    -   Hospital de origen
+    -   Sexo o edad agrupada
+    -   Centros clínicos
 
 ------------------------------------------------------------------------
+
+## Dataset ejemplo: `lung` (paquete `survival`) {.scrollable .smaller}
+
+```{r}
+#| echo: true
+library(survival)
+data(cancer, package="survival")
+lung$status2 <- ifelse(lung$status == 2, 1, 0)
+lung$sex <- factor(lung$sex, levels = c(1, 2), labels = c("Hombre", "Mujer"))
+lung$ph.ecog2 <- factor(lung$ph.ecog, 
+                        levels = c(0,1,2,3,4), 
+                        labels = c("asymptomatic", 
+                                   "symptomatic but completely ambulatory",
+                                   "in bed <50% of the day",
+                                   "in bed > 50% of the day but not bedbound",
+                                   "bedbound"))
+head(lung)
+summary(lung)
+```
+
+---
+
+```{r}
+#| echo: true
+lung <- lung %>%
+  mutate(surv_obj = Surv(time, status2))
+
+print(lung$surv_obj)
+```
+
+------------------------------------------------------------------------
+
+## Evaluación inicial: ¿sex viola PH? {.scrollable .smaller}
+
+
+```{r}
+mod1 <- coxph(surv_obj ~ sex + age, data = lung)
+summary(mod1)
+```
+
+### Evaluemos el supuesto de Proporcionalidad
+
+```{r}
+zph1 <- cox.zph(mod1)
+zph1
+plot(zph1)
+```
+
+-   Si el p-valor  en la prueba `cox.zph()` para `sex` es significativo o el gráfico tiene tendencia → **violación de PH**.
+
+---
+
+### Estimador de Kaplan-Meier por sexo {.collumns}
+
+
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+fit_km <- survfit(surv_obj ~ sex, data = lung)
+
+ggsurvplot(fit_km,
+           data = lung,
+           conf.int = TRUE,
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
+```
+:::
+
+
+::: {.column .smaller width="50%"}
+
+```{r}
+ggsurvplot(fit_km,
+           data = lung,
+           fun = "cloglog",
+           conf.int = TRUE,
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
+```
+:::
+
+
+------------------------------------------------------------------------
+
+## Estratificación por `sex` {.columns}
+
+
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+mod_strat <- coxph(surv_obj ~ age + strata(sex), data = lung)
+summary(mod_strat)
+```
+:::
+
+
+::: {.column .smaller width="50%"}
+
+```{r}
+zph_strat <- cox.zph(mod_strat)
+zph_strat
+plot(zph_strat)
+```
+
+-   La función de riesgo base es diferente para **hombres** y **mujeres**.
+-   La covariable `age` tiene el mismo efecto en ambos estratos.
+:::
+------------------------------------------------------------------------
+
+## Comparación de modelos: sin estratificación vs con estratificación {.scrollable .columns}
+
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+# Modelo sin estratificación
+AIC(mod1)
+
+# Modelo con estratificación
+AIC(mod_strat)
+
+# Ver ambos resúmenes
+summary(mod1)
+```
+:::
+
+::: {.column .smaller width="50%"}
+
+```{r}
+#| echo: true
+summary(mod_strat)
+anova(mod1, mod_strat, test = "LRT")
+```
+
+-   Se puede comparar el AIC para ver si mejora el ajuste.
+-   Nota: el coeficiente de `sex` desaparece en el modelo estratificado.
+:::
+
+------------------------------------------------------------------------
+
+## Comparación visual de curvas ajustadas {.scrollable}
+
+```{r}
+#| echo: true
+library(survminer)
+fit_strat <- survfit(mod_strat)
+
+ggsurvplot(fit_strat, data = lung,
+           legend.title = "Sexo (estratos)",
+           xlab = "Días", ylab = "Supervivencia ajustada")
+```
+
 
 ## Conclusiones
 
@@ -531,8 +685,6 @@ Esto muestra una tabla con:
 -   Permite ajustar múltiples covariables.
 -   Ideal para datos censurados.
 -   Evaluar la suposición PH es crucial.
-
-
 
 ## Referencias
 

@@ -1,27 +1,25 @@
 % Options for packages loaded elsewhere
-% Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
 ]{article}
-\usepackage{xcolor}
+
 \usepackage{amsmath,amssymb}
-\setcounter{secnumdepth}{5}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math} % this also loads fontspec
+  \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
 \usepackage{lmodern}
-\ifPDFTeX\else
-  % xetex/luatex font selection
+\ifPDFTeX\else  
+    % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -39,6 +37,9 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
 % Make \paragraph and \subparagraph free-standing
 \makeatletter
 \ifx\paragraph\undefined\else
@@ -104,7 +105,8 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
-\usepackage{longtable,booktabs,array}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
@@ -129,8 +131,6 @@
 % Set default figure placement to htbp
 \def\fps@figure{htbp}
 \makeatother
-
-
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -164,18 +164,6 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
-
-
-
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
-
-
- 
-
 
 \makeatletter
 \@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
@@ -234,9 +222,11 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \usepackage{bookmark}
+
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same}
+\urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
   pdftitle={Análisis de Supervivencia},
   pdfauthor={Sergio M. Nava Muñoz},
@@ -258,6 +248,7 @@
 \subtitle{Modelo de Riesgos Proporcionales de Cox}
 \author{Sergio M. Nava Muñoz}
 \date{2025-06-01}
+
 \begin{document}
 \maketitle
 
@@ -268,7 +259,7 @@
 \tableofcontents
 }
 
-\section{Introducción}\label{introducciuxf3n}
+\subsection{Introducción}\label{introducciuxf3n}
 
 \begin{itemize}
 \tightlist
@@ -279,11 +270,13 @@
   Modelo de regresión \textbf{semiparamétrico}.
 \item
   Basado en Klein \& Moeschberger (2003).
+\item
+  El artículo original se puede ver en Cox (1972).
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Fundamento Matemático del
+\subsection{Fundamento Matemático del
 Modelo}\label{fundamento-matemuxe1tico-del-modelo}
 
 \[
@@ -304,7 +297,7 @@ h(t|X) = h_0(t) \cdot \exp(\beta^T X)
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Suposición de Riesgos Proporcionales
+\subsection{Suposición de Riesgos Proporcionales
 (PH)}\label{suposiciuxf3n-de-riesgos-proporcionales-ph}
 
 \begin{itemize}
@@ -319,7 +312,7 @@ h(t|X) = h_0(t) \cdot \exp(\beta^T X)
   Si las funciones de riesgo se cruzan, la suposición PH se viola.
 \end{itemize}
 
-\subsection{Ejemplo concreto}\label{ejemplo-concreto}
+\subsubsection{Ejemplo concreto}\label{ejemplo-concreto}
 
 Supongamos un modelo con dos covariables:
 
@@ -360,7 +353,7 @@ Y los coeficientes estimados son:
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Ejemplo cuando no se cumple la
+\subsubsection{Ejemplo cuando no se cumple la
 proporcionalidad}\label{ejemplo-cuando-no-se-cumple-la-proporcionalidad}
 
 \begin{Shaded}
@@ -369,7 +362,7 @@ proporcionalidad}\label{ejemplo-cuando-no-se-cumple-la-proporcionalidad}
 \FunctionTok{library}\NormalTok{(survminer)}
 
 \CommentTok{\# Cargar datos}
-\FunctionTok{data}\NormalTok{(lung)}
+\FunctionTok{data}\NormalTok{(cancer,}\AttributeTok{package =} \StringTok{"survival"}\NormalTok{)}
 
 \CommentTok{\# Re{-}codificar status: 2 = evento, 1 = censura → convertir a 1/0}
 \NormalTok{lung}\SpecialCharTok{$}\NormalTok{status2 }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(lung}\SpecialCharTok{$}\NormalTok{status }\SpecialCharTok{==} \DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
@@ -407,7 +400,7 @@ proporcionales se viola.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Características del
+\subsection{Características del
 Modelo}\label{caracteruxedsticas-del-modelo}
 
 \begin{itemize}
@@ -422,10 +415,10 @@ Modelo}\label{caracteruxedsticas-del-modelo}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Interpretación de los
+\subsection{Interpretación de los
 coeficientes}\label{interpretaciuxf3n-de-los-coeficientes}
 
-\subsection{Razón de Riesgo (HR)}\label{razuxf3n-de-riesgo-hr}
+\subsubsection{Razón de Riesgo (HR)}\label{razuxf3n-de-riesgo-hr}
 
 \begin{itemize}
 \tightlist
@@ -439,8 +432,28 @@ coeficientes}\label{interpretaciuxf3n-de-los-coeficientes}
   HR ≈ 1 : no afecta el riesgo.
 \end{itemize}
 
-\subsection{Ejemplos de interpretación de
+\subsubsection{Ejemplos de interpretación de
 HR}\label{ejemplos-de-interpretaciuxf3n-de-hr}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Crear tabla de ejemplos}
+\NormalTok{ejemplos\_hr }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{Variable =} \FunctionTok{c}\NormalTok{(}\StringTok{"tratamiento (experimental vs control)"}\NormalTok{,}
+               \StringTok{"edad (años)"}\NormalTok{,}
+               \StringTok{"karno (índice Karnofsky)"}\NormalTok{),}
+  \AttributeTok{Coeficiente =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.510}\NormalTok{, }\FloatTok{0.050}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.032}\NormalTok{),}
+  \AttributeTok{HR =} \FunctionTok{round}\NormalTok{(}\FunctionTok{exp}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.510}\NormalTok{, }\FloatTok{0.050}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.032}\NormalTok{)), }\DecValTok{3}\NormalTok{),}
+\NormalTok{  Interpretación }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"40\% menos riesgo en grupo experimental"}\NormalTok{,}
+                     \StringTok{"Cada año adicional → +5.1\% riesgo"}\NormalTok{,}
+                     \StringTok{"Cada punto adicional → {-}3.2\% riesgo"}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Mostrar tabla}
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(ejemplos\_hr,}
+             \AttributeTok{caption =} \StringTok{"Ejemplos de interpretación de razones de riesgo (HR)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.4000}}
@@ -484,7 +497,7 @@ karno (índice Karnofsky) & -0.032 & 0.969 & Cada punto adicional →
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Ejemplo computacional: Modelo de Cox
+\subsection{Ejemplo computacional: Modelo de Cox
 PH}\label{ejemplo-computacional-modelo-de-cox-ph}
 
 Analizaremos el modelo de Cox PH usando una base de datos de remisión en
@@ -496,15 +509,54 @@ pacientes con leucemia (Freireich et al. (1963)).
   Dos grupos con 21 pacientes cada uno:\textbf{Grupo 1} (Tratamiento),
   \textbf{Grupo 2} (Placebo)
 \item
-  Covariable adicional: \textbf{log WBC}, un importante predictor
-  pronóstico en leucemia.
+  Covariable adicional: \textbf{log WBC} (\emph{log white blood cell
+  count} o logaritmo del recuento de leucocitos), un importante
+  predictor pronóstico en leucemia.
 \end{itemize}
 
-\textbf{Pregunta de investigación}: Comparar la supervivencia entre
-grupos, \textbf{ajustando por posibles efectos de confusión o
-interacción con log WBC}.
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, bottomrule=.15mm, leftrule=.75mm, rightrule=.15mm, arc=.35mm, toprule=.15mm, left=2mm, colframe=quarto-callout-note-color-frame, breakable, colback=white]
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, toprule=.15mm, leftrule=.75mm, opacityback=0, left=2mm, colback=white, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomrule=.15mm, breakable]
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(knitr)}
+
+
+\CommentTok{\# Crear los datos}
+\NormalTok{leukemia }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{time =} \FunctionTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{13}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{23}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{35}\NormalTok{,}
+           \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{23}\NormalTok{),}
+  \AttributeTok{status =} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{9}\NormalTok{), }\FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{12}\NormalTok{), }\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{21}\NormalTok{)),}
+  \AttributeTok{group =} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{21}\NormalTok{), }\FunctionTok{rep}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{21}\NormalTok{)),}
+  \AttributeTok{logWBC =} \FunctionTok{c}\NormalTok{(}\FloatTok{2.31}\NormalTok{, }\FloatTok{4.06}\NormalTok{, }\FloatTok{3.28}\NormalTok{, }\FloatTok{4.43}\NormalTok{, }\FloatTok{2.96}\NormalTok{, }\FloatTok{2.88}\NormalTok{, }\FloatTok{3.60}\NormalTok{, }\FloatTok{2.32}\NormalTok{, }\FloatTok{2.57}\NormalTok{, }
+             \FloatTok{3.20}\NormalTok{, }\FloatTok{2.80}\NormalTok{, }\FloatTok{2.70}\NormalTok{, }\FloatTok{2.60}\NormalTok{, }\FloatTok{2.16}\NormalTok{, }\FloatTok{2.05}\NormalTok{, }\FloatTok{2.01}\NormalTok{, }\FloatTok{1.78}\NormalTok{, }\FloatTok{2.20}\NormalTok{, }\FloatTok{2.53}\NormalTok{, }\FloatTok{1.47}\NormalTok{, }\FloatTok{1.45}\NormalTok{,}
+             \FloatTok{2.80}\NormalTok{, }\FloatTok{5.00}\NormalTok{, }\FloatTok{4.91}\NormalTok{, }\FloatTok{4.48}\NormalTok{, }\FloatTok{4.01}\NormalTok{, }\FloatTok{4.36}\NormalTok{, }\FloatTok{2.42}\NormalTok{, }\FloatTok{3.49}\NormalTok{, }\FloatTok{3.97}\NormalTok{, }
+             \FloatTok{3.52}\NormalTok{, }\FloatTok{3.05}\NormalTok{, }\FloatTok{2.32}\NormalTok{, }\FloatTok{3.26}\NormalTok{, }\FloatTok{3.49}\NormalTok{, }\FloatTok{2.12}\NormalTok{, }\FloatTok{1.50}\NormalTok{, }\FloatTok{3.06}\NormalTok{, }\FloatTok{2.30}\NormalTok{, }\FloatTok{2.95}\NormalTok{, }\FloatTok{2.73}\NormalTok{, }\FloatTok{1.97}\NormalTok{)}
+\NormalTok{)}
+
+\CommentTok{\# Crear columnas de tiempo con o sin "+"}
+\NormalTok{leukemia}\SpecialCharTok{$}\NormalTok{t\_weeks }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(leukemia}\SpecialCharTok{$}\NormalTok{status }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\FunctionTok{paste0}\NormalTok{(leukemia}\SpecialCharTok{$}\NormalTok{time, }\StringTok{"+"}\NormalTok{), }\FunctionTok{as.character}\NormalTok{(leukemia}\SpecialCharTok{$}\NormalTok{time))}
+
+\CommentTok{\# Separar por grupo}
+\NormalTok{grupo1 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(leukemia, group }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\AttributeTok{select =} \FunctionTok{c}\NormalTok{(t\_weeks, logWBC))}
+\NormalTok{grupo2 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(leukemia, group }\SpecialCharTok{==} \DecValTok{2}\NormalTok{, }\AttributeTok{select =} \FunctionTok{c}\NormalTok{(t\_weeks, logWBC))}
+
+\CommentTok{\# Mostrar resultados}
+\CommentTok{\#print(grupo1)}
+\CommentTok{\#print(grupo2)}
+
+
+\CommentTok{\# Combinar las tablas lado a lado}
+\NormalTok{tabla }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \StringTok{"t(Grupo 1)"} \OtherTok{=}\NormalTok{ grupo1}\SpecialCharTok{$}\NormalTok{t\_weeks,}
+  \StringTok{"log WBC (Grupo 1)"} \OtherTok{=}\NormalTok{ grupo1}\SpecialCharTok{$}\NormalTok{logWBC,}
+  \StringTok{"t(Grupo 2)"} \OtherTok{=}\NormalTok{ grupo2}\SpecialCharTok{$}\NormalTok{t\_weeks,}
+  \StringTok{"log WBC (Grupo 2)"} \OtherTok{=}\NormalTok{ grupo2}\SpecialCharTok{$}\NormalTok{logWBC}
+\NormalTok{)}
+
+\CommentTok{\# Mostrar con kable}
+\FunctionTok{kable}\NormalTok{(tabla, }\AttributeTok{align =} \StringTok{"c"}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Leukemia Remission Data: Group 1 (Treatment) vs Group 2 (Placebo)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{longtable}[]{@{}cccc@{}}
 \caption{Leukemia Remission Data: Group 1 (Treatment) vs Group 2
@@ -546,7 +598,7 @@ t.Grupo.1. & log.WBC..Grupo.1. & t.Grupo.2. & log.WBC..Grupo.2. \\
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Datos de Leucemia}\label{datos-de-leucemia}
+\subsubsection{Datos de Leucemia}\label{datos-de-leucemia}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -707,7 +759,7 @@ GLOBAL        4.02e-02  2 0.98
 
 \pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-12-2.pdf}}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, bottomrule=.15mm, left=2mm, arc=.35mm, colframe=quarto-callout-note-color-frame, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Hipótesis evaluadas con \texttt{cox.zph()}}, breakable, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm, coltitle=black, opacitybacktitle=0.6, leftrule=.75mm, opacityback=0, colback=white, titlerule=0mm, bottomtitle=1mm, toptitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Hipótesis evaluadas con \texttt{cox.zph()}}, breakable, opacitybacktitle=0.6, leftrule=.75mm, coltitle=black, titlerule=0mm, bottomtitle=1mm, rightrule=.15mm, arc=.35mm, toptitle=1mm, toprule=.15mm, colframe=quarto-callout-note-color-frame, left=2mm, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -730,8 +782,26 @@ El gráfico asociado muestra residuos de Schoenfeld.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Curvas de supervivencia
+\subsubsection{Curvas de supervivencia
 ajustadas}\label{curvas-de-supervivencia-ajustadas}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit }\OtherTok{\textless{}{-}} \FunctionTok{survfit}\NormalTok{(cox\_model, }\AttributeTok{newdata =} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{logWBC =} \FunctionTok{median}\NormalTok{(leukemia}\SpecialCharTok{$}\NormalTok{logWBC), }\AttributeTok{group =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)))}
+
+\CommentTok{\# Graficar curvas}
+
+\FunctionTok{ggsurvplot}\NormalTok{(}
+\NormalTok{  fit,}
+  \AttributeTok{data =}\NormalTok{ leukemia,}
+  \AttributeTok{legend.title =} \StringTok{"Grupo"}\NormalTok{,}
+  \AttributeTok{legend.labs =} \FunctionTok{c}\NormalTok{(}\StringTok{"Tratamiento"}\NormalTok{, }\StringTok{"Placebo"}\NormalTok{),}
+  \AttributeTok{xlab =} \StringTok{"Tiempo (semanas)"}\NormalTok{,}
+  \AttributeTok{ylab =} \StringTok{"Probabilidad de supervivencia ajustada"}\NormalTok{,}
+  \AttributeTok{risk.table =} \ConstantTok{TRUE}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-13-1.pdf}}
 
@@ -742,7 +812,7 @@ riesgo a lo largo del tiempo.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Evaluación de la Suposición
+\subsection{Evaluación de la Suposición
 PH}\label{evaluaciuxf3n-de-la-suposiciuxf3n-ph}
 
 \textbf{1. Gráficas}:
@@ -773,7 +843,7 @@ PH}\label{evaluaciuxf3n-de-la-suposiciuxf3n-ph}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Evaluación de proporcionalidad: Curvas
+\subsubsection{Evaluación de proporcionalidad: Curvas
 log(-log)}\label{evaluaciuxf3n-de-proporcionalidad-curvas-log-log}
 
 \begin{itemize}
@@ -829,7 +899,7 @@ log(-log)}\label{evaluaciuxf3n-de-proporcionalidad-curvas-log-log}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{Residuos de Schoenfeld}\label{residuos-de-schoenfeld}
+\subsubsection{Residuos de Schoenfeld}\label{residuos-de-schoenfeld}
 
 \begin{itemize}
 \tightlist
@@ -889,10 +959,10 @@ log(-log)}\label{evaluaciuxf3n-de-proporcionalidad-curvas-log-log}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{\texorpdfstring{Test global de PH con
+\subsubsection{\texorpdfstring{Test global de PH con
 \texttt{cox.zph()}}{Test global de PH con cox.zph()}}\label{test-global-de-ph-con-cox.zph}
 
-\subsection{¿Qué evalúa?}\label{quuxe9-evaluxfaa}
+\subsubsection{¿Qué evalúa?}\label{quuxe9-evaluxfaa}
 
 \begin{itemize}
 \tightlist
@@ -918,7 +988,7 @@ log(-log)}\label{evaluaciuxf3n-de-proporcionalidad-curvas-log-log}
 Un \textbf{p-valor bajo (\textless{} 0.05)} indica que \textbf{se viola}
 la suposición PH para esa covariable o globalmente.
 
-\subsection{Ejemplo en R}\label{ejemplo-en-r}
+\subsubsection{Ejemplo en R}\label{ejemplo-en-r}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -958,7 +1028,7 @@ Esto muestra una tabla con:
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Soluciones a Violaciones de
+\subsection{Soluciones a Violaciones de
 PH}\label{soluciones-a-violaciones-de-ph}
 
 \begin{itemize}
@@ -983,7 +1053,460 @@ PH}\label{soluciones-a-violaciones-de-ph}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\section{Conclusiones}\label{conclusiones}
+\subsection{Introducción a la
+estratificación}\label{introducciuxf3n-a-la-estratificaciuxf3n}
+
+\begin{itemize}
+\tightlist
+\item
+  El modelo de Cox supone que el efecto de cada covariable sobre el
+  riesgo es \textbf{proporcional en el tiempo}.
+\item
+  ¿Qué hacer si esta \textbf{suposición se viola para una covariable
+  categórica}?
+\item
+  \textbf{Solución práctica}: usar \textbf{estratificación}.
+\end{itemize}
+
+\subsubsection{¿Qué es la
+estratificación?}\label{quuxe9-es-la-estratificaciuxf3n}
+
+\begin{itemize}
+\tightlist
+\item
+  Permite que la \textbf{función de riesgo base h₀(t)} sea
+  \textbf{diferente para cada nivel} de una variable estratificadora.
+\item
+  Se supone que \textbf{el efecto de otras covariables es el mismo}
+  dentro de cada estrato.
+\item
+  Se implementa con el argumento \texttt{strata()} en \texttt{coxph()}.
+\end{itemize}
+
+\subsubsection{¿Cuándo usarla?}\label{cuuxe1ndo-usarla}
+
+\begin{itemize}
+\tightlist
+\item
+  Cuando una covariable \textbf{no cumple la suposición de riesgos
+  proporcionales}, pero \textbf{sí se desea controlar su efecto}.
+\item
+  Ejemplos:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Hospital de origen
+  \item
+    Sexo o edad agrupada
+  \item
+    Centros clínicos
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{Dataset ejemplo: \texttt{lung} (paquete
+\texttt{survival})}{Dataset ejemplo: lung (paquete survival)}}\label{dataset-ejemplo-lung-paquete-survival}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(survival)}
+\FunctionTok{data}\NormalTok{(cancer, }\AttributeTok{package=}\StringTok{"survival"}\NormalTok{)}
+\NormalTok{lung}\SpecialCharTok{$}\NormalTok{status2 }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(lung}\SpecialCharTok{$}\NormalTok{status }\SpecialCharTok{==} \DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{lung}\SpecialCharTok{$}\NormalTok{sex }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(lung}\SpecialCharTok{$}\NormalTok{sex, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{), }\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Hombre"}\NormalTok{, }\StringTok{"Mujer"}\NormalTok{))}
+\NormalTok{lung}\SpecialCharTok{$}\NormalTok{ph.ecog2 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(lung}\SpecialCharTok{$}\NormalTok{ph.ecog, }
+                        \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{4}\NormalTok{), }
+                        \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"asymptomatic"}\NormalTok{, }
+                                   \StringTok{"symptomatic but completely ambulatory"}\NormalTok{,}
+                                   \StringTok{"in bed \textless{}50\% of the day"}\NormalTok{,}
+                                   \StringTok{"in bed \textgreater{} 50\% of the day but not bedbound"}\NormalTok{,}
+                                   \StringTok{"bedbound"}\NormalTok{))}
+\FunctionTok{head}\NormalTok{(lung)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  inst time status age    sex ph.ecog ph.karno pat.karno meal.cal wt.loss
+1    3  306      2  74 Hombre       1       90       100     1175      NA
+2    3  455      2  68 Hombre       0       90        90     1225      15
+3    3 1010      1  56 Hombre       0       90        90       NA      15
+4    5  210      2  57 Hombre       1       90        60     1150      11
+5    1  883      2  60 Hombre       0      100        90       NA       0
+6   12 1022      1  74 Hombre       1       50        80      513       0
+  status2                              ph.ecog2
+1       1 symptomatic but completely ambulatory
+2       1                          asymptomatic
+3       0                          asymptomatic
+4       1 symptomatic but completely ambulatory
+5       1                          asymptomatic
+6       0 symptomatic but completely ambulatory
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(lung)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+      inst            time            status           age            sex     
+ Min.   : 1.00   Min.   :   5.0   Min.   :1.000   Min.   :39.00   Hombre:138  
+ 1st Qu.: 3.00   1st Qu.: 166.8   1st Qu.:1.000   1st Qu.:56.00   Mujer : 90  
+ Median :11.00   Median : 255.5   Median :2.000   Median :63.00               
+ Mean   :11.09   Mean   : 305.2   Mean   :1.724   Mean   :62.45               
+ 3rd Qu.:16.00   3rd Qu.: 396.5   3rd Qu.:2.000   3rd Qu.:69.00               
+ Max.   :33.00   Max.   :1022.0   Max.   :2.000   Max.   :82.00               
+ NA's   :1                                                                    
+    ph.ecog          ph.karno        pat.karno         meal.cal     
+ Min.   :0.0000   Min.   : 50.00   Min.   : 30.00   Min.   :  96.0  
+ 1st Qu.:0.0000   1st Qu.: 75.00   1st Qu.: 70.00   1st Qu.: 635.0  
+ Median :1.0000   Median : 80.00   Median : 80.00   Median : 975.0  
+ Mean   :0.9515   Mean   : 81.94   Mean   : 79.96   Mean   : 928.8  
+ 3rd Qu.:1.0000   3rd Qu.: 90.00   3rd Qu.: 90.00   3rd Qu.:1150.0  
+ Max.   :3.0000   Max.   :100.00   Max.   :100.00   Max.   :2600.0  
+ NA's   :1        NA's   :1        NA's   :3        NA's   :47      
+    wt.loss           status2      
+ Min.   :-24.000   Min.   :0.0000  
+ 1st Qu.:  0.000   1st Qu.:0.0000  
+ Median :  7.000   Median :1.0000  
+ Mean   :  9.832   Mean   :0.7237  
+ 3rd Qu.: 15.750   3rd Qu.:1.0000  
+ Max.   : 68.000   Max.   :1.0000  
+ NA's   :14                        
+                                     ph.ecog2  
+ asymptomatic                            : 63  
+ symptomatic but completely ambulatory   :113  
+ in bed <50% of the day                  : 50  
+ in bed > 50% of the day but not bedbound:  1  
+ bedbound                                :  0  
+ NA's                                    :  1  
+                                               
+\end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lung }\OtherTok{\textless{}{-}}\NormalTok{ lung }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{surv\_obj =} \FunctionTok{Surv}\NormalTok{(time, status2))}
+
+\FunctionTok{print}\NormalTok{(lung}\SpecialCharTok{$}\NormalTok{surv\_obj)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  [1]  306   455  1010+  210   883  1022+  310   361   218   166   170   654 
+ [13]  728    71   567   144   613   707    61    88   301    81   624   371 
+ [25]  394   520   574   118   390    12   473    26   533   107    53   122 
+ [37]  814   965+   93   731   460   153   433   145   583    95   303   519 
+ [49]  643   765   735   189    53   246   689    65     5   132   687   345 
+ [61]  444   223   175    60   163    65   208   821+  428   230   840+  305 
+ [73]   11   132   226   426   705   363    11   176   791    95   196+  167 
+ [85]  806+  284   641   147   740+  163   655   239    88   245   588+   30 
+ [97]  179   310   477   166   559+  450   364   107   177   156   529+   11 
+[109]  429   351    15   181   283   201   524    13   212   524   288   363 
+[121]  442   199   550    54   558   207    92    60   551+  543+  293   202 
+[133]  353   511+  267   511+  371   387   457   337   201   404+  222    62 
+[145]  458+  356+  353   163    31   340   229   444+  315+  182   156   329 
+[157]  364+  291   179   376+  384+  268   292+  142   413+  266+  194   320 
+[169]  181   285   301+  348   197   382+  303+  296+  180   186   145   269+
+[181]  300+  284+  350   272+  292+  332+  285   259+  110   286   270    81 
+[193]  131   225+  269   225+  243+  279+  276+  135    79    59   240+  202+
+[205]  235+  105   224+  239   237+  173+  252+  221+  185+   92+   13   222+
+[217]  192+  183   211+  175+  197+  203+  116   188+  191+  105+  174+  177+
+\end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Evaluación inicial: ¿sex viola
+PH?}\label{evaluaciuxf3n-inicial-sex-viola-ph}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mod1 }\OtherTok{\textless{}{-}} \FunctionTok{coxph}\NormalTok{(surv\_obj }\SpecialCharTok{\textasciitilde{}}\NormalTok{ sex }\SpecialCharTok{+}\NormalTok{ age, }\AttributeTok{data =}\NormalTok{ lung)}
+\FunctionTok{summary}\NormalTok{(mod1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Call:
+coxph(formula = surv_obj ~ sex + age, data = lung)
+
+  n= 228, number of events= 165 
+
+              coef exp(coef)  se(coef)      z Pr(>|z|)   
+sexMujer -0.513219  0.598566  0.167458 -3.065  0.00218 **
+age       0.017045  1.017191  0.009223  1.848  0.06459 . 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+         exp(coef) exp(-coef) lower .95 upper .95
+sexMujer    0.5986     1.6707    0.4311    0.8311
+age         1.0172     0.9831    0.9990    1.0357
+
+Concordance= 0.603  (se = 0.025 )
+Likelihood ratio test= 14.12  on 2 df,   p=9e-04
+Wald test            = 13.47  on 2 df,   p=0.001
+Score (logrank) test = 13.72  on 2 df,   p=0.001
+\end{verbatim}
+
+\subsubsection{Evaluemos el supuesto de
+Proporcionalidad}\label{evaluemos-el-supuesto-de-proporcionalidad}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{zph1 }\OtherTok{\textless{}{-}} \FunctionTok{cox.zph}\NormalTok{(mod1)}
+\NormalTok{zph1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+       chisq df    p
+sex    2.608  1 0.11
+age    0.209  1 0.65
+GLOBAL 2.771  2 0.25
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(zph1)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-19-1.pdf}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-19-2.pdf}}
+
+\begin{itemize}
+\tightlist
+\item
+  Si el p-valor en la prueba \texttt{cox.zph()} para \texttt{sex} es
+  significativo o el gráfico tiene tendencia → \textbf{violación de PH}.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{Estimador de Kaplan-Meier por
+sexo}\label{estimador-de-kaplan-meier-por-sexo}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit\_km }\OtherTok{\textless{}{-}} \FunctionTok{survfit}\NormalTok{(surv\_obj }\SpecialCharTok{\textasciitilde{}}\NormalTok{ sex, }\AttributeTok{data =}\NormalTok{ lung)}
+
+\FunctionTok{ggsurvplot}\NormalTok{(fit\_km,}
+           \AttributeTok{data =}\NormalTok{ lung,}
+           \AttributeTok{conf.int =} \ConstantTok{TRUE}\NormalTok{,}
+           \AttributeTok{xlab =} \StringTok{"Días"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Supervivencia estimada"}\NormalTok{,}
+           \AttributeTok{title =} \StringTok{"Curvas Kaplan{-}Meier por sexo"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-20-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggsurvplot}\NormalTok{(fit\_km,}
+           \AttributeTok{data =}\NormalTok{ lung,}
+           \AttributeTok{fun =} \StringTok{"cloglog"}\NormalTok{,}
+           \AttributeTok{conf.int =} \ConstantTok{TRUE}\NormalTok{,}
+           \AttributeTok{xlab =} \StringTok{"Días"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Supervivencia estimada"}\NormalTok{,}
+           \AttributeTok{title =} \StringTok{"Curvas Kaplan{-}Meier por sexo"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-21-1.pdf}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{\texorpdfstring{Estratificación por
+\texttt{sex}}{Estratificación por sex}}\label{estratificaciuxf3n-por-sex}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mod\_strat }\OtherTok{\textless{}{-}} \FunctionTok{coxph}\NormalTok{(surv\_obj }\SpecialCharTok{\textasciitilde{}}\NormalTok{ age }\SpecialCharTok{+} \FunctionTok{strata}\NormalTok{(sex), }\AttributeTok{data =}\NormalTok{ lung)}
+\FunctionTok{summary}\NormalTok{(mod\_strat)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Call:
+coxph(formula = surv_obj ~ age + strata(sex), data = lung)
+
+  n= 228, number of events= 165 
+
+        coef exp(coef) se(coef)     z Pr(>|z|)  
+age 0.016215  1.016347 0.009187 1.765   0.0776 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    exp(coef) exp(-coef) lower .95 upper .95
+age     1.016     0.9839    0.9982     1.035
+
+Concordance= 0.546  (se = 0.026 )
+Likelihood ratio test= 3.18  on 1 df,   p=0.07
+Wald test            = 3.12  on 1 df,   p=0.08
+Score (logrank) test = 3.12  on 1 df,   p=0.08
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{zph\_strat }\OtherTok{\textless{}{-}} \FunctionTok{cox.zph}\NormalTok{(mod\_strat)}
+\NormalTok{zph\_strat}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+       chisq df   p
+age    0.146  1 0.7
+GLOBAL 0.146  1 0.7
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(zph\_strat)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-23-1.pdf}}
+
+\begin{itemize}
+\tightlist
+\item
+  La función de riesgo base es diferente para \textbf{hombres} y
+  \textbf{mujeres}.
+\item
+  La covariable \texttt{age} tiene el mismo efecto en ambos estratos.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Comparación de modelos: sin estratificación vs con
+estratificación}\label{comparaciuxf3n-de-modelos-sin-estratificaciuxf3n-vs-con-estratificaciuxf3n}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Modelo sin estratificación}
+\FunctionTok{AIC}\NormalTok{(mod1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 1489.696
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Modelo con estratificación}
+\FunctionTok{AIC}\NormalTok{(mod\_strat)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 1285.692
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Ver ambos resúmenes}
+\FunctionTok{summary}\NormalTok{(mod1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Call:
+coxph(formula = surv_obj ~ sex + age, data = lung)
+
+  n= 228, number of events= 165 
+
+              coef exp(coef)  se(coef)      z Pr(>|z|)   
+sexMujer -0.513219  0.598566  0.167458 -3.065  0.00218 **
+age       0.017045  1.017191  0.009223  1.848  0.06459 . 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+         exp(coef) exp(-coef) lower .95 upper .95
+sexMujer    0.5986     1.6707    0.4311    0.8311
+age         1.0172     0.9831    0.9990    1.0357
+
+Concordance= 0.603  (se = 0.025 )
+Likelihood ratio test= 14.12  on 2 df,   p=9e-04
+Wald test            = 13.47  on 2 df,   p=0.001
+Score (logrank) test = 13.72  on 2 df,   p=0.001
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(mod\_strat)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Call:
+coxph(formula = surv_obj ~ age + strata(sex), data = lung)
+
+  n= 228, number of events= 165 
+
+        coef exp(coef) se(coef)     z Pr(>|z|)  
+age 0.016215  1.016347 0.009187 1.765   0.0776 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    exp(coef) exp(-coef) lower .95 upper .95
+age     1.016     0.9839    0.9982     1.035
+
+Concordance= 0.546  (se = 0.026 )
+Likelihood ratio test= 3.18  on 1 df,   p=0.07
+Wald test            = 3.12  on 1 df,   p=0.08
+Score (logrank) test = 3.12  on 1 df,   p=0.08
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{anova}\NormalTok{(mod1, mod\_strat, }\AttributeTok{test =} \StringTok{"LRT"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Analysis of Deviance Table
+ Cox model: response is  surv_obj
+ Model 1: ~ sex + age
+ Model 2: ~ age + strata(sex)
+   loglik Chisq Df Pr(>|Chi|)    
+1 -742.85                        
+2 -641.85   202  1  < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  Se puede comparar el AIC para ver si mejora el ajuste.
+\item
+  Nota: el coeficiente de \texttt{sex} desaparece en el modelo
+  estratificado.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Comparación visual de curvas
+ajustadas}\label{comparaciuxf3n-visual-de-curvas-ajustadas}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(survminer)}
+\NormalTok{fit\_strat }\OtherTok{\textless{}{-}} \FunctionTok{survfit}\NormalTok{(mod\_strat)}
+
+\FunctionTok{ggsurvplot}\NormalTok{(fit\_strat, }\AttributeTok{data =}\NormalTok{ lung,}
+           \AttributeTok{legend.title =} \StringTok{"Sexo (estratos)"}\NormalTok{,}
+           \AttributeTok{xlab =} \StringTok{"Días"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Supervivencia ajustada"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Unidad4_files/figure-pdf/unnamed-chunk-26-1.pdf}}
+
+\subsection{Conclusiones}\label{conclusiones}
 
 \begin{itemize}
 \tightlist
@@ -997,10 +1520,15 @@ PH}\label{soluciones-a-violaciones-de-ph}
   Evaluar la suposición PH es crucial.
 \end{itemize}
 
-\section{Referencias}\label{referencias}
+\subsection{Referencias}\label{referencias}
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-cox1972regression}
+Cox, D. R. (1972). Regression models and life-tables. \emph{Journal of
+the Royal Statistical Society: Series B (Methodological)}, \emph{34}(2),
+187--220.
+
 \bibitem[\citeproctext]{ref-Freireich1963}
 Freireich, E. J., Karon, M., Frei, E., Holland, J. F., Taylor, R.,
 Hananian, J., Selawry, O., Hoogstraten, B., Wolman, I. J., Abir, E.,

@@ -1,0 +1,138 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r results='hide', echo=FALSE, message=FALSE}
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), 
+                   repos = "http://cran.rstudio.com")
+}
+sapply(packages, require, character.only=TRUE)
+```
+
+## Dataset ejemplo: `lung` (paquete `survival`) 
+
+```{r}
+#| echo: true
+library(survival)
+data(cancer, package="survival")
+lung$status2 <- ifelse(lung$status == 2, 1, 0)
+lung$sex <- factor(lung$sex, levels = c(1, 2), labels = c("Hombre", "Mujer"))
+lung$ph.ecog2 <- factor(lung$ph.ecog, 
+                        levels = c(0,1,2,3,4), 
+                        labels = c("asymptomatic", 
+                                   "symptomatic but completely ambulatory",
+                                   "in bed <50% of the day",
+                                   "in bed > 50% of the day but not bedbound",
+                                   "bedbound"))
+head(lung)
+```
+
+```{r}
+summary(lung)
+```
+
+```{r}
+#| echo: true
+lung <- lung %>%
+  mutate(surv_obj = Surv(time, status2))
+
+print(lung$surv_obj)
+```
+
+## Evaluación inicial: ¿sex viola PH?
+
+```{r}
+mod1 <- coxph(surv_obj ~ sex + age, data = lung)
+summary(mod1)
+```
+
+### Evaluemos el supuesto de Proporcionalidad
+
+```{r}
+zph1 <- cox.zph(mod1)
+zph1
+plot(zph1)
+```
+
+-   Si el p-valor en la prueba `cox.zph()` para `sex` es significativo o el gráfico tiene tendencia → **violación de PH**.
+
+### Estimador de Kaplan-Meier por sexo
+
+```{r}
+#| echo: true
+fit_km <- survfit(surv_obj ~ sex, data = lung)
+
+ggsurvplot(fit_km,
+           data = lung,
+           conf.int = TRUE,
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
+```
+
+```{r}
+ggsurvplot(fit_km,
+           data = lung,
+           fun = "cloglog",
+           conf.int = TRUE,
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
+```
+
+## Estratificación por `sex`
+
+```{r}
+#| echo: true
+mod_strat <- coxph(surv_obj ~ age + strata(sex), data = lung)
+summary(mod_strat)
+```
+
+```{r}
+zph_strat <- cox.zph(mod_strat)
+zph_strat
+plot(zph_strat)
+```
+
+-   La función de riesgo base es diferente para **hombres** y **mujeres**.
+-   La covariable `age` tiene el mismo efecto en ambos estratos.
+
+## Comparación de modelos: sin estratificación vs con estratificación
+
+```{r}
+#| echo: true
+# Modelo sin estratificación
+AIC(mod1)
+
+# Modelo con estratificación
+AIC(mod_strat)
+
+# Ver ambos resúmenes
+summary(mod1)
+```
+
+```{r}
+#| echo: true
+summary(mod_strat)
+anova(mod1, mod_strat, test = "LRT")
+```
+
+-   Se puede comparar el AIC para ver si mejora el ajuste.
+-   Nota: el coeficiente de `sex` desaparece en el modelo estratificado.
+
+## Comparación visual de curvas ajustadas
+
+```{r}
+#| echo: true
+library(survminer)
+fit_strat <- survfit(mod_strat)
+
+ggsurvplot(fit_strat, data = lung,
+           legend.title = "Sexo (estratos)",
+           xlab = "Días", ylab = "Supervivencia ajustada")
+```
+
+### ¿Qué sigue?
+
+

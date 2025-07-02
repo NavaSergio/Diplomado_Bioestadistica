@@ -1,6 +1,10 @@
 ---
-title: "Análisis de Supervivencia (Reproducción de análisis en Stata)"
-format: html
+title: "Análisis de Supervivencia de datos de Cancer (Stata)"
+format:
+  html:
+    toc: true
+    code-fold: true
+    self-contained: true
 editor: visual
 
 execute:
@@ -13,17 +17,30 @@ execute:
 #| results: hide
 packages <- c("survival","haven","survminer","dplyr","knitr")
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
-  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+  install.packages(setdiff(packages, rownames(installed.packages())), 
+                   repos = "http://cran.rstudio.com")
 }
 sapply(packages, require, character.only=TRUE)
 ```
 
-## Cargar datos
+## Datos
+
+Se tiene información sobre $48$ participantes en una prueba de un *tratamiento contra el cáncer*.
+
+De estos $28$ reciben el *tratamiento* $(trat = 1)$ y $20$ reciben un *placebo* $(trat = 0)$. La edad de los participantes (covariable de ajuste) va de $47$ a $67$ años.
+
+Se pretende analizar el **tiempo de vida hasta la muerte medida en meses**. Cada registro es la observación de cada paciente.
+
+La variable tiempo registra el mes de muerte desde la inclusión en el estudio y el inicio del tratamiento o el último mes que se sabía que estuviera vivo.
+
+Algunos de los pacientes siguen vivos, por lo que junto con la variable tiempo se requiere una variable indicadora de muerte.
+
+Las personas que han **muerto**, $(muerte = 1)$ son registros no censurados, mientras que los pacientes que todavía están **vivos** $(muerte = 0)$ están censurados por la derecha.
 
 ```{r}
-datos <- read_dta("../Supervivencia_Nacho/cancer.dta")
+datos <- read_dta("cancer.dta")
 head(datos)
-datos$trat <- as.factor(datos$trat)
+datos$trat <- factor(datos$trat, levels = c(0, 1), labels = c("Placebo", "Tratamiento"))
 summary(datos)
 ```
 
@@ -81,18 +98,11 @@ anova(modelo_cox0, modelo_cox1, test = "LRT")
 anova(modelo_cox1, modelo_cox2, test = "LRT")
 ```
 
-El Criterio de Información de Akaike (AIC) se calcula como una medida de la calidad relativa de un modelo estadístico, considerando tanto la bondad de ajuste como la complejidad del modelo, y se obtiene restando dos veces el logaritmo natural de la máxima verosimilitud del modelo a dos veces el número de parámetros del modelo. 
-Fórmula del AIC:
-La fórmula general para calcular el AIC es:
-$$AIC = 2k - 2ln(L) $$
-Donde: 
-$k$: es el número de parámetros del modelo.
-$ln(L)$: es el logaritmo natural de la máxima verosimilitud del modelo.
+El Criterio de Información de Akaike (AIC) se calcula como una medida de la calidad relativa de un modelo estadístico, considerando tanto la bondad de ajuste como la complejidad del modelo, y se obtiene restando dos veces el logaritmo natural de la máxima verosimilitud del modelo a dos veces el número de parámetros del modelo. Fórmula del AIC: La fórmula general para calcular el AIC es: $$AIC = 2k - 2ln(L) $$ Donde: $k$: es el número de parámetros del modelo. $ln(L)$: es el logaritmo natural de la máxima verosimilitud del modelo.
 
-Interpretación:
-El mejor modelo es aquel que tiene el menor valor de AIC . Un AIC más bajo indica un mejor equilibrio entre el ajuste a los datos y la simplicidad del modelo, penalizando la complejidad excesiva y evitando el sobreajuste.
+Interpretación: El mejor modelo es aquel que tiene el menor valor de AIC . Un AIC más bajo indica un mejor equilibrio entre el ajuste a los datos y la simplicidad del modelo, penalizando la complejidad excesiva y evitando el sobreajuste.
 
-El AIC permite comparar modelos de diferentes familias utilizando métodos de ajuste similares, como la máxima verosimilitud. 
+El AIC permite comparar modelos de diferentes familias utilizando métodos de ajuste similares, como la máxima verosimilitud.
 
 ```{r}
 aic_tabla <- data.frame(
@@ -111,18 +121,20 @@ aic_tabla <- data.frame(
 kable(aic_tabla, caption = "Comparación de AIC y logLik entre modelos")
 ```
 
-
-
 ```{r}
 # Suponemos que el modelo 3 es el elegido por AIC
 cox.zph(modelo_cox2)
 plot(cox.zph(modelo_cox2))
 fit <- survfit(modelo_cox2, 
-               newdata = data.frame(edad = median(datos$edad), trat = as.factor(c(0, 1))))
+               newdata = data.frame(edad = median(datos$edad), 
+                                    trat = factor(c(0, 1), 
+                                                  levels = c(0, 1), 
+                                                  labels = c("Placebo", "Tratamiento"))))
 ggsurvplot(
   fit,
   data = datos,
-  legend.title = "Grupo",
+  legend.title = "Tratamiento",
+  legend.labs = c("Placebo", "Tratamiento"),
   xlab = "Tiempo",
   title = "Curvas log(-log) por tratamiento"
 )
@@ -130,7 +142,8 @@ ggsurvplot(
   fit,
   fun = "cloglog",  # complementary log-log
   data = datos,
-  legend.title = "Grupo",
+  legend.title = "Tratamiento",
+  legend.labs = c("Placebo", "Tratamiento"),
   xlab = "Tiempo",
   ylab = "log(-log(S(t)))",
   title = "Curvas log(-log) por tratamiento"

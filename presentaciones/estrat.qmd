@@ -1,0 +1,305 @@
+---
+title: "Análisis de Supervivencia"
+subtitle: "Modelos de Cox con Estratificación"
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+date: 2025-06-01
+toc: true
+toc-depth: 1
+
+format: 
+  revealjs:
+    slide-number: true
+    theme: simple
+    fontsize: 1.5em
+    logo: figs/CIMAT.png
+    css: style.css
+    code-fold: true
+    chalkboard: true # ov a chalboard:  true o va self-contained: true
+    #self-contained: true
+    menu: true
+    toc: true
+    toc-depth: 2    
+    transition: slide
+    incremental: false
+    background-transition: fade
+    title-slide-attributes:
+      data-background-image: figs/Banner_diplomado.jpg
+      data-background-size: 55%
+      data-background-position: top center
+
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fig-pos: "H"
+    keep-tex: true
+    documentclass: article
+
+profile-default: revealjs
+
+execute:
+  echo: true
+  warning: false
+  message: false
+
+bibliography: bibliografia.bib
+csl: apa.csl
+---
+
+
+```{r}
+#| results: hide
+#| echo: false
+packages <- c("survival","asaur","survminer")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+sapply(packages, require, character.only=TRUE)
+```
+
+## Introducción a la estratificación
+
+-   El modelo de Cox supone que el efecto de cada covariable sobre el riesgo es **proporcional en el tiempo**.
+-   ¿Qué hacer si esta **suposición se viola para una covariable categórica**?
+-   **Solución práctica**: usar **estratificación**.
+
+### ¿Qué es la estratificación?
+
+-   Permite que la **función de riesgo base h₀(t)** sea **diferente para cada nivel** de una variable estratificadora.
+-   Se supone que **el efecto de otras covariables es el mismo** dentro de cada estrato.
+-   Se implementa con el argumento `strata()` en `coxph()`.
+
+------------------------------------------------------------------------
+
+## ¿Cuándo usarla?
+
+-   Cuando una covariable **no cumple la suposición de riesgos proporcionales**, pero **sí se desea controlar su efecto**.
+-   Ejemplos:
+    -   Hospital de origen
+    -   Sexo o edad agrupada
+    -   Centros clínicos
+
+------------------------------------------------------------------------
+
+
+## Dataset ejemplo: `lung` (paquete `survival`) {.scrollable .smaller}
+
+```{r}
+#| echo: true
+library(survival)
+data(cancer, package="survival")
+lung$status2 <- ifelse(lung$status == 2, 1, 0)
+lung$sex <- factor(lung$sex, levels = c(1, 2), labels = c("Hombre", "Mujer"))
+lung$ph.ecog2 <- factor(lung$ph.ecog, 
+                        levels = c(0,1,2,3,4), 
+                        labels = c("asymptomatic", 
+                                   "symptomatic but completely ambulatory",
+                                   "in bed <50% of the day",
+                                   "in bed > 50% of the day but not bedbound",
+                                   "bedbound"))
+head(lung)
+summary(lung)
+```
+
+---
+
+```{r}
+#| echo: true
+lung <- lung %>%
+  mutate(surv_obj = Surv(time, status2))
+
+print(lung$surv_obj)
+```
+
+------------------------------------------------------------------------
+
+## Evaluación inicial: ¿sex viola PH? {.scrollable .smaller}
+
+
+```{r}
+mod1 <- coxph(surv_obj ~ sex + age, data = lung)
+summary(mod1)
+```
+
+### Evaluemos el supuesto de Proporcionalidad
+
+```{r}
+zph1 <- cox.zph(mod1)
+zph1
+plot(zph1)
+```
+
+-   Si el p-valor  en la prueba `cox.zph()` para `sex` es significativo o el gráfico tiene tendencia → **violación de PH**.
+
+---
+
+### Estimador de Kaplan-Meier por sexo {.collumns}
+
+
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+fit_km <- survfit(surv_obj ~ sex, data = lung)
+
+ggsurvplot(fit_km,
+           data = lung,
+           conf.int = TRUE,
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
+```
+:::
+
+
+::: {.column .smaller width="50%"}
+
+```{r}
+ggsurvplot(fit_km,
+           data = lung,
+           fun = "cloglog",
+           conf.int = TRUE,
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por sexo")
+```
+:::
+
+
+------------------------------------------------------------------------
+
+## Estratificación por `sex` {.columns}
+
+
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+mod_strat <- coxph(surv_obj ~ age + strata(sex), data = lung)
+summary(mod_strat)
+```
+:::
+
+
+::: {.column .smaller width="50%"}
+
+```{r}
+zph_strat <- cox.zph(mod_strat)
+zph_strat
+plot(zph_strat)
+```
+
+-   La función de riesgo base es diferente para **hombres** y **mujeres**.
+-   La covariable `age` tiene el mismo efecto en ambos estratos.
+:::
+------------------------------------------------------------------------
+
+## Comparación de modelos: sin estratificación vs con estratificación {.scrollable .columns}
+
+
+::: {.column .smaller width="50%"}
+```{r}
+#| echo: true
+# Modelo sin estratificación
+AIC(mod1)
+
+# Modelo con estratificación
+AIC(mod_strat)
+
+# Ver ambos resúmenes
+summary(mod1)
+```
+:::
+
+::: {.column .smaller width="50%"}
+
+```{r}
+#| echo: true
+summary(mod_strat)
+anova(mod1, mod_strat, test = "LRT")
+```
+
+-   Se puede comparar el AIC para ver si mejora el ajuste.
+-   Nota: el coeficiente de `sex` desaparece en el modelo estratificado.
+:::
+
+------------------------------------------------------------------------
+
+## Comparación visual de curvas ajustadas {.scrollable}
+
+```{r}
+#| echo: true
+library(survminer)
+fit_strat <- survfit(mod_strat)
+
+ggsurvplot(fit_strat, data = lung,
+           legend.title = "Sexo (estratos)",
+           xlab = "Días", ylab = "Supervivencia ajustada")
+```
+
+
+---
+
+```{r}
+fit_km2 <- survfit(surv_obj ~ ph.ecog2, data = lung)
+
+ggsurvplot(fit_km2,
+           data = lung,
+           conf.int = TRUE,
+
+           xlab = "Días", ylab = "Supervivencia estimada",
+           title = "Curvas Kaplan-Meier por ECOG performance score ")
+```
+
+
+---
+
+## Modelo 3 {.columns}
+
+
+::: {.column .smaller width="50%"}
+```{r}
+mod_strat2 <- coxph(surv_obj ~ age + strata(ph.ecog2) + strata(sex), 
+                    data = lung)
+summary(mod_strat2)
+```
+:::
+
+::: {.column .smaller width="50%"}
+
+```{r}
+zph_strat2 <- cox.zph(mod_strat2)
+zph_strat2
+plot(zph_strat2)
+```
+:::
+
+------------------------------------------------------------------------
+
+## Interpretación pedagógica
+
+-   Estratificar **no estima un coeficiente para la variable estratificada**.
+-   Es útil cuando no queremos modelar directamente el efecto de esa variable, pero **sí queremos controlar su influencia**.
+-   Aporta robustez cuando no se cumplen los supuestos del modelo estándar.
+
+------------------------------------------------------------------------
+
+## Conclusión
+
+-   La estratificación permite adaptar el modelo de Cox sin violar la suposición de PH.
+-   Es especialmente útil con covariables categóricas con fuerte efecto no constante en el tiempo.
+-   Se interpreta como un **ajuste por grupo**, sin coeficiente explícito pero con impacto indirecto.
+
+------------------------------------------------------------------------
+
+## Recomendaciones para docentes
+
+-   Presentar primero el caso con violación de PH (residuos de Schoenfeld)
+-   Mostrar cómo se elimina la violación al estratificar
+-   Hacer énfasis en la diferencia entre covariables modeladas y estratificadas
