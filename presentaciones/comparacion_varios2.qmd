@@ -1,0 +1,125 @@
+---
+title: "Comparación de Modelos de Supervivencia para ovarian"
+format:
+  html:
+    toc: true
+    code-fold: true
+    self-contained: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Introducción
+
+Este documento compara varios modelos de supervivencia ajustados al mismo conjunto de datos utilizando el modelo de Cox. Se analizan desde el modelo nulo hasta uno con interacción entre covariables.
+
+## Carga de paquetes necesarios
+
+```{r}
+library(survival)
+library(survminer)
+library(knitr)
+```
+
+## Preparación del conjunto de datos
+
+```{r}
+data(cancer, package = "survival")
+summary(ovarian)
+```
+
+```{r}
+ovarian$group = as.factor(ovarian$rx)
+```
+
+## Ajuste de modelos de Cox
+
+```{r}
+modelo_1 <- coxph(Surv(futime, fustat) ~ 1, data = ovarian)
+modelo_2 <- coxph(Surv(futime, fustat) ~ group, data = ovarian)
+modelo_3 <- coxph(Surv(futime, fustat) ~ group + age, data = ovarian)
+modelo_4 <- coxph(Surv(futime, fustat) ~ group*age, data = ovarian)
+```
+
+## Comparación de modelos
+
+```{r}
+# Resumen de cada modelo
+summary(modelo_1)
+summary(modelo_2)
+summary(modelo_3)
+summary(modelo_4)
+```
+
+**Explicación**:
+
+- **Modelo 1**: modelo nulo, sin covariables.
+- **Modelo 2**: incluye solo el efecto del tratamiento.
+- **Modelo 3**: incluye tratamiento y age como covariables.
+- **Modelo 4**: incluye interacción entre tratamiento y age
+
+```{r}
+km_group <- survfit(Surv(futime, fustat) ~ group, data = ovarian)
+ggsurvplot(km_group)
+ggsurvplot(km_group,
+           fun="cloglog")
+```
+
+
+
+## Comparación usando AIC
+
+```{r}
+aic_tabla <- data.frame(
+  Modelo = c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4"),
+  AIC = c(AIC(modelo_1), AIC(modelo_2), AIC(modelo_3), AIC(modelo_4))
+)
+
+kable(aic_tabla, caption = "Comparación de AIC entre modelos")
+```
+
+**Interpretación**: Un valor de AIC más bajo indica mejor ajuste. Comparar estos valores permite seleccionar el modelo más parsimonioso con buen poder explicativo.
+
+## Evaluación gráfica del modelo seleccionado
+
+```{r}
+# Suponemos que el modelo 3 es el elegido por AIC
+cox.zph(modelo_3)
+plot(cox.zph(modelo_3))
+fit <- survfit(modelo_3, newdata = data.frame(age = median(ovarian$age), group = c(1, 2)))
+ggsurvplot(
+  fit,
+  fun = "cloglog",  # complementary log-log
+  data = leukemia,
+  legend.labs = c("Tratamiento", "Placebo"),
+  legend.title = "Grupo",
+  xlab = "Tiempo (semanas)",
+  ylab = "log(-log(S(t)))",
+  title = "Curvas log(-log) por grupo"
+)
+```
+
+## Curvas de supervivencia ajustadas para modelo 3
+
+```{r}
+fit <- survfit(modelo_3, newdata = data.frame(age = median(ovarian$age), group = c(1, 2)))
+
+ggsurvplot(
+  fit,
+  data = leukemia,
+  legend.title = "Grupo",
+  legend.labs = c("Tratamiento", "Placebo"),
+  xlab = "Tiempo (semanas)",
+  ylab = "Probabilidad de supervivencia ajustada",
+  risk.table = TRUE
+)
+```
+
+## Conclusiones
+
+- Se ajustaron cuatro modelos de Cox con diferentes niveles de complejidad.
+- El modelo que incluye age y tratamiento (modelo 3) suele balancear simplicidad y ajuste.
+- Se evaluó la suposición de riesgos proporcionales y se graficaron curvas ajustadas.
+- Esta comparación ayuda a entender el impacto relativo de cada variable en el tiempo hasta recaída.

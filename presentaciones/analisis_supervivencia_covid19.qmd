@@ -1,0 +1,133 @@
+---
+title: "Análisis de Supervivencia COVID-19 (Reproducción de análisis en Stata)"
+format: html
+editor: visual
+
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| results: hide
+packages <- c("survival","haven","survminer","dplyr","knitr","ggplot2","splines")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+sapply(packages, require, character.only=TRUE)
+```
+
+## Cargar y preparar datos
+
+```{r}
+datos <- read_dta("../Supervivencia_Nacho/covid19_21052020.dta")
+
+# Crear objeto de supervivencia
+datos <- datos %>%
+  mutate(surv_obj = Surv(tiempo2, muerto),
+         SEXO = factor(SEXO, levels = c(1, 2), labels = c("Hombre", "Mujer")),
+         DIABETES = factor(DIABETES),
+         EPOC = factor(EPOC),
+         INMUSUPR = factor(INMUSUPR),
+         HIPERTENSION = factor(HIPERTENSION),
+         OBESIDAD = factor(OBESIDAD),
+         RENAL_CRONICA = factor(RENAL_CRONICA))
+```
+
+## Descripción inicial
+
+```{r}
+summary(datos$surv_obj)
+```
+
+## Supervivencia Kaplan-Meier global
+
+```{r}
+km_global <- survfit(surv_obj ~ 1, data = datos)
+ggsurvplot(km_global, conf.int = TRUE)
+summary(km_global)
+```
+
+## Kaplan-Meier por SEXO
+
+```{r}
+km_sexo <- survfit(surv_obj ~ SEXO, data = datos)
+ggsurvplot(km_sexo, data = datos, conf.int = TRUE, pval = TRUE, legend.title = "Sexo")
+summary(km_sexo)
+```
+
+## Prueba log-rank por SEXO
+
+```{r}
+survdiff(surv_obj ~ SEXO, data = datos)
+```
+
+## Modelo Cox proporcional: SEXO + EDAD
+
+```{r}
+modelo_cox1 <- coxph(surv_obj ~ SEXO + EDAD, data = datos)
+summary(modelo_cox1)
+logLik(modelo_cox1)
+```
+
+## Modelo Cox con múltiples comorbilidades
+
+```{r}
+modelo_cox2 <- coxph(surv_obj ~ SEXO + EDAD + DIABETES + EPOC + INMUSUPR + 
+                               HIPERTENSION + OBESIDAD + RENAL_CRONICA, data = datos)
+summary(modelo_cox2)
+```
+
+## Modelo Cox con interacción OBESIDAD \* HIPERTENSION
+
+```{r}
+modelo_cox3 <- coxph(surv_obj ~ SEXO + EDAD + OBESIDAD * HIPERTENSION, data = datos)
+summary(modelo_cox3)
+```
+
+## Prueba de proporcionalidad de riesgos (test de Schoenfeld)
+
+```{r}
+cox.zph(modelo_cox1)
+```
+
+## Riesgos proporcionales por sexo
+
+```{r}
+ggcoxzph(cox.zph(modelo_cox1))
+```
+
+## Supervivencia estimada por sexo
+
+```{r}
+ggsurvplot(survfit(modelo_cox1, newdata = data.frame(SEXO = c("Hombre", "Mujer"), EDAD = mean(datos$EDAD, na.rm = TRUE))), data=datos,
+           conf.int = TRUE, legend.labs = c("Hombre", "Mujer"), legend.title = "Sexo")
+```
+
+## Función de riesgo suavizada por sexo
+
+```{r}
+ggsurvplot(km_sexo, fun = "cumhaz", conf.int = TRUE, legend.title = "Sexo")
+```
+
+## Función de riesgo suavizada (escala logarítmica)
+
+```{r}
+# Guardar el resultado de ggsurvplot
+g <- ggsurvplot(km_sexo, fun = "cumhaz", conf.int = TRUE, legend.title = "Sexo")
+
+# Agregar la escala logarítmica al eje Y
+g$plot + scale_y_log10()
+
+```
+
+## Riesgo individual estimado (tipo `predict pi`)
+
+```{r}
+# Riesgo lineal predicho
+pi_xb <- predict(modelo_cox1, type = "lp")
+# Probabilidad tipo 1 - 0.9984^exp(xb)
+datos <- datos %>% mutate(pi = pi_xb, di = 1 - 0.9984^exp(pi))
+head(datos[, c("pi", "di")])
+```

@@ -21,8 +21,8 @@ format:
     fontsize: 1.5em
     logo: figs/CIMAT.png
     css: style.css
-    #chalkboard: true # ov a chalboard:  true o va self-contained: true
-    self-contained: true
+    chalkboard: true # ov a chalboard:  true o va self-contained: true
+    #self-contained: true
     menu: true
     toc: true
     toc-depth: 2    
@@ -66,7 +66,8 @@ sapply(packages, require, character.only=TRUE)
 
 -   El modelo de riesgos proporcionales de Cox es el más utilizado para analizar datos de supervivencia con múltiples covariables.
 -   Modelo de regresión **semiparamétrico**.
--   Basado en @klein2003.
+-   Basado en @klein2003. 
+-   El artículo original se puede ver en @cox1972regression.
 
 ------------------------------------------------------------------------
 
@@ -228,9 +229,8 @@ knitr::kable(ejemplos_hr,
 Analizaremos el modelo de Cox PH usando una base de datos de remisión en pacientes con leucemia (@Freireich1963).
 
 -   Dos grupos con 21 pacientes cada uno:**Grupo 1** (Tratamiento), **Grupo 2** (Placebo)
--   Covariable adicional: **log WBC**, un importante predictor pronóstico en leucemia.
+-   Covariable adicional: **log WBC** (*log white blood cell count* o logaritmo del recuento de leucocitos), un importante predictor pronóstico en leucemia.
 
-**Pregunta de investigación**: Comparar la supervivencia entre grupos, **ajustando por posibles efectos de confusión o interacción con log WBC**.
 
 ::: {.callout-note appearance="minimal"}
 ```{r}

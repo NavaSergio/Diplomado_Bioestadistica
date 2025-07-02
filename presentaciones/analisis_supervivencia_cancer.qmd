@@ -1,0 +1,138 @@
+---
+title: "Análisis de Supervivencia (Reproducción de análisis en Stata)"
+format: html
+editor: visual
+
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| results: hide
+packages <- c("survival","haven","survminer","dplyr","knitr")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+sapply(packages, require, character.only=TRUE)
+```
+
+## Cargar datos
+
+```{r}
+datos <- read_dta("../Supervivencia_Nacho/cancer.dta")
+head(datos)
+datos$trat <- as.factor(datos$trat)
+summary(datos)
+```
+
+## Declarar objeto de supervivencia
+
+```{r}
+datos <- datos %>%
+  mutate(surv_obj = Surv(tiempo, muerte))
+
+print(datos$surv_obj)
+```
+
+## Estimación de Kaplan-Meier
+
+```{r}
+ajuste_km <- survfit(surv_obj ~ 1, data = datos)
+
+ggsurvplot(ajuste_km, conf.int = TRUE, 
+           xlab = "Tiempo", ylab = "Supervivencia estimada")
+```
+
+## Estimaciones de supervivencia
+
+```{r}
+summary(ajuste_km)
+```
+
+## Comparación por grupos (`trat`)
+
+```{r}
+diff_trat <- survdiff(Surv(tiempo, muerte) ~ trat, data = datos)
+print(diff_trat)
+ajuste_trat <- survfit(Surv(tiempo, muerte) ~ trat, data = datos)
+summary(ajuste_trat)
+ggsurvplot(ajuste_trat, 
+           data = datos,
+           conf.int = TRUE)
+```
+
+## Modelo de Cox con `trat` como covariable
+
+```{r}
+modelo_cox0 <- coxph(Surv(tiempo, muerte) ~ 1, data = datos)
+modelo_cox1 <- coxph(Surv(tiempo, muerte) ~ trat, data = datos)
+modelo_cox2 <- coxph(Surv(tiempo, muerte) ~ trat + edad, data = datos)
+summary(modelo_cox0)
+summary(modelo_cox1)
+summary(modelo_cox2)
+# Log-verosimilitud y AIC
+logLik(modelo_cox0)
+logLik(modelo_cox1)
+logLik(modelo_cox2)
+# Comparación con test de razón de verosimilitud
+anova(modelo_cox0, modelo_cox1, test = "LRT")
+anova(modelo_cox1, modelo_cox2, test = "LRT")
+```
+
+El Criterio de Información de Akaike (AIC) se calcula como una medida de la calidad relativa de un modelo estadístico, considerando tanto la bondad de ajuste como la complejidad del modelo, y se obtiene restando dos veces el logaritmo natural de la máxima verosimilitud del modelo a dos veces el número de parámetros del modelo. 
+Fórmula del AIC:
+La fórmula general para calcular el AIC es:
+$$AIC = 2k - 2ln(L) $$
+Donde: 
+$k$: es el número de parámetros del modelo.
+$ln(L)$: es el logaritmo natural de la máxima verosimilitud del modelo.
+
+Interpretación:
+El mejor modelo es aquel que tiene el menor valor de AIC . Un AIC más bajo indica un mejor equilibrio entre el ajuste a los datos y la simplicidad del modelo, penalizando la complejidad excesiva y evitando el sobreajuste.
+
+El AIC permite comparar modelos de diferentes familias utilizando métodos de ajuste similares, como la máxima verosimilitud. 
+
+```{r}
+aic_tabla <- data.frame(
+  Modelo = c("Modelo 0","Modelo 1", "Modelo 2"),
+  params = c(length(coef(modelo_cox0)),
+             length(coef(modelo_cox1)),
+             length(coef(modelo_cox2))),
+  logLik = c(as.numeric(logLik(modelo_cox0)),
+             as.numeric(logLik(modelo_cox1)), 
+             as.numeric(logLik(modelo_cox2))),
+  AIC = c(AIC(modelo_cox0), 
+          AIC(modelo_cox1), 
+          AIC(modelo_cox2))
+)
+
+kable(aic_tabla, caption = "Comparación de AIC y logLik entre modelos")
+```
+
+
+
+```{r}
+# Suponemos que el modelo 3 es el elegido por AIC
+cox.zph(modelo_cox2)
+plot(cox.zph(modelo_cox2))
+fit <- survfit(modelo_cox2, 
+               newdata = data.frame(edad = median(datos$edad), trat = as.factor(c(0, 1))))
+ggsurvplot(
+  fit,
+  data = datos,
+  legend.title = "Grupo",
+  xlab = "Tiempo",
+  title = "Curvas log(-log) por tratamiento"
+)
+ggsurvplot(
+  fit,
+  fun = "cloglog",  # complementary log-log
+  data = datos,
+  legend.title = "Grupo",
+  xlab = "Tiempo",
+  ylab = "log(-log(S(t)))",
+  title = "Curvas log(-log) por tratamiento"
+)
+```
