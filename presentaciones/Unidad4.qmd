@@ -22,8 +22,8 @@ format:
     logo: figs/CIMAT.png
     css: style.css
     code-fold: true
-    #chalkboard: true # ov a chalboard:  true o va self-contained: true
-    self-contained: true
+    chalkboard: true # ov a chalboard:  true o va self-contained: true
+    #self-contained: true
     menu: true
     toc: true
     toc-depth: 2    

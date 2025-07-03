@@ -86,13 +86,16 @@ ggsurvplot(ajuste_trat,
 modelo_cox0 <- coxph(Surv(tiempo, muerte) ~ 1, data = datos)
 modelo_cox1 <- coxph(Surv(tiempo, muerte) ~ trat, data = datos)
 modelo_cox2 <- coxph(Surv(tiempo, muerte) ~ trat + edad, data = datos)
+modelo_cox3 <- coxph(Surv(tiempo, muerte) ~ trat * edad, data = datos)
 summary(modelo_cox0)
 summary(modelo_cox1)
 summary(modelo_cox2)
+summary(modelo_cox3)
 # Log-verosimilitud y AIC
 logLik(modelo_cox0)
 logLik(modelo_cox1)
 logLik(modelo_cox2)
+logLik(modelo_cox3)
 # Comparación con test de razón de verosimilitud
 anova(modelo_cox0, modelo_cox1, test = "LRT")
 anova(modelo_cox1, modelo_cox2, test = "LRT")
@@ -106,16 +109,19 @@ El AIC permite comparar modelos de diferentes familias utilizando métodos de aj
 
 ```{r}
 aic_tabla <- data.frame(
-  Modelo = c("Modelo 0","Modelo 1", "Modelo 2"),
+  Modelo = c("Modelo 0","Modelo 1", "Modelo 2","Modelo 3"),
   params = c(length(coef(modelo_cox0)),
              length(coef(modelo_cox1)),
-             length(coef(modelo_cox2))),
+             length(coef(modelo_cox2)),
+             length(coef(modelo_cox3))),
   logLik = c(as.numeric(logLik(modelo_cox0)),
              as.numeric(logLik(modelo_cox1)), 
-             as.numeric(logLik(modelo_cox2))),
+             as.numeric(logLik(modelo_cox2)),
+             as.numeric(logLik(modelo_cox3))),
   AIC = c(AIC(modelo_cox0), 
           AIC(modelo_cox1), 
-          AIC(modelo_cox2))
+          AIC(modelo_cox2),
+          AIC(modelo_cox3))
 )
 
 kable(aic_tabla, caption = "Comparación de AIC y logLik entre modelos")
