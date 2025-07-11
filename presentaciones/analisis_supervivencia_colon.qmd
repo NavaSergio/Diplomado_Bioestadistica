@@ -1,0 +1,214 @@
+---
+title: "Análisis de Supervivencia de datos de Cáncer de Colon" 
+format: 
+  html:
+    toc: true
+    code-fold: true
+    self-contained: true
+editor: visual
+
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Introducción
+
+En esta guía aprenderás a realizar un análisis de supervivencia utilizando R, con un conjunto de datos clínicos sobre cáncer de colon. Este tipo de análisis es útil para estudiar el tiempo hasta la ocurrencia de un evento (muerte), y cómo ese tiempo se relaciona con diversas características de los pacientes.
+
+Utilizaremos funciones de los paquetes `survival` y `survminer`.
+
+::: {.callout-note}
+El objetivo de esta práctica es aplicar técnicas fundamentales como Kaplan-Meier, pruebas log-rank, modelos de Cox, y verificación de supuestos.
+:::
+
+
+
+# 1. Preparación del entorno
+
+Instala y carga los paquetes necesarios:
+
+
+```{r setup}
+#| results: hide
+packages <- c("survival","survminer","dplyr","ggplot2","flexsurv")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())), repos = "http://cran.rstudio.com")
+}
+sapply(packages, require, character.only=TRUE)
+```
+
+
+
+
+# 2. Carga de datos y exploración inicial
+
+
+Se utiliza el dataset colon del paquete survival de R, que contiene información de pacientes que participaron en un estudio clínico. Se filtran los casos completos de datos cuando el evento es muerte `(etype == 2)`. Además se crea un objeto de supervivencia (Surv) 'time' es el tiempo de seguimiento y 'status' es el indicador de evento (1 = evento, 0 = censurado)
+
+```{r}
+data(cancer, package = "survival")
+# Explorar el dataset
+str(colon)
+
+
+colon_clean <- colon %>%
+  filter(etype == 2) %>%
+  na.omit() %>%
+  mutate(surv_obj = Surv(time, status),
+         sex = factor(sex, 
+                      levels = c(0, 1), 
+                      labels = c("Mujer", "Hombre")))
+summary(colon_clean)
+head(colon_clean)
+```
+
+# 3. Estimador de Kaplan-Meier
+
+Se utiliza el estimador de Kaplan-Meier (survfit) para:
+
+-  Estimar la probabilidad de supervivencia a lo largo del tiempo.
+-  Visualizar la curva de supervivencia general y por grupos
+-  Para los casos cuando se estima por grupo se imprime el p-valor del log-rank test
+
+```{r}
+# Ajustar el modelo Kaplan-Meier por una variable (ej. sexo)
+fit_km <- survfit(surv_obj ~ 1, data = colon_clean)
+
+# Visualizar la curva de Kaplan-Meier
+ggsurvplot(fit_km,
+           conf.int = TRUE, # Mostrar intervalos de confianza
+           risk.table = TRUE, # Mostrar tabla de riesgo
+           title = "Curva de Supervivencia Kaplan-Meier general")
+
+# Ajustar el modelo Kaplan-Meier por una variable (ej. sexo)
+fit_km_sex <- survfit(surv_obj ~ sex, data = colon_clean)
+
+# Visualizar la curva de Kaplan-Meier
+ggsurvplot(fit_km_sex,
+           pval = TRUE, # Mostrar p-valor del log-rank test
+           conf.int = TRUE, # Mostrar intervalos de confianza
+           risk.table = TRUE, # Mostrar tabla de riesgo
+           risk.table.col = "strata",
+           legend.title = "Sexo",
+           legend.labs = c("Femenino", "Masculino"),
+           title = "Curva de Supervivencia Kaplan-Meier por Sexo")
+
+# Ajustar el modelo Kaplan-Meier por otra variable (ej. tratamiento: rx)
+fit_km_rx <- survfit(surv_obj ~ rx, data = colon_clean)
+
+ggsurvplot(fit_km_rx,
+           pval = TRUE,
+           conf.int = TRUE,
+           risk.table = TRUE,
+           risk.table.col = "strata",
+           legend.title = "Tratamiento",
+           legend.labs = c("Obs", "Lev", "Lev+5FU"),
+           title = "Curva de Supervivencia Kaplan-Meier por Tratamiento")
+```
+
+# 4. Comparación entre grupos
+
+Se realiza la prueba log-rank `(survdiff)` para comparar la supervivencia entre distintos tratamientos, evaluando si las diferencias son estadísticamente significativas.
+
+```{r}
+survdiff(Surv(time, status) ~ sex, data = colon_clean)
+```
+
+**Interpretación**
+
+- No hay evidencia estadística de diferencia en la supervivencia entre hombres y mujeres.
+- El valor p = 0.9 es mucho mayor que 0.05 → no se rechaza la hipótesis nula.
+
+```{r}
+survdiff(Surv(time, status) ~ rx, data = colon_clean)
+
+```
+**Interpretación**
+
+Hay diferencias estadísticamente significativas en la supervivencia entre los grupos de tratamiento.
+
+- p = 0.004 < 0.05 → se rechaza la hipótesis nula de igualdad.
+- El grupo Lev+5FU tuvo menos eventos observados que los esperados, lo que sugiere mejor supervivencia.
+
+# 5. Modelo de Cox (riesgos proporcionales)
+
+Se ajustan modelos de riesgos proporcionales (modelo de Cox coxph) para estudiar el efecto de covariables como:
+
+- Tratamiento (rx)
+- Obstrucción (obstruct)
+- Perforación, adherencias, número de ganglios, etc.
+
+Se interpretan los coeficientes como riesgos relativos (hazard ratios) y se evalúan significancia e interpretación clínica.
+
+## Modelo con una sola variable
+
+
+```{r}
+# Modelo de Cox con una sola variable (ej. sexo)
+cox_model_sex <- coxph(surv_obj ~ sex, data = colon_clean)
+summary(cox_model_sex)
+```
+
+## Modelo multivariado
+
+
+```{r}
+# Modelo de Cox con múltiples variables
+# Incluimos variables relevantes como sexo, edad, tipo de tratamiento (rx), etc.
+cox_model_full <- coxph(surv_obj ~ sex + age + rx + extent + nodes, data = colon_clean)
+summary(cox_model_full)
+```
+
+# 6. Evaluación de supuestos
+
+```{r}
+# Diagnóstico del modelo de Cox (verificar la suposición de riesgos proporcionales)
+# Usar la función cox.zph
+cox_zph_test <- cox.zph(cox_model_full)
+print(cox_zph_test)
+```
+
+
+Un p-valor > 0.05 generalmente indica que la suposición de riesgos proporcionales se mantiene para esa covariable.
+
+```{r}
+ggcoxzph(cox_zph_test)
+```
+
+
+
+# 7. Modelos estratificados e interacciones
+
+## Estratificación por sexo
+
+```{r}
+cox_strat <- coxph(Surv(time, status) ~ strata(sex) + age + rx + extent + nodes, data = colon_clean)
+summary(cox_strat)
+```
+
+
+::: {.callout-note}
+## Interpretación del modelo de Cox
+
+Este modelo evalúa el efecto de varias variables clínicas sobre el riesgo de muerte en pacientes con cáncer de colon, estratificando por sexo.
+
+| Variable     | HR (exp(coef)) | p-valor  | Interpretación |
+|--------------|----------------|----------|----------------|
+| `age`        | 1.006          | 0.13     | No significativa. Cada año de edad aumenta ligeramente el riesgo, pero no de forma significativa. |
+| `rxLev`      | 0.902          | 0.366    | No significativa. Tratamiento con leucovorina (Lev) no reduce el riesgo significativamente comparado con observación. |
+| `rxLev+5FU`  | 0.673          | 0.001 ** | Significativa. Tratamiento con Lev+5FU reduce el riesgo en un **32.7%** comparado con observación. |
+| `extent`     | 1.632          | <0.001***| Muy significativa. A mayor extensión del tumor, mayor riesgo. |
+| `nodes`      | 1.094          | <0.001***| Muy significativa. Cada ganglio afectado aumenta el riesgo en un **9.4%**. |
+
+**Conclusión**:
+- El tratamiento `Lev+5FU` mejora significativamente la supervivencia.
+- `extent` y `nodes` son fuertes predictores del riesgo.
+- `age` y `rxLev` no muestran efectos significativos.
+- La estratificación por `sex` permite controlar diferencias de riesgo basal entre hombres y mujeres sin estimar coeficiente para `sex`.
+
+Estadísticas globales:
+- Concordancia = 0.654 → modelo con poder predictivo moderado.
+- Tests de verosimilitud, Wald y log-rank altamente significativos (p < 0.001).
+:::

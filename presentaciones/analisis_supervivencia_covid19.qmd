@@ -38,7 +38,7 @@ datos <- datos %>%
 ## Descripción inicial
 
 ```{r}
-summary(datos$surv_obj)
+print(head(datos$surv_obj))
 ```
 
 ## Supervivencia Kaplan-Meier global
@@ -69,14 +69,30 @@ survdiff(surv_obj ~ SEXO, data = datos)
 modelo_cox1 <- coxph(surv_obj ~ SEXO + EDAD, data = datos)
 summary(modelo_cox1)
 logLik(modelo_cox1)
+zph_sexo <- cox.zph(modelo_cox1)
+zph_sexo
+plot(zph_sexo)
+```
+
+
+```{r}
+modelo_cox2 <- coxph(surv_obj ~ strata(SEXO) + EDAD, data = datos)
+summary(modelo_cox2)
+logLik(modelo_cox2)
+zph_sexo2 <- cox.zph(modelo_cox2)
+zph_sexo2
+plot(zph_sexo2)
 ```
 
 ## Modelo Cox con múltiples comorbilidades
 
 ```{r}
-modelo_cox2 <- coxph(surv_obj ~ SEXO + EDAD + DIABETES + EPOC + INMUSUPR + 
+modelo_cox3 <- coxph(surv_obj ~ strata(SEXO) + EDAD + DIABETES + EPOC + INMUSUPR + 
                                HIPERTENSION + OBESIDAD + RENAL_CRONICA, data = datos)
-summary(modelo_cox2)
+summary(modelo_cox3)
+zph_modelo <- cox.zph(modelo_cox3)
+zph_modelo
+plot(zph_modelo)
 ```
 
 ## Modelo Cox con interacción OBESIDAD \* HIPERTENSION

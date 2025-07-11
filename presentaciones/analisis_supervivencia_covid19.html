@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Análisis de Supervivencia COVID-19 (Reproducción de análisis en Stata)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="analisis_supervivencia_covid19_files/libs/clipboard/clipboard.min.js"></script>
+<script src="analisis_supervivencia_covid19_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="analisis_supervivencia_covid19_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="analisis_supervivencia_covid19_files/libs/quarto-html/popper.min.js"></script>
+<script src="analisis_supervivencia_covid19_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="analisis_supervivencia_covid19_files/libs/quarto-html/anchor.min.js"></script>
+<link href="analisis_supervivencia_covid19_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="analisis_supervivencia_covid19_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="analisis_supervivencia_covid19_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="analisis_supervivencia_covid19_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="analisis_supervivencia_covid19_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Análisis de Supervivencia COVID-19 (Reproducción de análisis en Stata)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"survival"</span>,<span class="st">"haven"</span>,<span class="st">"survminer"</span>,<span class="st">"dplyr"</span>,<span class="st">"knitr"</span>,<span class="st">"ggplot2"</span>,<span class="st">"splines"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">setdiff</span>(packages, <span class="fu">rownames</span>(<span class="fu">installed.packages</span>()))) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="fu">setdiff</span>(packages, <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())), <span class="at">repos =</span> <span class="st">"http://cran.rstudio.com"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(packages, require, <span class="at">character.only=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="cargar-y-preparar-datos" class="level2">
+<h2 class="anchored" data-anchor-id="cargar-y-preparar-datos">Cargar y preparar datos</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"../Supervivencia_Nacho/covid19_21052020.dta"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear objeto de supervivencia</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">&lt;-</span> datos <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">surv_obj =</span> <span class="fu">Surv</span>(tiempo2, muerto),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">SEXO =</span> <span class="fu">factor</span>(SEXO, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Hombre"</span>, <span class="st">"Mujer"</span>)),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">DIABETES =</span> <span class="fu">factor</span>(DIABETES),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">EPOC =</span> <span class="fu">factor</span>(EPOC),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">INMUSUPR =</span> <span class="fu">factor</span>(INMUSUPR),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">HIPERTENSION =</span> <span class="fu">factor</span>(HIPERTENSION),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">OBESIDAD =</span> <span class="fu">factor</span>(OBESIDAD),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">RENAL_CRONICA =</span> <span class="fu">factor</span>(RENAL_CRONICA))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="descripción-inicial" class="level2">
+<h2 class="anchored" data-anchor-id="descripción-inicial">Descripción inicial</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(datos<span class="sc">$</span>surv_obj))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  7   4  28+ 13  28+ 28+</code></pre>
+</div>
+</div>
+</section>
+<section id="supervivencia-kaplan-meier-global" class="level2">
+<h2 class="anchored" data-anchor-id="supervivencia-kaplan-meier-global">Supervivencia Kaplan-Meier global</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>km_global <span class="ot">&lt;-</span> <span class="fu">survfit</span>(surv_obj <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> datos)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(km_global, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(km_global)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = surv_obj ~ 1, data = datos)
+
+ time n.risk n.event survival  std.err lower 95% CI upper 95% CI
+  -54  59567       1    1.000 1.68e-05        1.000        1.000
+    0  59566      31    0.999 9.49e-05        0.999        1.000
+    1  59535      98    0.998 1.91e-04        0.997        0.998
+    2  59430     176    0.995 2.93e-04        0.994        0.995
+    3  59184     260    0.990 3.98e-04        0.990        0.991
+    4  58681     349    0.985 5.05e-04        0.984        0.986
+    5  57984     401    0.978 6.05e-04        0.977        0.979
+    6  57043     475    0.970 7.06e-04        0.968        0.971
+    7  55697     519    0.961 8.03e-04        0.959        0.962
+    8  54285     481    0.952 8.85e-04        0.950        0.954
+    9  52649     474    0.944 9.61e-04        0.942        0.945
+   10  50839     420    0.936 1.03e-03        0.934        0.938
+   11  48758     370    0.929 1.08e-03        0.927        0.931
+   12  46503     363    0.921 1.14e-03        0.919        0.924
+   13  44589     293    0.915 1.18e-03        0.913        0.918
+   14  42456     261    0.910 1.23e-03        0.907        0.912
+   15  40580     263    0.904 1.27e-03        0.901        0.906
+   16  38833     201    0.899 1.31e-03        0.897        0.902
+   17  36919     178    0.895 1.34e-03        0.892        0.897
+   18  34905     144    0.891 1.37e-03        0.888        0.894
+   19  33324     126    0.888 1.40e-03        0.885        0.890
+   20  31704     109    0.885 1.42e-03        0.882        0.887
+   21  29454     111    0.881 1.45e-03        0.879        0.884
+   22  27781      55    0.880 1.47e-03        0.877        0.882
+   23  26554      56    0.878 1.49e-03        0.875        0.881
+   24  25194      45    0.876 1.50e-03        0.873        0.879
+   25  23689      40    0.875 1.52e-03        0.872        0.878
+   26  22439      27    0.874 1.53e-03        0.871        0.877
+   27  21098      21    0.873 1.54e-03        0.870        0.876
+   28  19805     162    0.866 1.63e-03        0.862        0.869</code></pre>
+</div>
+</div>
+</section>
+<section id="kaplan-meier-por-sexo" class="level2">
+<h2 class="anchored" data-anchor-id="kaplan-meier-por-sexo">Kaplan-Meier por SEXO</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>km_sexo <span class="ot">&lt;-</span> <span class="fu">survfit</span>(surv_obj <span class="sc">~</span> SEXO, <span class="at">data =</span> datos)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(km_sexo, <span class="at">data =</span> datos, <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">pval =</span> <span class="cn">TRUE</span>, <span class="at">legend.title =</span> <span class="st">"Sexo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(km_sexo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = surv_obj ~ SEXO, data = datos)
+
+                SEXO=Hombre 
+ time n.risk n.event survival  std.err lower 95% CI upper 95% CI
+    0  25378      10    1.000 0.000125        0.999        1.000
+    1  25368      25    0.999 0.000233        0.998        0.999
+    2  25338      62    0.996 0.000387        0.995        0.997
+    3  25241     100    0.992 0.000551        0.991        0.993
+    4  25042     111    0.988 0.000689        0.986        0.989
+    5  24776     152    0.982 0.000842        0.980        0.983
+    6  24382     165    0.975 0.000983        0.973        0.977
+    7  23800     177    0.968 0.001116        0.966        0.970
+    8  23207     159    0.961 0.001226        0.959        0.964
+    9  22532     169    0.954 0.001337        0.951        0.957
+   10  21761     141    0.948 0.001426        0.945        0.951
+   11  20837     126    0.942 0.001506        0.939        0.945
+   12  19882     101    0.937 0.001572        0.934        0.940
+   13  19064      83    0.933 0.001627        0.930        0.936
+   14  18165      66    0.930 0.001674        0.927        0.933
+   15  17377      72    0.926 0.001728        0.923        0.929
+   16  16598      64    0.922 0.001778        0.919        0.926
+   17  15776      51    0.919 0.001820        0.916        0.923
+   18  14935      33    0.917 0.001850        0.914        0.921
+   19  14247      28    0.916 0.001878        0.912        0.919
+   20  13526      31    0.914 0.001911        0.910        0.917
+   21  12581      35    0.911 0.001953        0.907        0.915
+   22  11890      19    0.910 0.001979        0.906        0.913
+   23  11368      18    0.908 0.002004        0.904        0.912
+   24  10786      13    0.907 0.002025        0.903        0.911
+   25  10156      17    0.905 0.002055        0.901        0.910
+   26   9604       8    0.905 0.002070        0.901        0.909
+   27   9072      10    0.904 0.002092        0.900        0.908
+   28   8521      48    0.899 0.002205        0.894        0.903
+
+                SEXO=Mujer 
+ time n.risk n.event survival  std.err lower 95% CI upper 95% CI
+  -54  34189       1    1.000 2.92e-05        1.000        1.000
+    0  34188      21    0.999 1.37e-04        0.999        1.000
+    1  34167      73    0.997 2.85e-04        0.997        0.998
+    2  34092     114    0.994 4.22e-04        0.993        0.995
+    3  33943     160    0.989 5.59e-04        0.988        0.990
+    4  33639     238    0.982 7.16e-04        0.981        0.984
+    5  33208     249    0.975 8.49e-04        0.973        0.977
+    6  32661     310    0.966 9.90e-04        0.964        0.968
+    7  31897     342    0.955 1.13e-03        0.953        0.957
+    8  31078     322    0.945 1.24e-03        0.943        0.948
+    9  30117     305    0.936 1.35e-03        0.933        0.938
+   10  29078     279    0.927 1.44e-03        0.924        0.930
+   11  27921     244    0.919 1.51e-03        0.916        0.922
+   12  26621     262    0.910 1.60e-03        0.907        0.913
+   13  25525     210    0.902 1.67e-03        0.899        0.905
+   14  24291     195    0.895 1.73e-03        0.892        0.898
+   15  23203     191    0.888 1.80e-03        0.884        0.891
+   16  22235     137    0.882 1.85e-03        0.878        0.886
+   17  21143     127    0.877 1.90e-03        0.873        0.881
+   18  19970     111    0.872 1.94e-03        0.868        0.876
+   19  19077      98    0.867 1.98e-03        0.864        0.871
+   20  18178      78    0.864 2.02e-03        0.860        0.868
+   21  16873      76    0.860 2.06e-03        0.856        0.864
+   22  15891      36    0.858 2.08e-03        0.854        0.862
+   23  15186      38    0.856 2.10e-03        0.852        0.860
+   24  14408      32    0.854 2.12e-03        0.850        0.858
+   25  13533      23    0.852 2.14e-03        0.848        0.857
+   26  12835      19    0.851 2.16e-03        0.847        0.855
+   27  12026      11    0.850 2.17e-03        0.846        0.855
+   28  11284     114    0.842 2.29e-03        0.837        0.846</code></pre>
+</div>
+</div>
+</section>
+<section id="prueba-log-rank-por-sexo" class="level2">
+<h2 class="anchored" data-anchor-id="prueba-log-rank-por-sexo">Prueba log-rank por SEXO</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">survdiff</span>(surv_obj <span class="sc">~</span> SEXO, <span class="at">data =</span> datos)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+survdiff(formula = surv_obj ~ SEXO, data = datos)
+
+                N Observed Expected (O-E)^2/E (O-E)^2/V
+SEXO=Hombre 25378     2094     2783       171       300
+SEXO=Mujer  34189     4416     3727       127       300
+
+ Chisq= 300  on 1 degrees of freedom, p= &lt;2e-16 </code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-cox-proporcional-sexo-edad" class="level2">
+<h2 class="anchored" data-anchor-id="modelo-cox-proporcional-sexo-edad">Modelo Cox proporcional: SEXO + EDAD</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>modelo_cox1 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(surv_obj <span class="sc">~</span> SEXO <span class="sc">+</span> EDAD, <span class="at">data =</span> datos)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_cox1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = surv_obj ~ SEXO + EDAD, data = datos)
+
+  n= 59567, number of events= 6510 
+
+              coef exp(coef) se(coef)     z Pr(&gt;|z|)    
+SEXOMujer 0.421506  1.524255 0.026533 15.89   &lt;2e-16 ***
+EDAD      0.053043  1.054475 0.000762 69.61   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+          exp(coef) exp(-coef) lower .95 upper .95
+SEXOMujer     1.524     0.6561     1.447     1.606
+EDAD          1.054     0.9483     1.053     1.056
+
+Concordance= 0.753  (se = 0.003 )
+Likelihood ratio test= 5081  on 2 df,   p=&lt;2e-16
+Wald test            = 5095  on 2 df,   p=&lt;2e-16
+Score (logrank) test = 5315  on 2 df,   p=&lt;2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logLik</span>(modelo_cox1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'log Lik.' -67474.92 (df=2)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>zph_sexo <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(modelo_cox1)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>zph_sexo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df       p
+SEXO   18.16  1 2.0e-05
+EDAD    2.83  1   0.092
+GLOBAL 21.01  2 2.7e-05</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(zph_sexo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>modelo_cox2 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(surv_obj <span class="sc">~</span> <span class="fu">strata</span>(SEXO) <span class="sc">+</span> EDAD, <span class="at">data =</span> datos)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_cox2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = surv_obj ~ strata(SEXO) + EDAD, data = datos)
+
+  n= 59567, number of events= 6510 
+
+         coef exp(coef) se(coef)     z Pr(&gt;|z|)    
+EDAD 0.053048  1.054480 0.000762 69.62   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     exp(coef) exp(-coef) lower .95 upper .95
+EDAD     1.054     0.9483     1.053     1.056
+
+Concordance= 0.742  (se = 0.003 )
+Likelihood ratio test= 4774  on 1 df,   p=&lt;2e-16
+Wald test            = 4846  on 1 df,   p=&lt;2e-16
+Score (logrank) test = 5039  on 1 df,   p=&lt;2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logLik</span>(modelo_cox2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'log Lik.' -63385.13 (df=1)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>zph_sexo2 <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(modelo_cox2)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>zph_sexo2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df     p
+EDAD    2.84  1 0.092
+GLOBAL  2.84  1 0.092</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(zph_sexo2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-cox-con-múltiples-comorbilidades" class="level2">
+<h2 class="anchored" data-anchor-id="modelo-cox-con-múltiples-comorbilidades">Modelo Cox con múltiples comorbilidades</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>modelo_cox3 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(surv_obj <span class="sc">~</span> <span class="fu">strata</span>(SEXO) <span class="sc">+</span> EDAD <span class="sc">+</span> DIABETES <span class="sc">+</span> EPOC <span class="sc">+</span> INMUSUPR <span class="sc">+</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                               HIPERTENSION <span class="sc">+</span> OBESIDAD <span class="sc">+</span> RENAL_CRONICA, <span class="at">data =</span> datos)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_cox3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = surv_obj ~ strata(SEXO) + EDAD + DIABETES + EPOC + 
+    INMUSUPR + HIPERTENSION + OBESIDAD + RENAL_CRONICA, data = datos)
+
+  n= 58962, number of events= 6379 
+   (605 observations deleted due to missingness)
+
+                    coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+EDAD           0.0479019 1.0490678 0.0008711 54.988  &lt; 2e-16 ***
+DIABETES1      0.4598303 1.5838052 0.0280086 16.417  &lt; 2e-16 ***
+EPOC1          0.1895202 1.2086696 0.0544225  3.482 0.000497 ***
+INMUSUPR1      0.3193117 1.3761802 0.0724209  4.409 1.04e-05 ***
+HIPERTENSION1  0.1825436 1.2002665 0.0287725  6.344 2.23e-10 ***
+OBESIDAD1      0.3432539 1.4095266 0.0287215 11.951  &lt; 2e-16 ***
+RENAL_CRONICA1 0.6844183 1.9826183 0.0497166 13.766  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+               exp(coef) exp(-coef) lower .95 upper .95
+EDAD               1.049     0.9532     1.047     1.051
+DIABETES1          1.584     0.6314     1.499     1.673
+EPOC1              1.209     0.8274     1.086     1.345
+INMUSUPR1          1.376     0.7266     1.194     1.586
+HIPERTENSION1      1.200     0.8331     1.134     1.270
+OBESIDAD1          1.410     0.7095     1.332     1.491
+RENAL_CRONICA1     1.983     0.5044     1.799     2.186
+
+Concordance= 0.766  (se = 0.003 )
+Likelihood ratio test= 5650  on 7 df,   p=&lt;2e-16
+Wald test            = 5689  on 7 df,   p=&lt;2e-16
+Score (logrank) test = 6429  on 7 df,   p=&lt;2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>zph_modelo <span class="ot">&lt;-</span> <span class="fu">cox.zph</span>(modelo_cox3)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>zph_modelo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              chisq df       p
+EDAD           1.99  1 0.15853
+DIABETES      33.55  1 7.0e-09
+EPOC           6.59  1 0.01026
+INMUSUPR       3.29  1 0.06953
+HIPERTENSION  12.09  1 0.00051
+OBESIDAD       2.24  1 0.13463
+RENAL_CRONICA 29.67  1 5.1e-08
+GLOBAL        72.55  7 4.5e-13</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(zph_modelo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-8-7.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-cox-con-interacción-obesidad-hipertension" class="level2">
+<h2 class="anchored" data-anchor-id="modelo-cox-con-interacción-obesidad-hipertension">Modelo Cox con interacción OBESIDAD * HIPERTENSION</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>modelo_cox3 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(surv_obj <span class="sc">~</span> SEXO <span class="sc">+</span> EDAD <span class="sc">+</span> OBESIDAD <span class="sc">*</span> HIPERTENSION, <span class="at">data =</span> datos)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_cox3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = surv_obj ~ SEXO + EDAD + OBESIDAD * HIPERTENSION, 
+    data = datos)
+
+  n= 59059, number of events= 6401 
+   (508 observations deleted due to missingness)
+
+                              coef  exp(coef)   se(coef)      z Pr(&gt;|z|)    
+SEXOMujer                0.4587933  1.5821637  0.0268205 17.106  &lt; 2e-16 ***
+EDAD                     0.0502757  1.0515609  0.0008391 59.918  &lt; 2e-16 ***
+OBESIDAD1                0.4832973  1.6214119  0.0383334 12.608  &lt; 2e-16 ***
+HIPERTENSION1            0.4392093  1.5514799  0.0316175 13.891  &lt; 2e-16 ***
+OBESIDAD1:HIPERTENSION1 -0.2421865  0.7849098  0.0564385 -4.291 1.78e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+                        exp(coef) exp(-coef) lower .95 upper .95
+SEXOMujer                  1.5822     0.6320    1.5011    1.6676
+EDAD                       1.0516     0.9510    1.0498    1.0533
+OBESIDAD1                  1.6214     0.6167    1.5041    1.7479
+HIPERTENSION1              1.5515     0.6445    1.4583    1.6507
+OBESIDAD1:HIPERTENSION1    0.7849     1.2740    0.7027    0.8767
+
+Concordance= 0.764  (se = 0.003 )
+Likelihood ratio test= 5459  on 5 df,   p=&lt;2e-16
+Wald test            = 5292  on 5 df,   p=&lt;2e-16
+Score (logrank) test = 5689  on 5 df,   p=&lt;2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="prueba-de-proporcionalidad-de-riesgos-test-de-schoenfeld" class="level2">
+<h2 class="anchored" data-anchor-id="prueba-de-proporcionalidad-de-riesgos-test-de-schoenfeld">Prueba de proporcionalidad de riesgos (test de Schoenfeld)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cox.zph</span>(modelo_cox1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       chisq df       p
+SEXO   18.16  1 2.0e-05
+EDAD    2.83  1   0.092
+GLOBAL 21.01  2 2.7e-05</code></pre>
+</div>
+</div>
+</section>
+<section id="riesgos-proporcionales-por-sexo" class="level2">
+<h2 class="anchored" data-anchor-id="riesgos-proporcionales-por-sexo">Riesgos proporcionales por sexo</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcoxzph</span>(<span class="fu">cox.zph</span>(modelo_cox1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="supervivencia-estimada-por-sexo" class="level2">
+<h2 class="anchored" data-anchor-id="supervivencia-estimada-por-sexo">Supervivencia estimada por sexo</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(<span class="fu">survfit</span>(modelo_cox1, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">SEXO =</span> <span class="fu">c</span>(<span class="st">"Hombre"</span>, <span class="st">"Mujer"</span>), <span class="at">EDAD =</span> <span class="fu">mean</span>(datos<span class="sc">$</span>EDAD, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))), <span class="at">data=</span>datos,</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Hombre"</span>, <span class="st">"Mujer"</span>), <span class="at">legend.title =</span> <span class="st">"Sexo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="función-de-riesgo-suavizada-por-sexo" class="level2">
+<h2 class="anchored" data-anchor-id="función-de-riesgo-suavizada-por-sexo">Función de riesgo suavizada por sexo</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(km_sexo, <span class="at">fun =</span> <span class="st">"cumhaz"</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">legend.title =</span> <span class="st">"Sexo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="función-de-riesgo-suavizada-escala-logarítmica" class="level2">
+<h2 class="anchored" data-anchor-id="función-de-riesgo-suavizada-escala-logarítmica">Función de riesgo suavizada (escala logarítmica)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Guardar el resultado de ggsurvplot</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggsurvplot</span>(km_sexo, <span class="at">fun =</span> <span class="st">"cumhaz"</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">legend.title =</span> <span class="st">"Sexo"</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar la escala logarítmica al eje Y</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>g<span class="sc">$</span>plot <span class="sc">+</span> <span class="fu">scale_y_log10</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisis_supervivencia_covid19_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="riesgo-individual-estimado-tipo-predict-pi" class="level2">
+<h2 class="anchored" data-anchor-id="riesgo-individual-estimado-tipo-predict-pi">Riesgo individual estimado (tipo <code>predict pi</code>)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Riesgo lineal predicho</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>pi_xb <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo_cox1, <span class="at">type =</span> <span class="st">"lp"</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Probabilidad tipo 1 - 0.9984^exp(xb)</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">&lt;-</span> datos <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pi =</span> pi_xb, <span class="at">di =</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.9984</span><span class="sc">^</span><span class="fu">exp</span>(pi))</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos[, <span class="fu">c</span>(<span class="st">"pi"</span>, <span class="st">"di"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+      pi       di
+   &lt;dbl&gt;    &lt;dbl&gt;
+1  1.72  0.00888 
+2  1.45  0.00682 
+3 -0.613 0.000867
+4  1.08  0.00472 
+5  0.766 0.00344 
+6  0.180 0.00191 </code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

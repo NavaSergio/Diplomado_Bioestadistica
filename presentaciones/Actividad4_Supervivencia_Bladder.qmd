@@ -1,0 +1,78 @@
+---
+title: "Actividad 4: Análisis de Supervivencia con datos de tumores vesicales"
+format: docx
+editor: visual
+author: 
+  - name: Sergio M. Nava Muñoz
+    id: sn
+    email: nava@cimat.mx
+    affiliation: 
+        - id: cimat
+          name: CIMAT
+          city: Aguascalientes
+          state: Ags
+---
+
+# Instrucciones Generales
+
+Esta tarea tiene como propósito aplicar técnicas fundamentales del análisis de supervivencia utilizando el conjunto de datos `bladder` del paquete `survival` en R. Dicho conjunto contiene información sobre pacientes con tumores vesicales, incluyendo el tiempo hasta la recurrencia del tumor y distintas covariables clínicas.
+
+Debes realizar tu análisis en un archivo Quarto (.qmd) y entregar el documento renderizado (HTML o PDF) junto con el código fuente.
+
+------------------------------------------------------------------------
+
+# Actividades a Realizar
+
+Utilizando únicamente la primera observación por paciente (`enum == 1`), desarrolla los siguientes puntos:
+
+## 1. Carga y limpieza de datos (5 puntos)
+
+-   Carga el dataset `bladder`.
+-   Filtra para quedarte con una fila por paciente (`enum == 1`).
+-   Describe brevemente las variables relevantes.
+
+## 2. Estimación de la función de supervivencia (5 puntos)
+
+-   Calcula y grafica la curva de supervivencia global utilizando Kaplan-Meier.
+-   Calcula y grafica la curva por grupo de tratamiento (`rx`), incluyendo el intervalo de confianza y tabla de riesgos.
+
+## 3. Comparación entre grupos (5 puntos)
+
+-   Realiza la prueba log-rank para comparar la supervivencia entre los grupos de tratamiento.
+
+## 4. Modelo de regresión de Cox univariado y multivariado (10 puntos)
+
+-   Ajusta un modelo de Cox con una sola variable (`rx`).
+-   Ajusta un modelo de Cox multivariado incluyendo al menos dos covariables adicionales (por ejemplo, `number` y `size`).
+-   Interpreta los coeficientes y los intervalos de confianza.
+
+## 5. Verificación del supuesto de riesgos proporcionales (5 puntos)
+
+-   Evalúa si las covariables del modelo multivariado cumplen con el supuesto de riesgos proporcionales.
+-   Incluye gráficos y una breve interpretación.
+
+## 6. Modelo estratificado (5 puntos)
+
+-   Ajusta un modelo estratificado por la variable `ID` (paciente).
+-   Comenta por qué se utilizaría un modelo estratificado en este contexto.
+
+## 7. Presentación y redacción del informe (5 puntos)
+
+-   Organiza tu documento de forma clara, con secciones bien definidas y resultados comentados.
+-   Usa gráficos adecuados, etiquetas e interpretación clara de resultados estadísticos.
+
+------------------------------------------------------------------------
+
+# Rúbrica de Evaluación (Total: 40 puntos)
+
+| Criterio                                      | Puntaje Máximo |
+|-----------------------------------------------|----------------|
+| Carga y limpieza del conjunto de datos        | 5 puntos       |
+| Estimación de Kaplan-Meier                    | 5 puntos       |
+| Comparación de grupos con prueba log-rank     | 5 puntos       |
+| Modelado de Cox univariado y multivariado     | 10 puntos      |
+| Verificación del supuesto de proporcionalidad | 5 puntos       |
+| Modelo estratificado e interpretación         | 5 puntos       |
+| Claridad, orden y explicación de resultados   | 5 puntos       |
+
+**Total: 40 puntos**
